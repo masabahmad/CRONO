@@ -129,6 +129,7 @@ int range=1;
 int old_range =1;
 int difference=0;
 int pid=0;
+int *test;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 
@@ -171,7 +172,10 @@ void* do_work(void* args)
       for(int i = 0; i < DEG; i++)
       {
         int neighbor = W_index[uu][i];
-			  //
+				
+			  if(neighbor>=N)
+					continue;
+
 			  pthread_mutex_lock(&locks[neighbor]);
 
 			    if(uu>=N)
@@ -220,20 +224,6 @@ void* do_work(void* args)
 				pid=P;
 		}
 
-	 //pthread_mutex_lock(&lock);
-	 //if(u<=N)
-     //u++;
-	 //pthread_mutex_unlock(&lock);
-	
-    /*pthread_mutex_lock(&lock);
-		if(uu>=N-1 || range>=N)
-		{   
-			//pthread_mutex_lock(&lock);
-			terminate=1;
-			//pthread_mutex_unlock(&lock);
-		} 	
-	  pthread_mutex_unlock(&lock);*/
-
 		pthread_barrier_wait(arg->barrier);
 	
 		start = old_range  +  (difference/P)*(tid);            //(tid    * range)  / (arg->P)    + old_range;
@@ -259,21 +249,26 @@ void* do_work(void* args)
 
 int main(int argc, char** argv)
 { //int mul = W_index[0][0];
-  /*if (argc != 3)
-  {
-    fprintf(stderr, "Usage: ./dijkstra <Number of Processors> <Number of Vertices>\n");
-    exit(EXIT_FAILURE);
-  }*/
-//printf("main start\n");
   // Start the simulator
   //CarbonStartSim(argc, argv);
 
+	char filename[100];
+	printf("Please Enter The Name Of The File You Would Like To Fetch\n");
+	scanf("%s", filename);
+	FILE *file0 = fopen(filename,"r");
+
+  int lines_to_check=0;
+	char c;
+	int number0;
+	int number1;
+	int starting_node = 0;
+	int previous_node = 0;
+	int check = 0;
+	int inter = -1;
+	int N = 4194304; //can be read from file if needed, this is a default upper limit
+	int DEG = 8;     //also can be reda from file if needed, upper limit here again
+
   const int P = atoi(argv[1]);
-  const int N = atoi(argv[2]);
-  const int DEG = atoi(argv[3]);
-//printf("P: %d",P);
-//printf("N: %d",N);
-//printf("DEG: %d",DEG);
 
         if (DEG > N)
         {
@@ -285,6 +280,7 @@ int main(int argc, char** argv)
   int* Q;
   posix_memalign((void**) &D, 64, N * sizeof(double));
   posix_memalign((void**) &Q, 64, N * sizeof(int));
+  posix_memalign((void**) &test, 64, N * sizeof(int));
   int d_count = N;
   pthread_barrier_t barrier;
 
@@ -301,12 +297,46 @@ int main(int argc, char** argv)
        exit(EXIT_FAILURE);
     }
   }
-  init_weights(N, DEG, W, W_index);
-  /*for(int i = 0;i<N;i++)
+
+	//printf("\nRead");
+  for(int i=0;i<N;i++)
+	{
+		for(int j=0;j<DEG;j++)
+		{
+			W[i][j] = 1000000000;
+			W_index[i][j] = INT_MAX;
+		}
+		test[i]=0;
+	}
+
+  for(c=getc(file0); c!=EOF; c=getc(file0))
   {
-        for(int j = 0;j<N;j++)
+    if(c=='\n')
+      lines_to_check++;
+
+    if(lines_to_check>3)
+    {   
+      fscanf(file0, "%d %d", &number0,&number1);
+      //printf("\n%d %d",number0,number1);
+
+      inter = test[number0]; 
+
+			W[number0][inter] = drand48();
+			W_index[number0][inter] = number1;
+			previous_node = number0;
+			test[number0]++;
+    }   
+  }
+	//printf("\nFile Read");
+
+
+
+  //init_weights(N, DEG, W, W_index);
+  /*for(int i = 0;i<10;i++)
+  {
+        for(int j = 0;j<1;j++)
         {
-                printf(" %d ",W[i][j]);
+                printf(" %f ",W[i][j]);
         }
         printf("\n");
   }*/
@@ -317,7 +347,7 @@ int main(int argc, char** argv)
 		pthread_mutex_init(&locks[i], NULL);
   
 	initialize_single_source(D, Q, 0, N);
-
+  //printf("Init");
   for(int j = 0; j < P; j++) {
     thread_arg[j].local_min  = local_min_buffer;
     thread_arg[j].global_min = &global_min_buffer;
