@@ -18,6 +18,7 @@ To run with P number of threads
   
   It will then ask for the input file, enter:
   sample.txt
-  OR any other file such as road networks from the SNAP datasets
+  OR any other file such as road networks from the SNAP datasets (e.g. roadNet-CA)
+  https://snap.stanford.edu/data/#road
 
 The executable then outputs the time in seconds that the program took to run.
