@@ -5,7 +5,7 @@ CRONO : A Benchmark Suite for Multithreaded Graph Algorithms Executing on Futuri
 This repository contains 10 Graph Benchmarks interfaced with synthetic and real world graphs.
 An in built synthetic random graph generater is included.
 Real World Graphs are also interfaced as in benchmarkreal.cc files within the folders.
-Can be easily run with the Graphite Simulator, and interfaced with performance counters (easyperf).
+Can be easily run with the Graphite Simulator, and interfaced with performance counters (easyperf, coded already included and commented out).
 
 Requirements
 ============
