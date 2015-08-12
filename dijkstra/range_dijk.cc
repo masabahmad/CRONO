@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <pthread.h>
-#include "easyperf.h"
+//#include "easyperf.h"
 //#include "carbon_user.h"
 #include <time.h>
 #include <sys/timeb.h>
@@ -336,10 +336,12 @@ int mul = 2;
 
 struct timespec requestStart, requestEnd;
 clock_gettime(CLOCK_REALTIME, &requestStart);
-         uint64_t start[4], end[4];
-         unsigned long i;
-		     perf_init(4, I7_L2_MISS, I7_L3_REFS, I7_L3_MISS, EV_INSTR);
-				 perf_read_all(start);
+
+         //For the easyperf performance counter API
+         //uint64_t start[4], end[4];
+         //unsigned long i;
+		     //perf_init(4, I7_L2_MISS, I7_L3_REFS, I7_L3_MISS, EV_INSTR);
+				 //perf_read_all(start);
 
   for(int j = 1; j < P; j++) {
     pthread_create(thread_handle+j,
@@ -353,9 +355,10 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
     pthread_join(thread_handle[j],NULL);
   }
 
-	perf_read_all(end);
-	printf("\nL2-Misses: %10lu, \nL3-Refs: %10lu, \nL3-Misses: %10lu, \nInst.: %10lu", end[0] - start[0], end[1] - start[1], end[2] - start[2], end[3] - start[3]);
-  perf_close();
+	//For the easyperf performance counter API
+	//perf_read_all(end);
+	//printf("\nL2-Misses: %10lu, \nL3-Refs: %10lu, \nL3-Misses: %10lu, \nInst.: %10lu", end[0] - start[0], end[1] - start[1], end[2] - start[2], end[3] - start[3]);
+  //perf_close();
 
 	clock_gettime(CLOCK_REALTIME, &requestEnd);
 	  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
