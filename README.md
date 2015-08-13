@@ -13,6 +13,14 @@ Requirements
 1. Linux (Tested on Ubuntu 14.04)
 2. g++ 4.6 (Tested with g++ 4.7)
 
+
+Features
+=======
+1. Ubiquitous Graph Workloads
+2. Use adjacency lists, with graph files such as those in the SNAP dataset as inputs, as well as synthetic inputs
+3. Most workloads scale to 256 threads, some scale upto 1024 threads as well
+4. Easy to compile and use
+
 Running
 =======
 
