@@ -189,7 +189,7 @@ void* do_work(void* args)
     }
 		}
 
-   //pthread_barrier_wait(arg->barrier);
+   pthread_barrier_wait(arg->barrier);
 		
 	 if(tid==0)
 		{  //pthread_mutex_lock(&lock);
