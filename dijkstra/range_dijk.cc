@@ -181,15 +181,13 @@ void* do_work(void* args)
 				D[W_index[uu][i]] = D[uu] + W[uu][i];
 				S[W_index[uu][i]] = uu;
 			}
-     Q[uu]=0;// po=u;
-		//if(W_index[uu][i]==-1)
-		 //W[uu][i]=INT_MAX;
+      Q[uu]=0;// po=u;
 	  
 			pthread_mutex_unlock(&locks[neighbor]);
     }
 		}
 
-   //pthread_barrier_wait(arg->barrier);
+   pthread_barrier_wait(arg->barrier);
 		
 	 if(tid==0)
 		{  //pthread_mutex_lock(&lock);
@@ -201,8 +199,6 @@ void* do_work(void* args)
        
 			 if(range>=N)
 				 range=N;
-       //pthread_mutex_unlock(&lock);
-			 //printf("\nold:%d new:%d",old_range,range);
 			
 			 difference = range-old_range;
 			if(difference<P)
@@ -215,20 +211,6 @@ void* do_work(void* args)
 				pid=P;
 		}
 
-	 //pthread_mutex_lock(&lock);
-	 //if(u<=N)
-     //u++;
-	 //pthread_mutex_unlock(&lock);
-	
-    /*pthread_mutex_lock(&lock);
-		if(uu>=N-1 || range>=N)
-		{   
-			//pthread_mutex_lock(&lock);
-			terminate=1;
-			//pthread_mutex_unlock(&lock);
-		} 	
-	  pthread_mutex_unlock(&lock);*/
-
 		pthread_barrier_wait(arg->barrier);
 	
 		start = old_range  +  (difference/P)*(tid);            //(tid    * range)  / (arg->P)    + old_range;
@@ -237,17 +219,11 @@ void* do_work(void* args)
 		if(stop>range)
 		 stop=range;	
 
-    //if(tid==0)
 		{ pthread_mutex_lock(&lock);
        if(start==N || uu>N-1)
 				 terminate=1;
 		} pthread_mutex_unlock(&lock);
-
-    //pthread_barrier_wait(arg->barrier);
-		
-		//printf("\n TID:%d   start:%d stop:%d terminate:%d",tid,start,stop,terminate);
 	}
-  //printf("\n %d %d",tid,terminate);
   return NULL;
 }
 
