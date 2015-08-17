@@ -8,28 +8,13 @@
 
 #define MAX            100000000
 #define INT_MAX        100000000
-// #define DEBUG              1
 #define BILLION 1E9
-
-
-int _W[8][8] =
-{
-  {0,   2,      1,      17,     MAX,    MAX,    MAX,    MAX},
-  {2,   0,      MAX,    MAX,    2,      6,      MAX,    MAX},
-  {1,   MAX,    0,      MAX,    MAX,    MAX,    MAX,    8},
-  {17,  MAX,    MAX,    0,      MAX,    2,      1,      9},
-  {MAX, 2,      MAX,    MAX,    0,      4,      MAX,    MAX},
-  {MAX, 6,      MAX,    2,      4,      0,      5,      MAX},
-  {MAX, MAX,    MAX,    1,      MAX,    5,      0,      3},
-  {MAX, MAX,    8,      9,      MAX,    MAX,    3,      0}
-};
 
 int min = INT_MAX;
 int min_index = 0;
 pthread_mutex_t lock;
 pthread_mutex_t locks[4194304];
 int u = 0;
-
 
   void init_weights(int N, int DEG, int** W, int** W_index)
   {
@@ -144,31 +129,30 @@ void* do_work(void* args)
   int P                    = arg->P;
   volatile int* Q          = arg->Q;
   int* D                   = arg->D;
-	int* S                   = arg->S;
+  int* S                   = arg->S;
   int** W                  = arg->W;
   int** W_index            = arg->W_index;
   const int N              = arg->N;
   const int DEG            = arg->DEG;
   int local_count          = N;
   int i, j, po;
-	int uu = 0;
+  int uu = 0;
 
   int a = 0;
   int i_start =  0;  //tid    * DEG / (arg->P);
   int i_stop  = 0;   //(tid+1) * DEG / (arg->P);
-	int start = 0;
-	int stop = 1;
-  //int difference =0;
+  int start = 0;
+  int stop = 1;
 
-	pthread_barrier_wait(arg->barrier);
+  pthread_barrier_wait(arg->barrier);
 
   while(terminate==0)
   {
-	  for(uu=start;uu<stop;uu++)
-		{
-    for(int i = 0; i < DEG; i++)
-    {
-      int neighbor = W_index[uu][i];
+	for(uu=start;uu<stop;uu++)
+        {
+                for(int i = 0; i < DEG; i++)
+    		{
+		        int neighbor = W_index[uu][i];
 			//
 			pthread_mutex_lock(&locks[neighbor]);
 
@@ -181,53 +165,39 @@ void* do_work(void* args)
 				D[W_index[uu][i]] = D[uu] + W[uu][i];
 				S[W_index[uu][i]] = uu;
 			}
-     Q[uu]=0;// po=u;
-		//if(W_index[uu][i]==-1)
-		 //W[uu][i]=INT_MAX;
+     			Q[uu]=0;// po=u;
+			//if(W_index[uu][i]==-1)
+		        //W[uu][i]=INT_MAX;
 	  
 			pthread_mutex_unlock(&locks[neighbor]);
-    }
-		}
+    		}
+	}
 
-   pthread_barrier_wait(arg->barrier);
+        pthread_barrier_wait(arg->barrier);
 		
-	 if(tid==0)
-		{  //pthread_mutex_lock(&lock);
-			 old_range=range;
-		   range = range*DEG;
+	if(tid==0)
+	{  //pthread_mutex_lock(&lock);
+		old_range=range;
+		range = range*DEG;
        
-			 if(old_range==1)
-				 old_range=0;
+		if(old_range==1)
+			old_range=0;
        
-			 if(range>=N)
-				 range=N;
-       //pthread_mutex_unlock(&lock);
-			 //printf("\nold:%d new:%d",old_range,range);
+		if(range>=N)
+			range=N;
+                //pthread_mutex_unlock(&lock);
+		//printf("\nold:%d new:%d",old_range,range);
 			
-			 difference = range-old_range;
-			if(difference<P)
-			{   
-					pid=difference;
-		  }   
-			else
-				  pid=P;
-			if(pid==0)
-				pid=P;
-		}
-
-	 //pthread_mutex_lock(&lock);
-	 //if(u<=N)
-     //u++;
-	 //pthread_mutex_unlock(&lock);
-	
-    /*pthread_mutex_lock(&lock);
-		if(uu>=N-1 || range>=N)
+		difference = range-old_range;
+		if(difference<P)
 		{   
-			//pthread_mutex_lock(&lock);
-			terminate=1;
-			//pthread_mutex_unlock(&lock);
-		} 	
-	  pthread_mutex_unlock(&lock);*/
+			pid=difference;
+		}   
+		else
+			pid=P;
+		if(pid==0)
+			pid=P;
+		}
 
 		pthread_barrier_wait(arg->barrier);
 	
@@ -235,15 +205,15 @@ void* do_work(void* args)
 		stop  = old_range  +  (difference/P)*(tid+1);            //((tid+1) * range)  / (arg->P)   + old_range;
 	  
 		if(stop>range)
-		 stop=range;	
+			stop=range;	
 
-    //if(tid==0)
+    		//if(tid==0)
 		{ pthread_mutex_lock(&lock);
-       if(start==N || uu>N-1)
-				 terminate=1;
+	        if(start==N || uu>N-1)
+			terminate=1;
 		} pthread_mutex_unlock(&lock);
 
-    //pthread_barrier_wait(arg->barrier);
+    		//pthread_barrier_wait(arg->barrier);
 		
 		//printf("\n TID:%d   start:%d stop:%d terminate:%d",tid,start,stop,terminate);
 	}
