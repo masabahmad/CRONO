@@ -178,7 +178,7 @@ void* do_work(void* args)
 	if(tid==0)
 	{  //pthread_mutex_lock(&lock);
 		old_range=range;
-		range = range*DEG;
+		range = range+8;
        
 		if(old_range==1)
 			old_range=0;
