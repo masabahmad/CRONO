@@ -196,7 +196,7 @@ void* do_work(void* args)
 		{
 			//range heuristic here
 			 old_range=range;
-		   range = range*2; //change this for range heuristic e.g. range = range+DEG;
+		   range = range+4; //change this for range heuristic e.g. range = range+DEG;
        
 			 if(old_range==1)
 				 old_range=0;
