@@ -342,7 +342,7 @@ for(c=getc(file0); c!=EOF; c=getc(file0))
 			else
 				inter=0;
 
-			W[number0][inter] = inter;
+			W[number0][inter] = inter+1;
 			W_index[number0][inter] = number1;
 			previous_node = number0;
     }   
@@ -414,8 +414,8 @@ for(c=getc(file0); c!=EOF; c=getc(file0))
 	//for distance values check
     for(int i = 0; i < 2097152; i++) 
 		{
-			if(test[i]==1)
-        printf(" %d ", D[i]);
+			if(D[i]!=INT_MAX)
+        printf("\ndistance(%d) = %d ", i, D[i]);
     }
     printf("\n");
 
@@ -432,7 +432,6 @@ int initialize_single_source(int*  D,
   for(int i = 0; i < N+1; i++)
   {
 		D[i] = INT_MAX;
-    D[i] = i;
     Q[i] = 1;
   }
 
