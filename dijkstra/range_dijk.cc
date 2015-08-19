@@ -115,7 +115,7 @@ int range=1;
 int old_range =1;
 int difference=0;
 int pid=0;
-int P_max = 8;
+int P_max = 64;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 

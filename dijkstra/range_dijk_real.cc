@@ -412,7 +412,7 @@ for(c=getc(file0); c!=EOF; c=getc(file0))
   //printf("\ndistance:%d \n",D[N-1]);
 
 	//for distance values check
-    for(int i = 0; i < 1000; i++) 
+    for(int i = 0; i < 2097152; i++) 
 		{
 			if(test[i]==1)
         printf(" %d ", D[i]);
