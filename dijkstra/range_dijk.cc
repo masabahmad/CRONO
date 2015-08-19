@@ -130,6 +130,7 @@ int range=1;
 int old_range =1;
 int difference=0;
 int pid=0;
+int P_max = 8;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 
@@ -153,7 +154,7 @@ void* do_work(void* args)
   int i, j, po;
 	int uu = 0;
 
-  int a = 0;
+  int cntr = 0;
   int i_start =  0;  //tid    * DEG / (arg->P);
   int i_stop  = 0;   //(tid+1) * DEG / (arg->P);
 	int start = 0;
@@ -162,6 +163,7 @@ void* do_work(void* args)
 
 	pthread_barrier_wait(arg->barrier);
 
+while(terminate==0){
   while(terminate==0)
   {
 	  for(uu=start;uu<stop;uu++)
@@ -231,22 +233,44 @@ void* do_work(void* args)
 
 		pthread_barrier_wait(arg->barrier);
 	
-		start = old_range  +  (difference/P)*(tid);            //(tid    * range)  / (arg->P)    + old_range;
-		stop  = old_range  +  (difference/P)*(tid+1);            //((tid+1) * range)  / (arg->P)   + old_range;
-	  
+		//start = old_range  +  (difference/P)*(tid);            //(tid    * range)  / (arg->P)    + old_range;
+		//stop  = old_range  +  (difference/P)*(tid+1);            //((tid+1) * range)  / (arg->P)   + old_range;
+	  start = tid * (range/P);
+		stop = (tid+1) * (range/P);
+
 		if(stop>range)
 		 stop=range;	
 
     //if(tid==0)
-		{ pthread_mutex_lock(&lock);
+		//{ pthread_mutex_lock(&lock);
        if(start==N || uu>N-1)
+			 {
 				 terminate=1;
-		} pthread_mutex_unlock(&lock);
+			 }
+		//} pthread_mutex_unlock(&lock);
 
-    //pthread_barrier_wait(arg->barrier);
+    pthread_barrier_wait(arg->barrier);
 		
 		//printf("\n TID:%d   start:%d stop:%d terminate:%d",tid,start,stop,terminate);
 	}
+	 pthread_barrier_wait(arg->barrier);
+	if(tid==0)
+	{
+		cntr++;
+		//printf("\n %d", cntr);
+		if(cntr<P_max)
+		{
+	  terminate=0;
+		old_range=1;
+		range=1;
+		difference=0;
+		pid=0;
+		}
+	}
+	start=0;
+	stop=1;
+  pthread_barrier_wait(arg->barrier);
+}
   //printf("\n %d %d",tid,terminate);
   return NULL;
 }
@@ -368,11 +392,11 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
   //CarbonDisableModels();
   //printf("\ndistance:%d \n",D[N-1]);
 
-    /*for(int i = 0; i < N; i++) {
+    for(int i = N-128; i < N; i++) {
       printf(" %d ", D[i]);
     }
     printf("\n");
-*/
+
   // Stop the simulator
   //CarbonStopSim();
   return 0;
