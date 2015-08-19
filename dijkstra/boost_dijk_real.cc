@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <limits>
+#include <exception>
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
     cout << '\n';
 
   }
-  catch (exception &err) {
+  catch (std::exception &err) {
     cout << "Error:  " << err.what() << endl;
     return 1;
   }
