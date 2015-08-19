@@ -18,7 +18,7 @@ range_dijk: range_dijk.cc
 boost_dijk_real: boost_dijk_real.cc
 
 clean:
-	rm -f $(TRGS) *.o
+	rm -f $(TRGS) *.o *.dot
 
 %: %.cc ;
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LIBS)
