@@ -7,7 +7,7 @@ LIBS += -lpthread -lrt
 
 ##BOOST_FLAGS = -I$(BOOST_PATH)/include -L$(BOOST_PATH)/lib -lboost_graph
 
-CXXFLAGS = -g $(LIBS) --std=c++11
+CXXFLAGS = -g --std=c++11
 
 all: $(TRGS)
 
@@ -19,3 +19,6 @@ boost_dijk_real: boost_dijk_real.cc
 
 clean:
 	rm -f $(TRGS) *.o
+
+%: %.cc ;
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LIBS)
