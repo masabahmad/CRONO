@@ -129,7 +129,9 @@ int range=1;
 int old_range =1;
 int difference=0;
 int pid=0;
+int P_max=8;
 int *test;
+int *test1;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 
@@ -155,7 +157,7 @@ void* do_work(void* args)
 	double DEGREE = DEG;
 	double sum = 0;
 
-  int a = 0;
+  int cntr = 0;
   int i_start =  0;  //tid    * DEG / (arg->P);
   int i_stop  = 0;   //(tid+1) * DEG / (arg->P);
 	int start = 0;
@@ -165,6 +167,7 @@ void* do_work(void* args)
 
 	pthread_barrier_wait(arg->barrier);
 
+while(terminate==0){
   while(terminate==0)
   {
 	  for(uu=start;uu<stop;uu++)
@@ -198,7 +201,7 @@ void* do_work(void* args)
 			pthread_mutex_unlock(&locks[uu]);
 		}
 
-   //pthread_barrier_wait(arg->barrier);
+   pthread_barrier_wait(arg->barrier);
 		
 	 if(tid==0)
 		{  //pthread_mutex_lock(&lock);
@@ -226,22 +229,37 @@ void* do_work(void* args)
 
 		pthread_barrier_wait(arg->barrier);
 	
-		start = old_range  +  (difference/P)*(tid);            //(tid    * range)  / (arg->P)    + old_range;
-		stop  = old_range  +  (difference/P)*(tid+1);            //((tid+1) * range)  / (arg->P)   + old_range;
-	  
+		//start = old_range  +  (difference/P)*(tid);            //(tid    * range)  / (arg->P)    + old_range;
+		//stop  = old_range  +  (difference/P)*(tid+1);            //((tid+1) * range)  / (arg->P)   + old_range;
+    start = tid * (range/P);
+		stop = (tid+1) * (range/P);
 		if(stop>range)
 		 stop=range;	
 
-    //if(tid==0)
-		{ pthread_mutex_lock(&lock);
        if(start==N || uu>N-1)
 				 terminate=1;
-		} pthread_mutex_unlock(&lock);
 
-    //pthread_barrier_wait(arg->barrier);
+    pthread_barrier_wait(arg->barrier);
 		
 		//printf("\n TID:%d   start:%d stop:%d terminate:%d",tid,start,stop,terminate);
 	}
+	pthread_barrier_wait(arg->barrier);
+	if(tid==0)
+	{
+		cntr++;
+		if(cntr<P_max)
+		{
+			terminate=0;
+			old_range=1;
+			range=1;
+			difference=0;
+			pid=0;
+		}
+	}
+	start=0;
+	stop=1;
+	pthread_barrier_wait(arg->barrier);
+}
   //printf("\n %d %d",tid,terminate);
   return NULL;
 }
@@ -281,7 +299,8 @@ int main(int argc, char** argv)
   posix_memalign((void**) &D, 64, N * sizeof(double));
   posix_memalign((void**) &Q, 64, N * sizeof(int));
   posix_memalign((void**) &test, 64, N * sizeof(int));
-  int d_count = N;
+  posix_memalign((void**) &test1, 64, N * sizeof(int));
+	int d_count = N;
   pthread_barrier_t barrier;
 
   double** W = (double**) malloc(N*sizeof(double*));
@@ -307,6 +326,7 @@ int main(int argc, char** argv)
 			W_index[i][j] = INT_MAX;
 		}
 		test[i]=0;
+		test1[i]=0;
 	}
 
   for(c=getc(file0); c!=EOF; c=getc(file0))
@@ -325,6 +345,7 @@ int main(int argc, char** argv)
 			W_index[number0][inter] = number1;
 			previous_node = number0;
 			test[number0]++;
+			test1[number0]=1; test1[number1]=1;
     }   
   }
 	//printf("\nFile Read");
@@ -389,11 +410,12 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
   //CarbonDisableModels();
   //printf("\ndistance:%d \n",D[N-1]);
 
-    /*for(int i = 0; i < N; i++) {
+    for(int i = 0; i < 100; i++) {
+			if(test1[i]==1)
       printf(" %f ", D[i]);
     }
     printf("\n");
-*/
+
   // Stop the simulator
   //CarbonStopSim();
   return 0;
