@@ -1,5 +1,7 @@
 Synthetic Graphs : pagerank.cc
 Real World File Input Graphs : pagerank_real.cc
+A detailed explanation for Synthetic approximations are located at:
+http://wwwhome.math.utwente.nl/~scheinhardtwrw/ISP2013/DeeperInsidePR.pdf
 
 To compile pagerank.cc
   g++ pagerank.cc -lm -lrt -lpthread -O2
