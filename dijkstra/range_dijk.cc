@@ -180,7 +180,7 @@ while(terminate==0){
 	if(tid==0)
 	{  //pthread_mutex_lock(&lock);
 		old_range=range;
-		range = range+8;
+		range = range*DEG;
        
 		if(old_range==1)
 			old_range=0;
