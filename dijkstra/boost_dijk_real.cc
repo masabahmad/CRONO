@@ -11,6 +11,8 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 
+//#define DISTANCE_LABELS
+
 using namespace std;
 using namespace boost;
 
@@ -20,6 +22,7 @@ typedef graph_traits < graph_t >::vertex_descriptor vertex_descriptor;
 typedef graph_traits < graph_t >::edge_descriptor edge_descriptor;
 typedef std::pair<int, int> Edge;
 
+#define BILLION 1E9
 
 void create_dot_file(const string &fn,graph_t &g,const vector<int> &distances,
                      const vertex_descriptor &src)
@@ -42,9 +45,10 @@ void create_dot_file(const string &fn,graph_t &g,const vector<int> &distances,
     graph_traits < graph_t >::vertex_descriptor
       u = source(e, g), v = target(e, g);
     dot_file << u << " -> " << v
-             << "[label=\"" << get(weightmap, e) << "\"]\n";
+             << " [label=\"" << get(weightmap, e) << "\"]\n";
   }
 
+# ifdef DISTANCE_LABELS
   if (!distances.empty()) {
     graph_traits < graph_t >::vertex_iterator vi, vend;
     for (boost::tie(vi, vend) = vertices(g); vi != vend; ++vi) {
@@ -57,6 +61,7 @@ void create_dot_file(const string &fn,graph_t &g,const vector<int> &distances,
       }
     }
   }
+# endif
  
   dot_file << "}\n";
 }
@@ -118,9 +123,17 @@ int main(int argc, char *argv[])
 
     vector<int> d(num_vertices(g));
     vertex_descriptor s = vertex(0, g);
+
+    struct timespec requestStart, requestEnd;
+    clock_gettime(CLOCK_REALTIME, &requestStart);
+
     dijkstra_shortest_paths(g,s,distance_map(&d[0]));
 
-    create_dot_file("graph.dot",g,d,s);
+    clock_gettime(CLOCK_REALTIME, &requestEnd);
+	  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
+    cout << "Elapsed time: " << accum << "s\n";
+
+    create_dot_file("bgraph.dot",g,d,s);
     
     cout << "distances:" << std::endl;
     graph_traits < graph_t >::vertex_iterator vi, vend;
