@@ -4,19 +4,20 @@ A detailed explanation for Synthetic approximations are located at:
 http://wwwhome.math.utwente.nl/~scheinhardtwrw/ISP2013/DeeperInsidePR.pdf
 
 To compile pagerank.cc
-  g++ pagerank.cc -lm -lrt -lpthread -O2
+    g++ pagerank.cc -lm -lrt -lpthread -O2
   
 To run with P number of threads, N vertices, and DEG edges per vertex
-  ./a.out P N DEG
+    ./a.out P N DEG
 
-e.g. ./a.out 2 16384 16
+e.g.
+    ./a.out 2 16384 16
 
 
 To compile range_dijk_real.cc
-  g++ pagerank_real.cc -lm -lrt -lpthread -O2
+    g++ pagerank_real.cc -lm -lrt -lpthread -O2
   
 To run with P number of threads
-  ./a.out P
+    ./a.out P
   
   It will then ask for the input file, enter:
   sample.txt
@@ -25,5 +26,5 @@ To run with P number of threads
 
 The executable then outputs the time in seconds that the program took to run.
 It also outputs a file that contains the pageranks (normalized to 1).
-One can output files at different thread counts, then use the following command to check correctness:
-'''diff file1 file2 > difference.out'''
+One can output files at different thread counts for the tested graphs, then use the following command to check correctness:
+    diff file1 file2 > difference.out
