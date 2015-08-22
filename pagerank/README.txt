@@ -1,5 +1,5 @@
 Synthetic Graphs : pagerank.cc
-Real World File Input Graphs : pagerank_real.cc
+Real World File Input Graphs (No Approximations) : pagerank_real.cc
 A detailed explanation for Synthetic approximations are located at:
 http://wwwhome.math.utwente.nl/~scheinhardtwrw/ISP2013/DeeperInsidePR.pdf
 
