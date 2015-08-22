@@ -129,7 +129,7 @@ int range=1;
 int old_range =1;
 int difference=0;
 int pid=0;
-int P_max=8;
+int P_max=64;
 int *test;
 int *test1;
 thread_arg_t thread_arg[1024];
@@ -410,11 +410,15 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
   //CarbonDisableModels();
   //printf("\ndistance:%d \n",D[N-1]);
 
-    for(int i = 0; i < 100; i++) {
+			FILE *f = fopen("file.txt", "w");
+
+    for(int i = 0; i < 1048576; i++) {
 			if(test1[i]==1)
-      printf(" %f ", D[i]);
+      fprintf(f,"%f\n", D[i]);
     }
     printf("\n");
+		fclose(f);
+
 
   // Stop the simulator
   //CarbonStopSim();
