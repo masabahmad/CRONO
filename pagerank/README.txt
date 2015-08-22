@@ -28,3 +28,4 @@ The executable then outputs the time in seconds that the program took to run.
 It also outputs a file that contains the pageranks (normalized to 1).
 One can output files at different thread counts for the tested graphs, then use the following command to check correctness:
     diff file1 file2 > difference.out
+Some very small differences might occur due to floating point round offs within the program.
