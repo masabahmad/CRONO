@@ -24,3 +24,6 @@ To run with P number of threads
   https://snap.stanford.edu/data/
 
 The executable then outputs the time in seconds that the program took to run.
+It also outputs a file that contains the pageranks (normalized to 1).
+One can output files at different thread counts, then use the following command to check correctness:
+'''diff file1 file2 > difference.out'''
