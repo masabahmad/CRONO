@@ -132,7 +132,7 @@ int difference=0;
 int pid=0;
 int *test;
 int *id;
-int P_max=256;
+int P_max=384;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 

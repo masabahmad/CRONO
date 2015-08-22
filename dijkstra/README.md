@@ -1,6 +1,8 @@
 Synthetic Graphs : range_dijk.cc
 Real World File Input Graphs : range_dijk_real.cc
 
+You can run ```make``` to create executables for each program or use the following commands below
+
 To compile range_dijk.cc
   ```g++ range_dijk.cc -lm -lrt -lpthread -O2```
   
