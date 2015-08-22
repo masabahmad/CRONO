@@ -129,7 +129,7 @@ int range=1;
 int old_range =1;
 int difference=0;
 int pid=0;
-int P_max=64;
+int iterations=64;
 int *test;
 int *test1;
 thread_arg_t thread_arg[1024];
@@ -247,7 +247,7 @@ while(terminate==0){
 	if(tid==0)
 	{
 		cntr++;
-		if(cntr<P_max)
+		if(cntr<iterations)
 		{
 			terminate=0;
 			old_range=1;
