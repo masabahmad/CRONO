@@ -196,7 +196,7 @@ void* do_work(void* args)
 				D[uu] >>= 1;
 			  ret++;
 			}*/
-			ret = D[uu]/2;
+			ret = D[uu]/3;
 			D[uu]=ret;
 			if(D[uu]>=1)
 			{
