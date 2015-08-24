@@ -1,5 +1,5 @@
 Synthetic Graphs : triangle_counting.cc
-Real World File Input Graphs : triangle_counting.cc
+Real World File Input Graphs : triangle_counting_real.cc
 
 To compile triangle_counting.cc
     ```g++ triangle_counting.cc -lm -lrt -lpthread -O2```
