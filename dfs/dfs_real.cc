@@ -134,6 +134,8 @@ int start = 64;
 int P_global = 256;
 int change = 0;
 int uu=-1;
+int *test;
+int *test1;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 
@@ -277,11 +279,23 @@ int main(int argc, char** argv)
 { //int mul = W_index[0][0];
   // Start the simulator
   //CarbonStartSim(argc, argv);
+  char filename[100];
+	printf("Please Enter The Name Of The File You Would Like To Fetch\n");
+	scanf("%s", filename);
+	FILE *file0 = fopen(filename,"r");
+
+  int lines_to_check=0;
+	char c;
+	int number0;
+	int number1;
+	int starting_node = 0;
+	int previous_node = 0;
+	int check = 0;
+	int inter = -1;
+	int N = 16384; //can be read from file if needed, this is a default upper limit
+	int DEG = 8;     //also can be reda from file if needed, upper limit here again
 
   const int P1 = atoi(argv[1]);
-  const int N = atoi(argv[2]);
-  const int DEG = atoi(argv[3]);
-  //const int change1 = atoi(argv[4]);
 
 	int P = P1;
 	P_global = P1;
@@ -318,7 +332,43 @@ int main(int argc, char** argv)
        exit(EXIT_FAILURE);
     }
   }
-  init_weights(N, DEG, W, W_index);
+for(int i=0;i<N;i++)
+	{
+		for(int j=0;j<DEG;j++)
+		{
+			W[i][j] = 1000000000;
+			W_index[i][j] = INT_MAX;
+		}
+		test[i]=0;
+		test1[i]=0;
+	}
+
+  for(c=getc(file0); c!=EOF; c=getc(file0))
+  {
+    if(c=='\n')
+      lines_to_check++;
+
+    if(lines_to_check>3)
+    {   
+      fscanf(file0, "%d %d", &number0,&number1);
+      //printf("\n%d %d",number0,number1);
+
+      inter = test[number0]; 
+
+			W[number0][inter] = drand48();
+			W_index[number0][inter] = number1;
+			previous_node = number0;
+			test[number0]++;
+			test1[number0]=1; test1[number1]=1;
+    }   
+  }
+	//printf("\nFile Read");
+
+
+
+
+
+  //init_weights(N, DEG, W, W_index);
   /*for(int i = 0;i<N;i++)
   {
         for(int j = 0;j<N;j++)
