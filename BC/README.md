@@ -1,3 +1,6 @@
+Betweenness Centrality
+======================
+
 Synthetic Graphs : BC.cc
 
 To compile BC.cc

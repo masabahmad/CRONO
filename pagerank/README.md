@@ -1,3 +1,6 @@
+PageRank
+========
+
 Synthetic Graphs : pagerank.cc
 Real World File Input Graphs (No Approximations) : pagerank_real.cc
 A detailed explanation for Synthetic approximations are located at:

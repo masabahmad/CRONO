@@ -1,3 +1,6 @@
+Parallel Dijkstra
+=================
+
 Synthetic Graphs : range_dijk.cc
 Real World File Input Graphs : range_dijk_real.cc
 

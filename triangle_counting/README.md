@@ -1,3 +1,6 @@
+Triangle Counting
+=================
+
 Synthetic Graphs : triangle_counting.cc
 Real World File Input Graphs : triangle_counting_real.cc
 
