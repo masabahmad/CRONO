@@ -6,7 +6,7 @@
 #include <list>
 using std::vector;
 using std::list;
-#include "carbon_user.h"
+//#include "carbon_user.h"
 
 // #define DEBUG           1
 #define INF             100000000
@@ -321,7 +321,7 @@ dividePartialTours(const vector<PartialTour*>& partial_tour_vec, vector<WorkQueu
 int main(int argc, char** argv)
 {
   // Start simulator
-  CarbonStartSim(argc, argv);
+  //CarbonStartSim(argc, argv);
 
   int NUM_THREADS = atoi(argv[1]);
   int NUM_CITIES  = atoi(argv[2]);
@@ -373,7 +373,7 @@ int main(int argc, char** argv)
     thread_data[i] = new ThreadData(i, work_queue_vec[i], NUM_CITIES);
 
   // Enable Graphite performance and power models
-  CarbonEnableModels();
+  //CarbonEnableModels();
 
   for (int i = 1; i < NUM_THREADS; i++)
   {
@@ -393,7 +393,7 @@ int main(int argc, char** argv)
   
 
   // Disable Graphite performance and power models
-  CarbonDisableModels();
+  //CarbonDisableModels();
 
   for (int i = 0 ; i < NUM_THREADS; i++)
   {
@@ -406,7 +406,7 @@ int main(int argc, char** argv)
   thread_data[_best_tid]->getBestTour()->print();
 
   // Stop simulator
-  CarbonStopSim();
+  //CarbonStopSim();
 
   return 0;
 }
