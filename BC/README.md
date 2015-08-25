@@ -1,6 +1,8 @@
 Betweenness Centrality
 ======================
 
+Run ```make``` to generate the required executables, then run using the syntax below
+
 Synthetic Graphs : BC.cc
 
 To compile BC.cc
