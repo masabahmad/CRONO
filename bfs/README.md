@@ -1,6 +1,8 @@
 Breadth First Search
 ==================
 
+Run ```make``` to generate the required executables, the run using the syntax below
+
 Synthetic Graphs : bfs.cc
 Real World File Input Graphs : bfs_real.cc
 

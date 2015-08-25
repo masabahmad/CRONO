@@ -1,5 +1,5 @@
 
-TRGS = range_dijk_real range_dijk boost_dijk_real
+TRGS = bfs_real bfs
 
 LIBS += -lpthread -lrt
 
@@ -7,15 +7,15 @@ LIBS += -lpthread -lrt
 
 ##BOOST_FLAGS = -I$(BOOST_PATH)/include -L$(BOOST_PATH)/lib -lboost_graph
 
-CXXFLAGS = -g --std=c++0x -O3
+CXXFLAGS = -g --std=c++0x -O2
 
 all: $(TRGS)
 
-range_dijk_real: range_dijk_real.cc
+bfs_real: bfs_real.cc
 
-range_dijk: range_dijk.cc
+bfs: bfs.cc
 
-boost_dijk_real: boost_dijk_real.cc
+##boost_dijk_real: boost_dijk_real.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot
