@@ -27,6 +27,10 @@ Running
 Checkout the Repo:
 git clone https://github.com/masabahmad/CRONO
 
+To generate executables, run ```make``` inside the CRONO directory, then run the executables for each benchmark using the syntax specified by their individual README.mds.
+
+OR
+
 To run, compile using the readme located in each folder
 
 Notice
