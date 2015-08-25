@@ -1,6 +1,8 @@
 Triangle Counting
 =================
 
+Run ```make``` to generate the required executables, then use the syntax below to run the benchmark
+
 Synthetic Graphs : triangle_counting.cc
 Real World File Input Graphs : triangle_counting_real.cc
 
