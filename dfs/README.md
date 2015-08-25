@@ -1,6 +1,8 @@
 Depth First Search
 ==================
 
+Run ```make``` to generate the required executables, then run using the syntax explained below
+
 Synthetic Graphs : dfs.cc
 Real World File Input Graphs : dfs_real.cc
 
