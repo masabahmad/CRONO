@@ -1,6 +1,8 @@
 All Pairs Shortest Path
 =======================
 
+Run ```make``` to generate the required executables, then run using the syntax explained below
+
 Synthetic Graphs : APSP.cc
 
 To compile APSP.cc
