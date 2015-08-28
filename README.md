@@ -20,6 +20,7 @@ Features
 2. Use adjacency lists, with graph files such as those in the SNAP dataset as inputs, as well as synthetic inputs
 3. Most workloads scale to 256 threads, some scale upto 1024 threads as well
 4. Easy to compile and use
+5. Generic Graph Usage, No optimizations, such as, compression or vertex/edge reordering, done of any sort, due to additional processing time taken by these operations.
 
 Running
 =======
