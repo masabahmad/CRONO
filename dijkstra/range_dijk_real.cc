@@ -28,7 +28,7 @@ int min_index = 0;
 pthread_mutex_t lock;
 
 //change the number of locks to approx or greater N
-pthread_mutex_t locks[4194304];
+pthread_mutex_t locks[2097152];
 int u = -1;
 
 
@@ -132,7 +132,7 @@ int difference=0;
 int pid=0;
 int *test;
 int *id;
-int P_max=384;
+int P_max=300;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 
@@ -183,8 +183,8 @@ while(terminate==0){
 			
 			pthread_mutex_lock(&locks[neighbor]);
 
-			if(uu>=N)
-				terminate=1;
+			//if(uu>=N)
+			//	terminate=1;
 
 			if((D[W_index[uu][i]] > (D[uu] + W[uu][i])))
 				D[W_index[uu][i]] = D[uu] + W[uu][i];
@@ -199,24 +199,24 @@ while(terminate==0){
 	 if(tid==0)
 		{
 			//range heuristic here
-			 old_range=range;
+			 //old_range=range;
 		   range = range*DEG; //change this for range heuristic e.g. range = range+DEG;
        
-			 if(old_range==1)
-				 old_range=0;
+			 //if(old_range==1)
+			//	 old_range=0;
        
 			 if(range>=N)
 				 range=N;
 			
-			 difference = range-old_range;
-			if(difference<P)
-			{   
-					pid=difference;
-		  }   
-			else
-				  pid=P;
-			if(pid==0)
-				pid=P;
+			// difference = range-old_range;
+			//if(difference<P)
+			//{   
+			//		pid=difference;
+		  //}   
+			//else
+			//	  pid=P;
+			//if(pid==0)
+			//	pid=P;
 		}
 
 		pthread_barrier_wait(arg->barrier);
@@ -245,10 +245,10 @@ while(terminate==0){
 		if(cntr<P_max)
 		{
 			terminate=0;
-			old_range=1;
+			//old_range=1;
 			range=1;
-			difference=0;
-			pid=0;
+			//difference=0;
+			//pid=0;
 		}
 	}
 	start=0;
