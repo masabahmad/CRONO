@@ -136,12 +136,15 @@ int main(int argc, char *argv[])
     create_dot_file("bgraph.dot",g,d,s);
     
     cout << "distances:" << std::endl;
+		ofstream myfile;
+		myfile.open ("boost.txt");
     graph_traits < graph_t >::vertex_iterator vi, vend;
     for (boost::tie(vi, vend) = vertices(g); vi != vend; ++vi) {
       if (d[*vi] != numeric_limits<int>::max()) {
-        cout << "distance(" << *vi << ") = " << d[*vi] << "\n";
+        myfile << "distance(" << *vi << ") = " << d[*vi] << "\n";
       }
     }
+		myfile.close();
     cout << '\n';
 
   }

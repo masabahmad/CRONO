@@ -332,8 +332,8 @@ int main(int argc, char** argv)
 	int previous_node = -1;
 	int check = 0;
 	int inter = -1;
-	int N = 4194304; //can be read from file if needed, this is a default upper limit
-	int DEG = 16;     //also can be reda from file if needed, upper limit here again
+	int N = 2097152; //can be read from file if needed, this is a default upper limit
+	int DEG = 12;     //also can be reda from file if needed, upper limit here again
 
 	if (DEG > N)
   {
@@ -488,12 +488,15 @@ for(c=getc(file0); c!=EOF; c=getc(file0))
   make_dot_graph(W,W_index,test,D,N,DEG,"rgraph.dot");
 
 	//for distance values check
+	FILE * pfile;
+	pfile = fopen("myfile.txt","w");
   printf ("distances:\n");
   for(int i = 0; i < N; i++) {
     if(D[i] != INT_MAX) {
-      printf("distance(%d) = %d\n", i, D[i]);
+      fprintf(pfile,"distance(%d) = %d\n", i, D[i]);
     }
   }
+	fclose(pfile);
   printf("\n");
 
   // Stop the simulator
