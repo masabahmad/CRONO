@@ -27,4 +27,5 @@ To run with P number of threads
   https://snap.stanford.edu/data/#road
 
 The executable then outputs the time in seconds that the program took to run.
+This parallelization can handle negative edge weights as well.
 Unlike other Graph Processing Frameworks like Ligra and Boost, we do not pre-process graphs (e.g. compression, vertex/edge reordering), and hence have a more generic implementation.
