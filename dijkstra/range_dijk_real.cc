@@ -132,7 +132,7 @@ int difference=0;
 int pid=0;
 int *test;
 int *id;
-int P_max=300;
+int P_max=256;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 
@@ -332,8 +332,8 @@ int main(int argc, char** argv)
 	int previous_node = -1;
 	int check = 0;
 	int inter = -1;
-	int N = 2097152; //can be read from file if needed, this is a default upper limit
-	int DEG = 12;     //also can be reda from file if needed, upper limit here again
+	int N = 1971278; //can be read from file if needed, this is a default upper limit
+	int DEG = 4;     //also can be reda from file if needed, upper limit here again
 
 	if (DEG > N)
   {
@@ -420,7 +420,7 @@ for(c=getc(file0); c!=EOF; c=getc(file0))
         previous_node = number0;
       }
     }   
-  }
+  } //W[2][0] = -1;
 
 
   //init_weights(N, DEG, W, W_index);
