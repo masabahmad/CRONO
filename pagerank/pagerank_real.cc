@@ -4,6 +4,7 @@
 //#include "carbon_user.h"
 #include <time.h>
 #include <sys/timeb.h>
+#include <string.h>
 
 #define MAX            100000000
 #define INT_MAX        100000000
@@ -102,7 +103,7 @@ int u = 0;
 
 
 
-int initialize_single_source(double* D, int* Q, int source, int N);
+int initialize_single_source(double* D, int* Q, int source, int N, double initial_rank);
 void relax(int u, int i, volatile int* D, int** W, int** W_index, int N);
 int get_local_min(volatile int* Q, volatile int* D, int start, int stop, int N, int** W_index, int** W, int u);
 
@@ -129,9 +130,15 @@ int range=1;
 int old_range =1;
 int difference=0;
 int pid=0;
-int iterations=64;
+//int iterations=64;
 int *test;
 int *test1;
+int *test2;
+int *test3;
+int *outlinks;
+double dp = 0;
+double *pgtmp;
+int nodecount = 0;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 
@@ -153,113 +160,75 @@ void* do_work(void* args)
   int local_count          = N;
   int i, j, po;
 	int uu = 0;
-	double r = 3; 
+	double r = 0.15;
+  double d = 0.85;	
 	double DEGREE = DEG;
 	double sum = 0;
+	double N_real = N;
 
   int cntr = 0;
-  int i_start =  0;  //tid    * DEG / (arg->P);
-  int i_stop  = 0;   //(tid+1) * DEG / (arg->P);
+  int i_start =  tid     * N / (arg->P);
+  int i_stop  =  (tid+1) * N / (arg->P);
 	int start = 0;
 	int stop = 1;
 	double PR = 0;
+	int iterations = 15;
   //int difference =0;
+  printf("\n Start");
 
 	pthread_barrier_wait(arg->barrier);
 
-while(terminate==0){
-  while(terminate==0)
-  {
-	  for(uu=start;uu<stop;uu++)
-		{
-      for(int i = 0; i < DEG; i++)
-      {
-        int neighbor = W_index[uu][i];
-				
-			  if(neighbor>=N)
-					continue;
-
-			  pthread_mutex_lock(&locks[neighbor]);
-
-			    if(uu>=N)
-				    terminate=1;
-
-					if(Q[neighbor]==0)
-						PR = D[neighbor];
-					else
-						PR = W[uu][i];
-
-			    sum = sum + PR/DEGREE;
-	  
-			  pthread_mutex_unlock(&locks[neighbor]);
-      }
-			//printf("\n%f",sum);
-			pthread_mutex_lock(&locks[uu]);
-			D[uu] = r + (1-r) * sum;
-			sum = 0;
-			Q[uu] = 0;
-			pthread_mutex_unlock(&locks[uu]);
-		}
-
-   pthread_barrier_wait(arg->barrier);
-		
-	 if(tid==0)
-		{  //pthread_mutex_lock(&lock);
-			 old_range=range;
-		   range = range*DEG;
-       
-			 if(old_range==1)
-				 old_range=0;
-       
-			 if(range>=N)
-				 range=N;
-       //pthread_mutex_unlock(&lock);
-			 //printf("\nold:%d new:%d",old_range,range);
-			
-			 difference = range-old_range;
-			if(difference<P)
-			{   
-					pid=difference;
-		  }   
-			else
-				  pid=P;
-			if(pid==0)
-				pid=P;
-		}
-
-		pthread_barrier_wait(arg->barrier);
-	
-		//start = old_range  +  (difference/P)*(tid);            //(tid    * range)  / (arg->P)    + old_range;
-		//stop  = old_range  +  (difference/P)*(tid+1);            //((tid+1) * range)  / (arg->P)   + old_range;
-    start = tid * (range/P);
-		stop = (tid+1) * (range/P);
-		if(stop>range)
-		 stop=range;	
-
-       if(start==N || uu>N-1)
-				 terminate=1;
-
-    pthread_barrier_wait(arg->barrier);
-		
-		//printf("\n TID:%d   start:%d stop:%d terminate:%d",tid,start,stop,terminate);
-	}
-	pthread_barrier_wait(arg->barrier);
-	if(tid==0)
+	while(iterations>0)
 	{
-		cntr++;
-		if(cntr<iterations)
+
+		if(tid==0)
+			dp=0;
+		pthread_barrier_wait(arg->barrier);
+
+	//for no outlinks
+	for(uu=i_start;uu<i_stop;uu++)
+	{
+		if(test3[uu]==1)
 		{
-			terminate=0;
-			old_range=1;
-			range=1;
-			difference=0;
-			pid=0;
+      pthread_mutex_lock(&lock);
+       dp = dp + d*(D[uu]/N_real);
+				//printf("\n %f %f %f %f",dp,d,D[uu],N_real);
+		  pthread_mutex_unlock(&lock);
 		}
 	}
-	start=0;
-	stop=1;
+	//printf("\n Outlinks Done %f",dp);
+
 	pthread_barrier_wait(arg->barrier);
-}
+
+	uu=0;
+
+	for(uu=i_start;uu<i_stop;uu++)
+	{
+		if(test1[uu]==1)
+		{
+    pgtmp[uu] = r;//dp + (r)/N_real;
+		//printf("\n pgtmp:%f test:%d",pgtmp[uu],test[uu]);
+		for(int j=0;j<test[uu];j++)
+		{
+      //if inlink
+			//printf("\nuu:%d id:%d",uu,W_index[uu][j]);
+			pgtmp[uu] = pgtmp[uu] + (d*D[W_index[uu][j]]/outlinks[W_index[uu][j]]);
+		}
+		}
+	}
+  //printf("\n Ranks done");
+	
+	pthread_barrier_wait(arg->barrier);
+
+	for(uu=i_start;uu<i_stop;uu++)
+	{
+		D[uu] = pgtmp[uu];
+	}
+
+	pthread_barrier_wait(arg->barrier);
+	iterations--;
+	}
+
   //printf("\n %d %d",tid,terminate);
   return NULL;
 }
@@ -271,9 +240,11 @@ int main(int argc, char** argv)
   //CarbonStartSim(argc, argv);
 
 	char filename[100];
-	printf("Please Enter The Name Of The File You Would Like To Fetch\n");
-	scanf("%s", filename);
-	FILE *file0 = fopen(filename,"r");
+	//printf("Please Enter The Name Of The File You Would Like To Fetch\n");
+	//scanf("%s", filename);
+	strcpy(filename,argv[2]);
+	//filename = argv[2];
+	FILE *f = fopen(filename,"r");
 
   int lines_to_check=0;
 	char c;
@@ -283,8 +254,8 @@ int main(int argc, char** argv)
 	int previous_node = 0;
 	int check = 0;
 	int inter = -1;
-	int N = 4194304; //can be read from file if needed, this is a default upper limit
-	int DEG = 8;     //also can be reda from file if needed, upper limit here again
+	int N = 2000000; //4194304; //can be read from file if needed, this is a default upper limit
+	int DEG = 12;     //also can be reda from file if needed, upper limit here again
 
   const int P = atoi(argv[1]);
 
@@ -300,6 +271,10 @@ int main(int argc, char** argv)
   posix_memalign((void**) &Q, 64, N * sizeof(int));
   posix_memalign((void**) &test, 64, N * sizeof(int));
   posix_memalign((void**) &test1, 64, N * sizeof(int));
+	posix_memalign((void**) &test2, 64, N * sizeof(int));
+	posix_memalign((void**) &test3, 64, N * sizeof(int));
+	posix_memalign((void**) &pgtmp, 64, N * sizeof(double));
+	posix_memalign((void**) &outlinks, 64, N * sizeof(int));
 	int d_count = N;
   pthread_barrier_t barrier;
 
@@ -317,7 +292,7 @@ int main(int argc, char** argv)
     }
   }
 
-	//printf("\nRead");
+	printf("\nRead");
   for(int i=0;i<N;i++)
 	{
 		for(int j=0;j<DEG;j++)
@@ -327,49 +302,73 @@ int main(int argc, char** argv)
 		}
 		test[i]=0;
 		test1[i]=0;
+		test2[i]=0;
+		test3[i]=0;
+		outlinks[i]=0;
 	}
+
+	int lines=0;
+	for(c=getc(f); c!=EOF; c=getc(f))
+	{
+		if(c=='\n')
+			lines++;
+	}
+	fclose(f);
+
+	FILE *file0 = fopen(filename,"r");
 
   for(c=getc(file0); c!=EOF; c=getc(file0))
   {
     if(c=='\n')
       lines_to_check++;
 
-    if(lines_to_check>3)
+    if(lines_to_check>3 && lines_to_check<lines)
     {   
       fscanf(file0, "%d %d", &number0,&number1);
-      //printf("\n%d %d",number0,number1);
 
-      inter = test[number0]; 
+      inter = test[number1]; 
 
-			W[number0][inter] = drand48();
-			W_index[number0][inter] = number1;
+			W[number0][inter] = 0; //drand48();
+			W_index[number1][inter] = number0;
 			previous_node = number0;
-			test[number0]++;
+			test[number1]++;
+			outlinks[number0]++;
 			test1[number0]=1; test1[number1]=1;
+			test2[number0]=1;
+			test3[number1]=1;
+			if(number0 > nodecount)
+				nodecount = number0;
+			if(number1 > nodecount)
+				nodecount = number1;
     }   
   }
-	//printf("\nFile Read");
+	nodecount++;
+	for(int i=0;i<N;i++)
+	{ 
+		if(test2[i]==1 && test3[i]==1)
+			test3[i]=0;
+	}
+	//printf("\n\nFile Read %d",lines_to_check);
 
-
-
-  //init_weights(N, DEG, W, W_index);
-  /*for(int i = 0;i<10;i++)
-  {
-        for(int j = 0;j<1;j++)
-        {
-                printf(" %f ",W[i][j]);
-        }
-        printf("\n");
+  // Calculate total nodes, in order to calculate an initial weight.
+  /*for(int i=0;i<N;i++) 
+	{
+    if (test1[i]==1) 
+			nodecount++;
   }*/
+	printf("Nodes: %d",nodecount);
+  N = nodecount;
 
   pthread_barrier_init(&barrier, NULL, P);
   pthread_mutex_init(&lock, NULL);
 	for(int i=0; i<N; i++)
 		pthread_mutex_init(&locks[i], NULL);
   
-	initialize_single_source(D, Q, 0, N);
-  //printf("Init");
-  for(int j = 0; j < P; j++) {
+	//double nodecount_f = nodecount;
+	initialize_single_source(D, Q, 0, N, 0.15);
+  printf("\nInit");
+  
+	for(int j = 0; j < P; j++) {
     thread_arg[j].local_min  = local_min_buffer;
     thread_arg[j].global_min = &global_min_buffer;
     thread_arg[j].Q          = Q;
@@ -410,14 +409,14 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
   //CarbonDisableModels();
   //printf("\ndistance:%d \n",D[N-1]);
 
-			FILE *f = fopen("file.txt", "w");
+			FILE *f1 = fopen("file.txt", "w");
 
-    for(int i = 0; i < 1048576; i++) {
+    for(int i = 0; i < N; i++) {
 			if(test1[i]==1)
-      fprintf(f,"%f\n", D[i]);
+      fprintf(f1,"pr(%d) = %f\n", i,D[i]);
     }
     printf("\n");
-		fclose(f);
+		fclose(f1);
 
 
   // Stop the simulator
@@ -428,15 +427,17 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
 int initialize_single_source(double*  D,
                              int*  Q,
                              int   source,
-                             int   N)
+                             int   N,
+                             double initial_rank)
 {
-  for(int i = 0; i < N+1; i++)
+  for(int i = 0; i < N; i++)
   {
-    D[i] = INT_MAX;
-    Q[i] = 1;
+    D[i] = 0.15;//initial_rank;
+		pgtmp[i] = 0.15;//initial_rank;
+    Q[i] = 0;
   }
 
-  D[source] = 0;
+  //  D[source] = 0;
   return 0;
 }
 
