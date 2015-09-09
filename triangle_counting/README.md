@@ -27,4 +27,7 @@ To run with P number of threads
   OR any other file such as road networks from the SNAP datasets (e.g. A FaceBook Graph)
   https://snap.stanford.edu/data/
 
+Test program for real graphs : tri_cnt_real_test.cc
+Run this test program with an input graph to get a triangle count, which can be compared with the parallel version.
+
 The executable then outputs the time in seconds that the program took to run, as well as the number of triangles counted.

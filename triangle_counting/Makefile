@@ -1,5 +1,5 @@
 
-TRGS = triangle_counting_real triangle_counting
+TRGS = triangle_counting_real triangle_counting tri_cnt_real_test
 
 LIBS += -lpthread -lrt
 
@@ -14,6 +14,8 @@ all: $(TRGS)
 triangle_counting_real: triangle_counting_real.cc
 
 triangle_counting: triangle_counting.cc
+
+tri_cnt_real_test: tri_cnt_real_test.cc
 
 ##boost_dijk_real: boost_dijk_real.cc
 
