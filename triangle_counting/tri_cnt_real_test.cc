@@ -280,14 +280,14 @@ int main(int argc, char** argv)
   pthread_barrier_t barrier_total;
 	pthread_barrier_t barrier;
 
-  int** W = (int**) malloc(N*sizeof(int*));
+  //int** W = (int**) malloc(N*sizeof(int*));
   int** W_index = (int**) malloc(N*sizeof(int*));
   for(int i = 0; i < N; i++)
   {
-    W[i] = (int *)malloc(sizeof(int)*N);
-    int ret = posix_memalign((void**) &W[i], 64, DEG*sizeof(int));
+    //W[i] = (int *)malloc(sizeof(int)*N);
+    //int ret = posix_memalign((void**) &W[i], 64, DEG*sizeof(int));
     int re1 = posix_memalign((void**) &W_index[i], 64, DEG*sizeof(int));
-    if (ret != 0 || re1!=0)
+    if (re1!=0)
     {
        fprintf(stderr, "Could not allocate memory\n");
        exit(EXIT_FAILURE);
