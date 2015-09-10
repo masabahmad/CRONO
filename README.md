@@ -2,6 +2,8 @@
 CRONO v0.9.1 : A Benchmark Suite for Multithreaded Graph Algorithms Executing on Futuristic Multicores
 ====================================================================
 
+[![build status](https://travis-ci.org/masabahmad/CRONO.svg?branch=master)](https://travis-ci.org/masabahmad/CRONO)
+
 This repository contains 10 Graph Benchmarks interfaced with synthetic and real world graphs.
 An in built synthetic random graph generater is included.
 Real World Graphs are also interfaced as in benchmarkreal.cc files within the folders.
