@@ -1,6 +1,6 @@
 before_script:
   - sudo apt-get update -qq
-  - sudo apt-get install libboost-thread-dev libboost-system-dev libboost-test-dev
+  - sudo apt-get install libboost-thread-dev libboost-system-dev libboost-test-dev libboost-program-options-dev
 install:
   - sudo apt-get update -qq
   - sudo apt-get install -y libboost-graph-dev
