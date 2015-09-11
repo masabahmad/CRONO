@@ -7,14 +7,17 @@ CRONO v0.9.1 : A Benchmark Suite for Multithreaded Graph Algorithms Executing on
 This repository contains 10 Graph Benchmarks interfaced with synthetic and real world graphs.
 An in built synthetic random graph generater is included.
 Real World Graphs are also interfaced as in benchmarkreal.cc files within the folders.
-Can be easily run with the Graphite Simulator, and interfaced with performance counters (easyperf, coded already included and commented out).
+Can be easily run with the Graphite Simulator, and interfaced with performance counters (easyperf, code already included and commented out).
 
 Requirements
 ============
 
 1. Linux (Tested on Ubuntu 14.04)
 2. g++ 4.6 (Tested with g++ 4.7)
+3. Boost Graph Library 1.55.0
 
+To install the Boost Graph Library, do:
+```sudo apt-get install libboost-thread-dev libboost-system-dev libboost-test-dev```
 
 Features
 =======
@@ -28,7 +31,7 @@ Running
 =======
 
 Checkout the Repo:
-git clone https://github.com/masabahmad/CRONO
+````git clone https://github.com/masabahmad/CRONO```
 
 To generate executables, run ```make``` inside the CRONO directory, then run the executables for each benchmark using the syntax specified by their individual README.mds.
 
