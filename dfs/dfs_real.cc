@@ -292,8 +292,8 @@ int main(int argc, char** argv)
 	int previous_node = 0;
 	int check = 0;
 	int inter = -1;
-	int N = 16384; //can be read from file if needed, this is a default upper limit
-	int DEG = 8;     //also can be reda from file if needed, upper limit here again
+	int N = 3000000; //can be read from file if needed, this is a default upper limit
+	int DEG = 16;     //also can be reda from file if needed, upper limit here again
 
   const int P1 = atoi(argv[1]);
 
@@ -315,18 +315,20 @@ int main(int argc, char** argv)
   int* Q;
   //posix_memalign((void**) &D, 64, N * sizeof(int));
   posix_memalign((void**) &Q, 64, N * sizeof(int));
-  int d_count = N;
+  posix_memalign((void**) &test, 64, N * sizeof(int));
+	posix_memalign((void**) &test1, 64, N * sizeof(int));
+	int d_count = N;
   pthread_barrier_t barrier_total;
 	pthread_barrier_t barrier;
 
-  int** W = (int**) malloc(N*sizeof(int*));
+  //int** W = (int**) malloc(N*sizeof(int*));
   int** W_index = (int**) malloc(N*sizeof(int*));
   for(int i = 0; i < N; i++)
   {
-    W[i] = (int *)malloc(sizeof(int)*N);
-    int ret = posix_memalign((void**) &W[i], 64, DEG*sizeof(int));
+    //W[i] = (int *)malloc(sizeof(int)*N);
+    //int ret = posix_memalign((void**) &W[i], 64, DEG*sizeof(int));
     int re1 = posix_memalign((void**) &W_index[i], 64, DEG*sizeof(int));
-    if (ret != 0 || re1!=0)
+    if (re1!=0)
     {
        fprintf(stderr, "Could not allocate memory\n");
        exit(EXIT_FAILURE);
@@ -336,7 +338,7 @@ for(int i=0;i<N;i++)
 	{
 		for(int j=0;j<DEG;j++)
 		{
-			W[i][j] = 1000000000;
+			//W[i][j] = 1000000000;
 			W_index[i][j] = INT_MAX;
 		}
 		test[i]=0;
@@ -355,14 +357,14 @@ for(int i=0;i<N;i++)
 
       inter = test[number0]; 
 
-			W[number0][inter] = drand48();
+			//W[number0][inter] = drand48();
 			W_index[number0][inter] = number1;
 			previous_node = number0;
 			test[number0]++;
 			test1[number0]=1; test1[number1]=1;
     }   
   }
-	//printf("\nFile Read");
+	printf("\nFile Read");
 
 
 
@@ -408,6 +410,7 @@ int mul = 2;
   // Enable performance and energy models
   //CarbonEnableModels();
 
+printf("\nStarting.....");
 struct timespec requestStart, requestEnd;
 clock_gettime(CLOCK_REALTIME, &requestStart);
 
@@ -425,7 +428,7 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
     pthread_join(thread_handle[j],NULL);
   }
 
-	printf("Threads Joined!");
+	printf("\nThreads Joined!");
 
 	clock_gettime(CLOCK_REALTIME, &requestEnd);
 	  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
@@ -450,7 +453,7 @@ int initialize_single_source(//int*  D,
                              int   source,
                              int   N)
 {
-  for(int i = 0; i < N+1; i++)
+  for(int i = 0; i < N; i++)
   {
     //D[i] = INT_MAX;
     Q[i] = 1;
