@@ -332,8 +332,8 @@ int main(int argc, char** argv)
 	int previous_node = -1;
 	int check = 0;
 	int inter = -1;
-	int N = 1971278; //can be read from file if needed, this is a default upper limit
-	int DEG = 4;     //also can be reda from file if needed, upper limit here again
+	int N = 2000000; //can be read from file if needed, this is a default upper limit
+	int DEG = 16;     //also can be reda from file if needed, upper limit here again
 
 	if (DEG > N)
   {
