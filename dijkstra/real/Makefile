@@ -1,5 +1,5 @@
 
-TRGS = dijk_real dijk_synthetic
+TRGS = dijk_real
 
 LIBS += -lpthread -lrt
 
@@ -12,8 +12,6 @@ CXXFLAGS = -g --std=c++0x -O3
 all: $(TRGS)
 
 dijk_real: dijk_real.cc
-
-dijk_synthetic: dijk_synthetic.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot
