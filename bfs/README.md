@@ -28,3 +28,5 @@ To run with P number of threads
   https://snap.stanford.edu/data/
 
 The executable then outputs the time in seconds that the program took to run.
+
+The test folder contains a file that tests the bfs output.
