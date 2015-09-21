@@ -1,13 +1,11 @@
 
-TRGS = triangle_counting_real triangle_counting_synthetic
+TRGS = triangle_counting_synthetic
 
 LIBS += -lpthread -lrt
 
 CXXFLAGS = -g --std=c++0x -O2
 
 all: $(TRGS)
-
-triangle_counting_real: triangle_counting_real.cc
 
 triangle_counting_synthetic: triangle_counting_synthetic.cc
 
