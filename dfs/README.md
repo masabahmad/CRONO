@@ -3,24 +3,24 @@ Depth First Search
 
 Run ```make``` to generate the required executables, then run using the syntax explained below
 
-Synthetic Graphs : dfs.cc
+Synthetic Graphs : dfs_synthetic.cc
 Real World File Input Graphs : dfs_real.cc
 
-To compile dfs.cc
-    ```g++ dfs.cc -lm -lrt -lpthread -O2```
+To compile dfs_synthetic.cc
+    ```g++ dfs_synthetic.cc -o dfs_synthetic -lm -lrt -lpthread -O2```
   
 To run with P number of threads, N vertices, and DEG edges per vertex
-    ```./a.out P N DEG```
+    ```./dfs_synthetic P N DEG```
 
 e.g.
-    ```./a.out 2 16384 16```
+    ```./dfs_synthetic 2 16384 16```
 
 
 To compile dfs_real.cc
-    ```g++ dfs_real.cc -lm -lrt -lpthread -O2```
+    ```g++ dfs_real.cc -o dfs_real -lm -lrt -lpthread -O2```
   
 To run with P number of threads
-    ```./a.out P```
+    ```./dfs_real P```
   
   It will then ask for the input file, enter:
   sample.txt
@@ -28,3 +28,5 @@ To run with P number of threads
   https://snap.stanford.edu/data/
 
 The executable then outputs the time in seconds that the program took to run.
+
+The test folder contains a program that checks for the correct dfs output.
