@@ -1,5 +1,5 @@
 
-TRGS = pagerank_real pagerank_synthetic
+TRGS = pagerank_real
 
 LIBS += -lpthread -lrt
 
@@ -8,8 +8,6 @@ CXXFLAGS = -g --std=c++0x -O2
 all: $(TRGS)
 
 pagerank_real: pagerank_real.cc
-
-pagerank_synthetic: pagerank_synthetic.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot
