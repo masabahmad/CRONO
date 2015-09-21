@@ -1,11 +1,7 @@
 
-TRGS = triangle_counting_real triangle_counting tri_cnt_real_test
+TRGS = triangle_counting_real triangle_counting_synthetic
 
 LIBS += -lpthread -lrt
-
-##BOOST_PATH = /run/pkg/boost-/1.53.0-gcc_4.7.3
-
-##BOOST_FLAGS = -I$(BOOST_PATH)/include -L$(BOOST_PATH)/lib -lboost_graph
 
 CXXFLAGS = -g --std=c++0x -O2
 
@@ -13,11 +9,7 @@ all: $(TRGS)
 
 triangle_counting_real: triangle_counting_real.cc
 
-triangle_counting: triangle_counting.cc
-
-tri_cnt_real_test: tri_cnt_real_test.cc
-
-##boost_dijk_real: boost_dijk_real.cc
+triangle_counting_synthetic: triangle_counting_synthetic.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot
