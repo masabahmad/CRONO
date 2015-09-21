@@ -48,6 +48,9 @@ If you use these programs please cite:
 
 Masab Ahmad (UConn), Farrukh Hijaz (UConn), Qingchuan Shi (UConn), Omer Khan (UConn), CRONO : A Benchmark Suite for Multithreaded Graph Algorithms Executing on Futuristic Multicores, 2015 IEEE International Symposium on Workload Characterization (IISWC), Oct 2015, Atlanta, Georgia, USA.
 
+Paper Located At:
+http://www.engr.uconn.edu/~omer.khan/pubs/crono-iiswc15.pdf
+
 Contact
 =======
 
