@@ -15,6 +15,7 @@ Requirements
 1. Linux (Tested on Ubuntu 14.04)
 2. g++ 4.6 (Tested with g++ 4.7)
 3. Boost Graph Library 1.55.0
+4. The ```pthread``` Library
 
 To install the Boost Graph Library, do:
 ```sudo apt-get install libboost-thread-dev libboost-system-dev libboost-test-dev```
