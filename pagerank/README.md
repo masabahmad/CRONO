@@ -3,7 +3,8 @@ PageRank
 
 Run ```make``` to generate executables, then use the syntax explained below for the inputs
 
-Synthetic Graphs : pagerank.cc
+Synthetic Graphs : pagerank_synthetic.cc
+
 Real World File Input Graphs (No Approximations) : pagerank_real.cc
 
 **Synthetic Graphs**
