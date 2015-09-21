@@ -6,6 +6,8 @@ Run ```make``` to generate executables, then use the syntax explained below for 
 Synthetic Graphs : pagerank.cc
 Real World File Input Graphs (No Approximations) : pagerank_real.cc
 
+**Synthetic Graphs**
+
 A detailed explanation for Synthetic approximations are located at:
 http://wwwhome.math.utwente.nl/~scheinhardtwrw/ISP2013/DeeperInsidePR.pdf
 
@@ -18,6 +20,7 @@ To run pagerank.cc (Synthetic) with P number of threads, N vertices, and DEG edg
 e.g.
     ```./pagerank_synthetic 2 16384 16```
 
+**Real Graphs**
 
 To compile pagerank_real.cc
     ```g++ pagerank_real.cc -o pagerank_real -lm -lrt -lpthread -O2```
@@ -29,6 +32,8 @@ To run with P number of threads
   sample.txt
   OR any other file such as road networks from the SNAP datasets (e.g. A FaceBook Graph)
   https://snap.stanford.edu/data/
+
+**Notes**
 
 The test folder also compiles a test boost program that can be used to verify our PageRank programs. 
 
