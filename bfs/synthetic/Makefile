@@ -1,13 +1,11 @@
 
-TRGS = bfs_real bfs_synthetic
+TRGS = bfs_synthetic
 
 LIBS += -lpthread -lrt
 
 CXXFLAGS = -g --std=c++0x -O2
 
 all: $(TRGS)
-
-bfs_real: bfs_real.cc
 
 bfs_synthetic: bfs_synthetic.cc
 
