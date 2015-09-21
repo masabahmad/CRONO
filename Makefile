@@ -1,4 +1,4 @@
-SUBDIRS= APSP BC dfs bfs dijkstra pagerank triangle_counting tsp
+SUBDIRS= APSP BC dfs bfs dijkstra pagerank triangle_counting tsp community connected_components
 
 CRONO_DIR=$(PWD)
 
