@@ -3,7 +3,8 @@ Parallel Dijkstra
 
 You can run ```make``` to create executables for each program in each subdirectory (real,synthetic,test) and use the commands outlined in each respective Markdown to run.
 
-These programs parallelize the O(V^2) version of Dijkstra's Algorithm.
+These programs parallelize the O(V^2) version of Dijkstra's Algorithm, given by Yen's Optimization.
+Paper: J.Y.Yen, "An algorithm for finding shortest routes from all source nodes to a given destination in general networks", Quarterly of Applied Mathematics 01/1970.
 
 **Notes**
 
