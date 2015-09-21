@@ -1,5 +1,5 @@
 
-TRGS = range_dijk_real range_dijk boost_dijk_real
+TRGS = dijk_real dijk_synthetic
 
 LIBS += -lpthread -lrt
 
@@ -11,11 +11,9 @@ CXXFLAGS = -g --std=c++0x -O3
 
 all: $(TRGS)
 
-range_dijk_real: range_dijk_real.cc
+dijk_real: dijk_real.cc
 
-range_dijk: range_dijk.cc
-
-boost_dijk_real: boost_dijk_real.cc
+dijk_synthetic: dijk_synthetic.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot
