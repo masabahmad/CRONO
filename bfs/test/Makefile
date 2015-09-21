@@ -1,5 +1,5 @@
 
-TRGS = bfs_real bfs_synthetic
+TRGS = bfs_test
 
 LIBS += -lpthread -lrt
 
@@ -7,9 +7,7 @@ CXXFLAGS = -g --std=c++0x -O2
 
 all: $(TRGS)
 
-bfs_real: bfs_real.cc
-
-bfs_synthetic: bfs_synthetic.cc
+bfs_test: bfs_test.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot
