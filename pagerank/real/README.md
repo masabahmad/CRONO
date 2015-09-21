@@ -3,23 +3,7 @@ PageRank
 
 Run ```make``` to generate executables, then use the syntax explained below for the inputs
 
-Synthetic Graphs : pagerank_synthetic.cc
-
 Real World File Input Graphs (No Approximations) : pagerank_real.cc
-
-**Synthetic Graphs**
-
-A detailed explanation for Synthetic approximations are located at:
-http://wwwhome.math.utwente.nl/~scheinhardtwrw/ISP2013/DeeperInsidePR.pdf
-
-To compile pagerank.cc
-    ```g++ pagerank_synthetic.cc -o pagerank_synthetic -lm -lrt -lpthread -O2```
-  
-To run pagerank.cc (Synthetic) with P number of threads, N vertices, and DEG edges per vertex
-    ```./pagerank_synthetic P N DEG```
-
-e.g.
-    ```./pagerank_synthetic 2 16384 16```
 
 **Real Graphs**
 
@@ -35,8 +19,6 @@ To run with P number of threads
   https://snap.stanford.edu/data/
 
 **Notes**
-
-The test folder also compiles a test boost program that can be used to verify our PageRank programs. 
 
 The executable then outputs the time in seconds that the program took to run.
 It also outputs a file that contains the pageranks (normalized to 1).
