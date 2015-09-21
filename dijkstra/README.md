@@ -1,25 +1,25 @@
 Parallel Dijkstra
 =================
 
-Synthetic Graphs : range_dijk.cc
-Real World File Input Graphs : range_dijk_real.cc
+Synthetic Graphs : dijk_synthetic.cc
+Real World File Input Graphs : dijk_real.cc
 
 You can run ```make``` to create executables for each program or use the following commands below
 
 To compile range_dijk.cc
-  ```g++ range_dijk.cc -lm -lrt -lpthread -O2```
+  ```g++ dijk_synthetic.cc -o dijk_synthetic -lm -lrt -lpthread -O2```
   
 To run with P number of threads, N vertices, and DEG edges per vertex
-  ```./a.out P N DEG```
+  ```./dijk_synthetic P N DEG```
 
-e.g. ```./a.out 2 16384 16```
+e.g. ```./dijk_synthetic 2 16384 16```
 
 
-To compile range_dijk_real.cc
-  ```g++ range_dijk_real.cc -lm -lrt -lpthread -O2```
+To compile dijk_real.cc
+  ```g++ dijk_real.cc -o dijk_real -lm -lrt -lpthread -O2```
   
 To run with P number of threads
-  ```./a.out P```
+  ```./dijk_real P```
   
   It will then ask for the input file, enter:
   sample.txt
