@@ -3,6 +3,8 @@ Travelling Salesman Problem
 
 Run ```make``` to generate the required executable, then run using the syntax below
 
+**Synthetic Graphs**
+
 Synthetic Graphs : tsp_synthetic.cc
 
 To compile tsp_synthetic.cc
@@ -13,6 +15,8 @@ To run with P number of threads, C cities
 
 e.g.
     ```./tsp_synthetic 2 16```
+
+**Notes**
 
 The executable then outputs the time in seconds that the program took to run.
 
