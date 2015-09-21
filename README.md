@@ -55,3 +55,8 @@ Contact
 =======
 
 masab.ahmad@uconn.edu
+
+Acknowledgements
+================
+
+We thank Hamza Omar (UConn) and Brian Kahne (Freescale Semiconductor) for their help in testing and running these programs.
