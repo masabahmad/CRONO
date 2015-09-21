@@ -7,7 +7,7 @@ You can run ```make``` to create executables for each program or use the followi
 
 **Synthetic Graphs**
 
-To compile range_dijk.cc
+To compile dijk_synthetic.cc
   ```g++ dijk_synthetic.cc -o dijk_synthetic -lm -lrt -lpthread -O2```
   
 To run with P number of threads, N vertices, and DEG edges per vertex
