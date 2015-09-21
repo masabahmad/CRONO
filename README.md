@@ -1,5 +1,5 @@
 
-CRONO v0.9.2 : A Benchmark Suite for Multithreaded Graph Algorithms Executing on Futuristic Multicores
+CRONO v0.9.6 : A Benchmark Suite for Multithreaded Graph Algorithms Executing on Futuristic Multicores
 ====================================================================
 
 [![build status](https://travis-ci.org/masabahmad/CRONO.svg?branch=master)](https://travis-ci.org/masabahmad/CRONO)
@@ -25,7 +25,8 @@ Features
 2. Use adjacency lists, with graph files such as those in the SNAP dataset as inputs, as well as synthetic inputs
 3. Most workloads scale to 256 threads, some scale upto 1024 threads as well
 4. Easy to compile and use
-5. Generic Graph Usage, No Optimizations/Pre-Processing, such as, Graph Compression or Vertex/Edge reordering, done of any sort, due to additional overheads taken by these operations.
+5. All benchmarks contain test programs to check for inaccurcies.
+6. Generic Graph Usage, No Optimizations/Pre-Processing, such as, Graph Compression or Vertex/Edge reordering, done of any sort, due to additional overheads taken by these operations.
 
 Running
 =======
