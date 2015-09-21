@@ -1,13 +1,11 @@
 
-TRGS = dfs_real dfs_synthetic
+TRGS = dfs_synthetic
 
 LIBS += -lpthread -lrt
 
 CXXFLAGS = -g --std=c++0x -O2
 
 all: $(TRGS)
-
-dfs_real: dfs_real.cc
 
 dfs_synthetic: dfs_synthetic.cc
 
