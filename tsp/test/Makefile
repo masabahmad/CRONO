@@ -1,5 +1,5 @@
 
-TRGS = tsp_synthetic
+TRGS = tsp_test
 
 LIBS += -lpthread -lrt
 
@@ -7,7 +7,7 @@ CXXFLAGS = -g --std=c++0x -O2
 
 all: $(TRGS)
 
-tsp_synthetic: tsp_synthetic.cc
+tsp_test: tsp_test.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot
