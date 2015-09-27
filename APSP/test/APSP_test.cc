@@ -120,7 +120,7 @@ typedef struct
   int       N;
   int       DEG;
   pthread_barrier_t* barrier_total;
-	pthread_barrier_t* barrier;
+  pthread_barrier_t* barrier;
 } thread_arg_t;
 
 int local_min_buffer[1024];
@@ -153,64 +153,54 @@ void* do_work(void* args)
   const int DEG            = arg->DEG;
   int local_count          = N;
   int i, j, po;
-	int uu = 0;
-	P_global = start;
+  int uu = 0;
+  P_global = start;
 
-	int* D;
-	int* Q;
+  int* D;
+  int* Q;
 
-	posix_memalign((void**) &D, 64, N * sizeof(int));
-	posix_memalign((void**) &Q, 64, N * sizeof(int));
+  posix_memalign((void**) &D, 64, N * sizeof(int));
+  posix_memalign((void**) &Q, 64, N * sizeof(int));
 
-	for(int i=0;i<N;i++)
-	{
-		D[i] = INT_MAX;
-		Q[i] = 1;
-	}
-	D[0]=0;
+  for(int i=0;i<N;i++)
+  {
+    D[i] = INT_MAX;
+    Q[i] = 1;
+  }
+  D[0]=0;
 
   int a = 0;
   int i_start =  0;  //tid    * DEG / (arg->P);
   int i_stop  = 0;   //(tid+1) * DEG / (arg->P);
-	int start = 0;
-	int stop = 1;
-	int node = 0;
+  int start = 0;
+  int stop = 1;
+  int node = 0;
 
-	pthread_barrier_wait(arg->barrier_total);
+  pthread_barrier_wait(arg->barrier_total);
 
   while(node<N)
   {
-
      pthread_mutex_lock(&lock); 
-		 next_source++;
-		 node = next_source;
-		 //printf("\n %d",next_source);
-		 pthread_mutex_unlock(&lock);
+     next_source++;
+     node = next_source;
+     //printf("\n %d",next_source);
+     pthread_mutex_unlock(&lock);
 
-	    for(uu=0;uu<N;uu++)
-		  {
-        for(int i = 0; i < DEG; i++)
-        {
-
-			    if((D[W_index[uu][i]] > (D[uu] + W[uu][i])))
-				    D[W_index[uu][i]] = D[uu] + W[uu][i];
+     for(uu=0;uu<N;uu++)
+     {
+       for(int i = 0; i < DEG; i++)
+       {
+         if((D[W_index[uu][i]] > (D[uu] + W[uu][i])))
+           D[W_index[uu][i]] = D[uu] + W[uu][i];
           
-					Q[uu]=0;// po=u;
-        }
-		  }
+         Q[uu]=0;// po=u;
+       }
+      }
+  }
 
-	}
+  pthread_barrier_wait(arg->barrier_total);
 
-	pthread_barrier_wait(arg->barrier_total);
-  //printf("\n tid:%d",tid);
-
-	/*for(int i=0;i<N;i++)
-	{
-		printf(" %d ",D[i]);
-	}*/
-
-
-	return NULL;
+  return NULL;
 }
 
 
@@ -240,7 +230,7 @@ int main(int argc, char** argv)
   //posix_memalign((void**) &Q, 64, N * sizeof(int));
   int d_count = N;
   pthread_barrier_t barrier_total;
-	pthread_barrier_t barrier;
+  pthread_barrier_t barrier;
 
   int** W = (int**) malloc(N*sizeof(int*));
   int** W_index = (int**) malloc(N*sizeof(int*));
@@ -266,14 +256,13 @@ int main(int argc, char** argv)
   }*/
 
   pthread_barrier_init(&barrier_total, NULL, P1);
-	pthread_barrier_init(&barrier, NULL, P1);
-
+  pthread_barrier_init(&barrier, NULL, P1);
   pthread_mutex_init(&lock, NULL);
-	
-	for(int i=0; i<2097152; i++)
-		pthread_mutex_init(&locks[i], NULL);
+
+  for(int i=0; i<2097152; i++)
+    pthread_mutex_init(&locks[i], NULL);
   
-	//initialize_single_source(D, Q, 0, N);
+  //initialize_single_source(D, Q, 0, N);
 
   for(int j = 0; j < P1; j++) {
     thread_arg[j].local_min  = local_min_buffer;
