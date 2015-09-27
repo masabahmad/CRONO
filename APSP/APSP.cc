@@ -153,30 +153,30 @@ void* do_work(void* args)
   const int DEG            = arg->DEG;
   int local_count          = N;
   int i, j, po;
-	int uu = 0;
-	P_global = start;
+  int uu = 0;
+  P_global = start;
 
-	int* D;
-	int* Q;
+  int* D;
+  int* Q;
 
-	posix_memalign((void**) &D, 64, N * sizeof(int));
-	posix_memalign((void**) &Q, 64, N * sizeof(int));
+  posix_memalign((void**) &D, 64, N * sizeof(int));
+  posix_memalign((void**) &Q, 64, N * sizeof(int));
 
-	for(int i=0;i<N;i++)
-	{
-		D[i] = INT_MAX;
-		Q[i] = 1;
-	}
-	D[0]=0;
+  for(int i=0;i<N;i++)
+  {
+  	D[i] = INT_MAX;
+  	Q[i] = 1;
+  }
+  D[0]=0;
 
   int a = 0;
   int i_start =  0;  //tid    * DEG / (arg->P);
   int i_stop  = 0;   //(tid+1) * DEG / (arg->P);
-	int start = 0;
-	int stop = 1;
-	int node = 0;
+  int start = 0;
+  int stop = 1;
+  int node = 0;
 
-	pthread_barrier_wait(arg->barrier_total);
+  pthread_barrier_wait(arg->barrier_total);
 
   while(node<N)
   {
@@ -184,33 +184,23 @@ void* do_work(void* args)
      pthread_mutex_lock(&lock); 
 		 next_source++;
 		 node = next_source;
-		 //printf("\n %d",next_source);
 		 pthread_mutex_unlock(&lock);
 
-	    for(uu=0;uu<N;uu++)
-		  {
+	   for(uu=0;uu<N;uu++)
+		 {
         for(int i = 0; i < DEG; i++)
         {
-
 			    if((D[W_index[uu][i]] > (D[uu] + W[uu][i])))
 				    D[W_index[uu][i]] = D[uu] + W[uu][i];
           
-					Q[uu]=0;// po=u;
+				 Q[uu]=0;// po=u;
         }
-		  }
+		 }
+  }
 
-	}
+  pthread_barrier_wait(arg->barrier_total);
 
-	pthread_barrier_wait(arg->barrier_total);
-  //printf("\n tid:%d",tid);
-
-	/*for(int i=0;i<N;i++)
-	{
-		printf(" %d ",D[i]);
-	}*/
-
-
-	return NULL;
+  return NULL;
 }
 
 
