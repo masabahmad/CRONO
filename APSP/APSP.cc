@@ -195,7 +195,7 @@ void* do_work(void* args)
           
 				 Q[uu]=0;// po=u;
         }
-		 }
+     }
   }
 
   pthread_barrier_wait(arg->barrier_total);
