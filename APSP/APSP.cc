@@ -190,10 +190,10 @@ void* do_work(void* args)
 		 {
         for(int i = 0; i < DEG; i++)
         {
-			    if((D[W_index[uu][i]] > (D[uu] + W[uu][i])))
-				    D[W_index[uu][i]] = D[uu] + W[uu][i];
+          if((D[W_index[uu][i]] > (D[uu] + W[uu][i])))
+            D[W_index[uu][i]] = D[uu] + W[uu][i];
           
-				 Q[uu]=0;// po=u;
+          Q[uu]=0;// po=u;
         }
      }
   }
