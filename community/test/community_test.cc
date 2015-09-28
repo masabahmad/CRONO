@@ -93,20 +93,20 @@ int initialize_single_source(int* D, float* Q, int source, int N);
 typedef struct
 {
   float*      Q;
-  int*      D;
+  int*        D;
   float**     W;
-  int**     W_index;
-	float*      mod_gain;
-	float*      total_mod_gain;
-	int*      comm;
-	float*      C;
-  int*      d_count;
-  int       tid;
-  int       P;
-  int       N;
-  int       DEG;
+  int**       W_index;
+  float*      mod_gain;
+  float*      total_mod_gain;
+  int*        comm;
+  float*      C;
+  int*        d_count;
+  int         tid;
+  int         P;
+  int         N;
+  int         DEG;
   pthread_barrier_t* barrier_total;
-	pthread_barrier_t* barrier;
+  pthread_barrier_t* barrier;
 } thread_arg_t;
 
 //Global Variables
@@ -139,145 +139,141 @@ void* do_work(void* args)
   int* D                   = arg->D;
   float** W                  = arg->W;
   int** W_index            = arg->W_index;
-	float* mod_gain         = arg->mod_gain;
-	float* total_mod_gain   = arg->total_mod_gain;
-	int* comm             = arg->comm;
-	float* C                = arg->C;
+  float* mod_gain         = arg->mod_gain;
+  float* total_mod_gain   = arg->total_mod_gain;
+  int* comm             = arg->comm;
+  float* C                = arg->C;
   const int N              = arg->N;
   const int DEG            = arg->DEG;
   int local_count          = 0;
-	int uu = 0;
-	float modularity = 0;
-	P = start;
-	int i;
-	int index = 0;
-	int index_id = 0;
-	float sum_tot = 0;
-	float sum_in = 0;
+  int uu = 0;
+  float modularity = 0;
+  P = start;
+  int i;
+  int index = 0;
+  int index_id = 0;
+  float sum_tot = 0;
+  float sum_in = 0;
 
-	float total_edges = N*DEG;
-	float mod_gain_temp = 0;
-	float mod_gain_temp_temp = 0;
-	float inv_total_edges = 2/total_edges;
+  float total_edges = N*DEG;
+  float mod_gain_temp = 0;
+  float mod_gain_temp_temp = 0;
+  float inv_total_edges = 2/total_edges;
 
   int a = 0;
   int start =  0;  //tid    * DEG / (arg->P);
   int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
-	start =  tid    *  (N) / (P);
-	stop =  (tid+1) *  (N) / (P);
+  start =  tid    *  (N) / (P);
+  stop =  (tid+1) *  (N) / (P);
 
-	//put each node in its own community
-	
-	//pthread_barrier_wait(arg->barrier_total);
+  //put each node in its own community
 
-	for(uu=start;uu<stop;uu++)
-	{
-		for(int i=0;i<DEG;i++)
-		{
-       comm[uu] = uu;
-		}
-	}
+  //pthread_barrier_wait(arg->barrier_total);
 
-	uu = 0;
-	up = 0;
-	
-	pthread_barrier_wait(arg->barrier_total);
+  for(uu=start;uu<stop;uu++)
+  {
+    for(int i=0;i<DEG;i++)
+    {
+      comm[uu] = uu;
+    }
+  }
 
-	//static for now
-	//can be done more for dynamic, need a while loop here for thay
-  //initialization of communities
-	while(local_count<iterations)	
-	{
-	    for(uu=start;uu<stop;uu++)
-			//while(uu<N-2)
-	    {
-				//pthread_mutex_lock(&lock);
-				//up++;
-				//uu = up;
-				//printf(" %d ",uu);
-				//pthread_mutex_unlock(&lock);
-        
-				for(i = 0; i < DEG; i++)
-        {
-			    //pthread_mutex_lock(&locks[neighbor]);
+  uu = 0;
+  up = 0;
 
-          int tempo = (inv_total_edges)*(inv_total_edges);
-					tempo = tempo*2;
-					int subtr = sum_tot*W[uu][i];
-					subtr = subtr*tempo;
-					subtr = W[uu][i] - subtr;
-					mod_gain_temp_temp = (inv_total_edges)*(subtr);
-					//total_mod_gain[uu] = total_mod_gain[uu] + mod_gain[uu];
-
-          if(mod_gain_temp_temp>mod_gain_temp) 
-					{
-						mod_gain_temp = mod_gain_temp_temp;
-						index = W_index[uu][i];
-						index_id = i;
-					}	
-
-			    //pthread_mutex_unlock(&locks[neighbor]);
-        }
-				mod_gain[uu] = mod_gain_temp;
-				comm[uu] = index;   //cvk
-
-
-				//update individual  sums
-				//pthread_mutex_lock(&lock);
-          sum_tot = sum_tot + W[uu][i];
-				  sum_in = sum_in + W[uu][i];
-			  //pthread_mutex_unlock(&lock);	
-
-
-		  }
-
-			pthread_barrier_wait(arg->barrier_total);
-
-			//reconstruct
-			for(uu=start;uu<stop;uu++)
-			{
-				for(i=0;i<DEG;i++)
-				{
-					int neighbor = W_index[uu][i];
-					pthread_mutex_lock(&locks[neighbor]);
-					  W_index[uu][i] = comm[neighbor];
-					  W[uu][i] = comm[uu] - comm[neighbor];
-				  pthread_mutex_unlock(&locks[neighbor]);
-				}
-			}
-
-			pthread_barrier_wait(arg->barrier_total);
-
-			//reduction heuristic approximate model, not very accurate though
-			if(tid==0)
-			{
-			for(i=stop;i<N;i++)
-			{
-        for(int j=1;j<P;j++)
-				{
-          comm[i] = comm[stop-1];
-				}
-			}
-			}
-
-			pthread_barrier_wait(arg->barrier_total);
-
-			/*if(tid==0)
-			{
-			for(i=0;i<N;i++)
-			{
-				printf(" %d ",comm[i]);
-			}
-			}*/
-
-			local_count++;
-			//printf("\n %d",local_count);
-
-	}
   pthread_barrier_wait(arg->barrier_total);
 
-	return NULL;
+  //static for now
+  //can be done more for dynamic, need a while loop here for thay
+  //initialization of communities
+  while(local_count<iterations)	
+  {
+    for(uu=start;uu<stop;uu++)
+    //while(uu<N-2)
+    {
+      //pthread_mutex_lock(&lock);
+      //up++;
+      //uu = up;
+      //printf(" %d ",uu);
+      //pthread_mutex_unlock(&lock);
+  
+      for(i = 0; i < DEG; i++)
+      {
+        //pthread_mutex_lock(&locks[neighbor]);
+
+        int tempo = (inv_total_edges)*(inv_total_edges);
+        tempo = tempo*2;
+        int subtr = sum_tot*W[uu][i];
+        subtr = subtr*tempo;
+        subtr = W[uu][i] - subtr;
+        mod_gain_temp_temp = (inv_total_edges)*(subtr);
+        //total_mod_gain[uu] = total_mod_gain[uu] + mod_gain[uu];
+
+        if(mod_gain_temp_temp>mod_gain_temp) 
+        {
+          mod_gain_temp = mod_gain_temp_temp;
+          index = W_index[uu][i];
+          index_id = i;
+        }	
+
+        //pthread_mutex_unlock(&locks[neighbor]);
+      }
+      mod_gain[uu] = mod_gain_temp;
+      comm[uu] = index;   //cvk
+
+
+      //update individual  sums
+      //pthread_mutex_lock(&lock);
+      sum_tot = sum_tot + W[uu][i];
+      sum_in = sum_in + W[uu][i];
+      //pthread_mutex_unlock(&lock);	
+    }
+
+    pthread_barrier_wait(arg->barrier_total);
+
+    //reconstruct
+    for(uu=start;uu<stop;uu++)
+    {
+      for(i=0;i<DEG;i++)
+      {
+        int neighbor = W_index[uu][i];
+        pthread_mutex_lock(&locks[neighbor]);
+          W_index[uu][i] = comm[neighbor];
+          W[uu][i] = comm[uu] - comm[neighbor];
+        pthread_mutex_unlock(&locks[neighbor]);
+      }
+    }
+
+    pthread_barrier_wait(arg->barrier_total);
+
+    //reduction heuristic approximate model, not very accurate though
+    if(tid==0)
+    {
+      for(i=stop;i<N;i++)
+      {
+        for(int j=1;j<P;j++)
+        {
+          comm[i] = comm[stop-1];
+        }
+      }
+    }
+
+    pthread_barrier_wait(arg->barrier_total);
+
+    /*if(tid==0)
+    {
+      for(i=0;i<N;i++)
+      { 
+			  printf(" %d ",comm[i]);
+      }
+    }*/
+
+    local_count++;
+    //printf("\n %d",local_count);
+  }
+  pthread_barrier_wait(arg->barrier_total);
+  return NULL;
 }
 
 
@@ -289,7 +285,7 @@ int main(int argc, char** argv)
   const int P1 = atoi(argv[1]);
   const int N = atoi(argv[2]);
   const int DEG = atoi(argv[3]);
-	iterations = 4;
+  iterations = 4;
   //const int iterations = atoi(argv[4]);
 
 	int P = P1;
@@ -306,23 +302,23 @@ int main(int argc, char** argv)
         }
 
   int* D;
-	float* C;
+  float* C;
   float* Q;
-	int* comm;
-	float* mod_gain;
-	float* total_mod_gain;
-	int* deg_node;
+  int* comm;
+  float* mod_gain;
+  float* total_mod_gain;
+  int* deg_node;
   posix_memalign((void**) &D, 64, N * sizeof(int));
   posix_memalign((void**) &Q, 64, N * sizeof(float));
-	posix_memalign((void**) &deg_node, 64, N * sizeof(int));
+  posix_memalign((void**) &deg_node, 64, N * sizeof(int));
 
-	posix_memalign((void**) &comm, 64, N * sizeof(int));
-	posix_memalign((void**) &C, 64, N * sizeof(float));
-	posix_memalign((void**) &mod_gain, 64, N * sizeof(float));
-	posix_memalign((void**) &total_mod_gain, 64, N * sizeof(float));
+  posix_memalign((void**) &comm, 64, N * sizeof(int));
+  posix_memalign((void**) &C, 64, N * sizeof(float));
+  posix_memalign((void**) &mod_gain, 64, N * sizeof(float));
+  posix_memalign((void**) &total_mod_gain, 64, N * sizeof(float));
   int d_count = N;
   pthread_barrier_t barrier_total;
-	pthread_barrier_t barrier;
+  pthread_barrier_t barrier;
 
   float** W = (float**) malloc(N*sizeof(float*));
   int** W_index = (int**) malloc(N*sizeof(int*));
@@ -348,14 +344,14 @@ int main(int argc, char** argv)
   }*/
 
   pthread_barrier_init(&barrier_total, NULL, P);
-	pthread_barrier_init(&barrier, NULL, P);
+  pthread_barrier_init(&barrier, NULL, P);
 
   pthread_mutex_init(&lock, NULL);
 	
-	for(int i=0; i<2097152; i++)
-		pthread_mutex_init(&locks[i], NULL);
-  
-	initialize_single_source(D, Q, 0, N);
+  for(int i=0; i<2097152; i++)
+    pthread_mutex_init(&locks[i], NULL);
+
+  initialize_single_source(D, Q, 0, N);
 
   for(int j = 0; j < P; j++) {
     thread_arg[j].Q          = Q;
@@ -363,9 +359,9 @@ int main(int argc, char** argv)
     thread_arg[j].W          = W;
     thread_arg[j].W_index    = W_index;
 		thread_arg[j].comm       = comm;
-		thread_arg[j].C          = C;
-		thread_arg[j].mod_gain   = mod_gain;
-		thread_arg[j].total_mod_gain = total_mod_gain;
+    thread_arg[j].C          = C;
+    thread_arg[j].mod_gain   = mod_gain;
+    thread_arg[j].total_mod_gain = total_mod_gain;
     thread_arg[j].d_count    = &d_count;
     thread_arg[j].tid        = j;
     thread_arg[j].P          = P;
@@ -374,12 +370,12 @@ int main(int argc, char** argv)
     thread_arg[j].barrier_total = &barrier_total;
 		thread_arg[j].barrier    = &barrier;
   }
-int mul = 2;
+  int mul = 2;
   // Enable performance and energy models
   //CarbonEnableModels();
 
-struct timespec requestStart, requestEnd;
-clock_gettime(CLOCK_REALTIME, &requestStart);
+  struct timespec requestStart, requestEnd;
+  clock_gettime(CLOCK_REALTIME, &requestStart);
 
   for(int j = 1; j < P; j++) {
     pthread_create(thread_handle+j,
@@ -397,9 +393,9 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
 
 	printf("Threads Joined!");
 
-	clock_gettime(CLOCK_REALTIME, &requestEnd);
-	  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
-		  printf( "%lf\n", accum );
+  clock_gettime(CLOCK_REALTIME, &requestEnd);
+  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
+  printf( "%lf\n", accum );
 
   // Enable performance and energy models
   //CarbonDisableModels();
