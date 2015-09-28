@@ -153,33 +153,32 @@ void* do_work(void* args)
   const int DEG            = arg->DEG;
   int local_count          = N;
   int i, j, po;
-	int uu = 0;
+  int uu = 0;
 
   int cntr = 0;
   int i_start =  tid     * N / (arg->P);
   int i_stop  =  (tid+1) * N / (arg->P);
-	int start = 0;
-	int stop = 1;
-	int neighbor=0;
+  int start = 0;
+  int stop = 1;
+  int neighbor=0;
 
-	pthread_barrier_wait(arg->barrier);
+  pthread_barrier_wait(arg->barrier);
 
-	for(int i=i_start;i<i_stop;i++)
-	{
-		for(int j=0;j<DEG;j++)
-		{
-			int neighbor = W_index[i][j];
-			if(neighbor>=N)
-				continue;
-			pthread_mutex_lock(&locks[neighbor]);
+  for(int i=i_start;i<i_stop;i++)
+  {
+    for(int j=0;j<DEG;j++)
+    {
+      int neighbor = W_index[i][j];
+      if(neighbor>=N)
+        continue;
+      pthread_mutex_lock(&locks[neighbor]);
 
-			Q[neighbor]=0;
-	  
-			pthread_mutex_unlock(&locks[neighbor]);
-		}
-	}
-   pthread_barrier_wait(arg->barrier);
-		
+      Q[neighbor]=0;
+
+      pthread_mutex_unlock(&locks[neighbor]);
+    }
+  }
+  pthread_barrier_wait(arg->barrier);
 
   return NULL;
 }
@@ -268,11 +267,11 @@ int main(int argc, char** argv)
 
   int* D;
   int* Q;
-  
-	posix_memalign((void**) &D, 64, N * sizeof(int));
+ 
+  posix_memalign((void**) &D, 64, N * sizeof(int));
   posix_memalign((void**) &Q, 64, N * sizeof(int));
-	posix_memalign((void**) &test, 64, N * sizeof(int));
-	posix_memalign((void**) &id, 64, N * sizeof(int));
+  posix_memalign((void**) &test, 64, N * sizeof(int));
+  posix_memalign((void**) &id, 64, N * sizeof(int));
   int d_count = N;
   pthread_barrier_t barrier;
 
@@ -289,16 +288,16 @@ int main(int argc, char** argv)
     }
   }
 
-	for(int i=0;i<N;i++)
-	{
-		for(int j=0;j<DEG;j++)
-		{
-			W[i][j] = INT_MAX;
-			W_index[i][j] = INT_MAX;
-		}
-		test[i]=0;
-		id[0] = 0;
-	}
+  for(int i=0;i<N;i++)
+  {
+    for(int j=0;j<DEG;j++)
+    {
+      W[i][j] = INT_MAX;
+      W_index[i][j] = INT_MAX;
+    }
+    test[i]=0;
+    id[0] = 0;
+  }
 
 
 for(c=getc(file0); c!=EOF; c=getc(file0))
@@ -360,10 +359,10 @@ for(c=getc(file0); c!=EOF; c=getc(file0))
 
   pthread_barrier_init(&barrier, NULL, P);
   pthread_mutex_init(&lock, NULL);
-	for(int i=0; i<N; i++)
-		pthread_mutex_init(&locks[i], NULL);
-  
-	initialize_single_source(D, Q, 0, N);
+  for(int i=0; i<N; i++)
+    pthread_mutex_init(&locks[i], NULL);
+
+  initialize_single_source(D, Q, 0, N);
 
   for(int j = 0; j < P; j++) {
     thread_arg[j].local_min  = local_min_buffer;
@@ -402,9 +401,9 @@ for(c=getc(file0); c!=EOF; c=getc(file0))
   }
   
 	//read clock for time
-	clock_gettime(CLOCK_REALTIME, &requestEnd);
-	  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
-		  printf( "Elapsed time: %lfs\n", accum );
+  clock_gettime(CLOCK_REALTIME, &requestEnd);
+  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
+  printf( "Elapsed time: %lfs\n", accum );
 
   // Enable performance and energy models
   //CarbonDisableModels();
