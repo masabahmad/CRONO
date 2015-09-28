@@ -18,4 +18,5 @@ e.g.
 
 **Notes**
 
-The executable then outputs the time in seconds that the program took to run.
+All inputs must be in powers of 2.
+The executable outputs the time in seconds that the program took to run.
