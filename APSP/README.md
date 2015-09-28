@@ -18,5 +18,6 @@ e.g.
 
 **Notes**
 
-The executable then outputs the time in seconds that the program took to run.
+P, N, and DEG must be in powers of 2.
+The executable outputs the time in seconds that the program took to run.
 Tested and Scales to 1024 threads.
