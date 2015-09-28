@@ -113,20 +113,20 @@ typedef struct
   int*      global_min;
   int*      Q;
   int*      D;
-  float**     W;
+  float**   W;
   int**     W_index;
-	int*      mod_gain;
-	float*      total_mod_gain;
-	int*      comm;
-	float*      C;
-	//int*      deg_node;
+  int*      mod_gain;
+  float*    total_mod_gain;
+  int*      comm;
+  float*    C;
+  //int*    deg_node;
   int*      d_count;
   int       tid;
   int       P;
   int       N;
   int       DEG;
   pthread_barrier_t* barrier_total;
-	pthread_barrier_t* barrier;
+  pthread_barrier_t* barrier;
 } thread_arg_t;
 
 int local_min_buffer[1024];
@@ -159,124 +159,124 @@ void* do_work(void* args)
   volatile int* local_min  = arg->local_min;
   int tid                  = arg->tid;
   int P                    = arg->P;
-  int* Q                 = arg->Q;   //qindex
+  int* Q                   = arg->Q;   //qindex
   int* D                   = arg->D;   //vindex
   float** W                = arg->W;
   int** W_index            = arg->W_index;
-	int* mod_gain          = arg->mod_gain; //concomp
-	float* total_mod_gain    = arg->total_mod_gain;
-	int* comm                = arg->comm;
-	float* C                 = arg->C;
-	//int* deg_node          = arg->deg_node;
+  int* mod_gain            = arg->mod_gain; //concomp
+  float* total_mod_gain    = arg->total_mod_gain;
+  int* comm                = arg->comm;
+  float* C                 = arg->C;
+  //int* deg_node          = arg->deg_node;
   const int N              = arg->N;
   const int DEG            = arg->DEG;
   int local_count          = 0;
   int i, j, po;
-	int uu = 0;
-	float modularity = 0;
-	P = start;
-	int index = 0;
-	int index_id = 0;
-	float sum_tot = 0;
-	float sum_in = 0;
+  int uu = 0;
+  float modularity = 0;
+  P = start;
+  int index = 0;
+  int index_id = 0;
+  float sum_tot = 0;
+  float sum_in = 0;
 
-	float total_edges = N*DEG;
-	float mod_gain_temp = 0;
-	float mod_gain_temp_temp = 0;
-	float inv_total_edges = 2/total_edges;
+  float total_edges = N*DEG;
+  float mod_gain_temp = 0;
+  float mod_gain_temp_temp = 0;
+  float inv_total_edges = 2/total_edges;
 
   int result = 0;
   int a = 0;
   int start =  0;  //tid    * DEG / (arg->P);
   int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
-	start =  tid    *  (N) / (P);
-	stop =  (tid+1) *  (N) / (P);
+  start =  tid    *  (N) / (P);
+  stop =  (tid+1) *  (N) / (P);
 	
-	pthread_barrier_wait(arg->barrier_total);
+  pthread_barrier_wait(arg->barrier_total);
 
 for(int ii=0;ii<N;ii++)
 {	
-	for(int i=start;i<stop;i++)
-	{
-		//memset
-		D[i] = 0;
-	}
-	result=0;
-
-	pthread_barrier_wait(arg->barrier_total);
-
-	for(int i=start;i<stop;i++)
-	{
-		for(int j=0;j<DEG;j++)
-		{
-			//if not background
-      if(W_index[i][j]==-1)
-				continue;
-      
-		  int neighbor = W_index[i][j];	
-
-				//if neighbor empty
-				if(mod_gain[i]!=mod_gain[neighbor])
-					continue;
-				
-				if(mod_gain[i]>mod_gain[neighbor])
-				{	
-          Q[mod_gain[i]] = mod_gain[neighbor];
-					result = -1;
-					break;
-				}
-		}
-	}
+  for(int i=start;i<stop;i++)
+  {
+    //memset
+    D[i] = 0;
+  }
+  result=0;
 
   pthread_barrier_wait(arg->barrier_total);
 
-	//second pass
-	for(int i=start;i<stop;i++)
-	{
-		mod_gain[i] = Q[i];
-		if(Q[Q[i]]!=Q[i])
-		{
-			D[i] = -1;
-			D[Q[Q[i]]] = -1;
-			result = -1;
-		}
-	}
+  for(int i=start;i<stop;i++)
+  {
+    for(int j=0;j<DEG;j++)
+    {
+      //if not background
+      if(W_index[i][j]==-1)
+        continue;
 
-	pthread_barrier_wait(arg->barrier_total);
+      int neighbor = W_index[i][j];	
 
-	//label is your output for each vertex
+      //if neighbor empty
+      if(mod_gain[i]!=mod_gain[neighbor])
+        continue;
+
+      if(mod_gain[i]>mod_gain[neighbor])
+      {	
+        Q[mod_gain[i]] = mod_gain[neighbor];
+        result = -1;
+        break;
+      }
+    }
+  }
+
+  pthread_barrier_wait(arg->barrier_total);
+
+  //second pass
+  for(int i=start;i<stop;i++)
+  {
+    mod_gain[i] = Q[i];
+    if(Q[Q[i]]!=Q[i])
+    {
+      D[i] = -1;
+      D[Q[Q[i]]] = -1;
+      result = -1;
+    }
+  }
+
+  pthread_barrier_wait(arg->barrier_total);
+
+  //label is your output for each vertex
   if(ii!=0)
-	{
-		for(int i=start;i<stop;i++)
-		{
-			if(D[Q[Q[i]]]!=0)
-				continue;
-			for(int j=0;j<DEG;j++)
-			{
-				int neighbor = W_index[i][j];
-				if(Q[i]!=Q[neighbor])
-				{
-					mod_gain[Q[i]] = Q[neighbor];
-					result = -1;
-					break;
-				}
-			}
-		}
-	}
+  {
+    for(int i=start;i<stop;i++)
+    {
+      if(D[Q[Q[i]]]!=0)
+        continue;
+      for(int j=0;j<DEG;j++)
+      {
+        int neighbor = W_index[i][j];
+        if(Q[i]!=Q[neighbor])
+        {
+          mod_gain[Q[i]] = Q[neighbor];
+          result = -1;
+          break;
+        }
+      }
+    }
+  }
 
-	pthread_barrier_wait(arg->barrier_total);
+  pthread_barrier_wait(arg->barrier_total);
 
-	for(int i=start;i<stop;i++)
-	{
-		mod_gain[i] = mod_gain[mod_gain[i]];
+  for(int i=start;i<stop;i++)
+  {
+    mod_gain[i] = mod_gain[mod_gain[i]];
     Q[i] = mod_gain[i];
-	}
+  }
 
-	pthread_barrier_wait(arg->barrier_total);
+  pthread_barrier_wait(arg->barrier_total);
 }
 
-	return NULL;
+  return NULL;
 }
 
 
@@ -288,47 +288,47 @@ int main(int argc, char** argv)
   const int P1 = atoi(argv[1]);
   const int N = atoi(argv[2]);
   const int DEG = atoi(argv[3]);
-	iterations = 4;
+  iterations = 4;
   //const int change1 = atoi(argv[4]);
 
-	int P = P1;
-	P_global = P1;
-	start = P1;
-	//change = change1;
-	old_range = change;
-	range = change;
+  int P = P1;
+  P_global = P1;
+  start = P1;
+  //change = change1;
+  old_range = change;
+  range = change;
 
 
-        if (DEG > N)
-        {
-                fprintf(stderr, "Degree of graph cannot be grater than number of Vertices\n");
-                exit(EXIT_FAILURE);
-        }
+  if (DEG > N)
+  {
+     fprintf(stderr, "Degree of graph cannot be grater than number of Vertices\n");
+     exit(EXIT_FAILURE);
+  }
 
   int* D;
-	float* C;
+  float* C;
   int* Q;
-	int* comm;
-	int* mod_gain;
-	float* total_mod_gain;
-	int* deg_node;
+  int* comm;
+  int* mod_gain;
+  float* total_mod_gain;
+  int* deg_node;
   posix_memalign((void**) &D, 64, N * sizeof(int));
   posix_memalign((void**) &Q, 64, N * sizeof(int));
-	posix_memalign((void**) &deg_node, 64, N * sizeof(int));
+  posix_memalign((void**) &deg_node, 64, N * sizeof(int));
 
-	posix_memalign((void**) &comm, 64, N * sizeof(int));
-	posix_memalign((void**) &C, 64, N * sizeof(float));
-	posix_memalign((void**) &mod_gain, 64, N * sizeof(int));
-	posix_memalign((void**) &total_mod_gain, 64, N * sizeof(float));
+  posix_memalign((void**) &comm, 64, N * sizeof(int));
+  posix_memalign((void**) &C, 64, N * sizeof(float));
+  posix_memalign((void**) &mod_gain, 64, N * sizeof(int));
+  posix_memalign((void**) &total_mod_gain, 64, N * sizeof(float));
   int d_count = N;
   pthread_barrier_t barrier_total;
-	pthread_barrier_t barrier;
+  pthread_barrier_t barrier;
 
   float** W = (float**) malloc(N*sizeof(float*));
   int** W_index = (int**) malloc(N*sizeof(int*));
   for(int i = 0; i < N; i++)
   {
-		mod_gain[i] = rand()%DEG;
+    mod_gain[i] = rand()%DEG;
     W[i] = (float*)malloc(sizeof(float)*N);
     int ret = posix_memalign((void**) &W[i], 64, DEG*sizeof(float));
     int re1 = posix_memalign((void**) &W_index[i], 64, DEG*sizeof(int));
@@ -349,14 +349,14 @@ int main(int argc, char** argv)
   }*/
 
   pthread_barrier_init(&barrier_total, NULL, P);
-	pthread_barrier_init(&barrier, NULL, P);
+  pthread_barrier_init(&barrier, NULL, P);
 
   pthread_mutex_init(&lock, NULL);
-	
-	for(int i=0; i<2097152; i++)
-		pthread_mutex_init(&locks[i], NULL);
-  
-	initialize_single_source(D, Q, 0, N);
+
+  for(int i=0; i<2097152; i++)
+    pthread_mutex_init(&locks[i], NULL);
+
+  initialize_single_source(D, Q, 0, N);
 
   for(int j = 0; j < P; j++) {
     thread_arg[j].local_min  = local_min_buffer;
@@ -365,25 +365,25 @@ int main(int argc, char** argv)
     thread_arg[j].D          = D;
     thread_arg[j].W          = W;
     thread_arg[j].W_index    = W_index;
-		thread_arg[j].comm       = comm;
-		thread_arg[j].C          = C;
-		thread_arg[j].mod_gain   = mod_gain;
-		thread_arg[j].total_mod_gain = total_mod_gain;
-		//thread_arg[j].deg_node   = deg_node;
+    thread_arg[j].comm       = comm;
+    thread_arg[j].C          = C;
+    thread_arg[j].mod_gain   = mod_gain;
+    thread_arg[j].total_mod_gain = total_mod_gain;
+    //thread_arg[j].deg_node   = deg_node;
     thread_arg[j].d_count    = &d_count;
     thread_arg[j].tid        = j;
     thread_arg[j].P          = P;
     thread_arg[j].N          = N;
     thread_arg[j].DEG        = DEG;
     thread_arg[j].barrier_total = &barrier_total;
-		thread_arg[j].barrier    = &barrier;
+    thread_arg[j].barrier    = &barrier;
   }
-int mul = 2;
+  int mul = 2;
   // Enable performance and energy models
   //CarbonEnableModels();
 
-struct timespec requestStart, requestEnd;
-clock_gettime(CLOCK_REALTIME, &requestStart);
+  struct timespec requestStart, requestEnd;
+  clock_gettime(CLOCK_REALTIME, &requestStart);
 
   for(int j = 1; j < P; j++) {
     pthread_create(thread_handle+j,
@@ -399,11 +399,11 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
     pthread_join(thread_handle[j],NULL);
   }
 
-	printf("Threads Joined!");
+  printf("Threads Joined!");
 
-	clock_gettime(CLOCK_REALTIME, &requestEnd);
-	  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
-		  printf( "%lf\n", accum );
+  clock_gettime(CLOCK_REALTIME, &requestEnd);
+  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
+  printf( "%lf\n", accum );
 
   // Enable performance and energy models
   //CarbonDisableModels();
