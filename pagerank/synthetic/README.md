@@ -21,6 +21,8 @@ e.g.
 
 **Notes**
 
+All inputs must be in powers of 2.
+
 The executable then outputs the time in seconds that the program took to run.
 It also outputs a file that contains the pageranks (normalized to 1).
 Some very small differences in pageranks might occur due to floating point round offs within the program.

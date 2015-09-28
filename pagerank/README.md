@@ -5,4 +5,6 @@ Run ```make``` within each folder (real,synthetic,test) to generate executables,
 
 **Notes**
 
+All inputs must be in powers of 2.
+
 The test folder also compiles a test boost program that can be used to verify our PageRank programs. 
