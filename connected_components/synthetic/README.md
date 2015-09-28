@@ -18,4 +18,5 @@ e.g.
 
 **Notes**
 
+All inputs must be in powers of 2.
 The executables also output the time in seconds that the program took to run.
