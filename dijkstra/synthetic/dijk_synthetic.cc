@@ -97,7 +97,7 @@ typedef struct
   int*      global_min;
   int*      Q;
   int*      D;
-	int*      S;
+  int*      S;
   int**     W;
   int**     W_index;
   int*      d_count;
@@ -150,94 +150,96 @@ void* do_work(void* args)
 while(terminate==0){
   while(terminate==0)
   {
-	for(uu=start;uu<stop;uu++)
-        {
-                for(int i = 0; i < DEG; i++)
-    		{
-		        int neighbor = W_index[uu][i];
-			//
-			pthread_mutex_lock(&locks[neighbor]);
+  for(uu=start;uu<stop;uu++)
+  {
+    for(int i = 0; i < DEG; i++)
+    {
+      int neighbor = W_index[uu][i];
+      //
+      pthread_mutex_lock(&locks[neighbor]);
 
-			if(uu>=N)
-				terminate=1;
+      if(uu>=N)
+        terminate=1;
 
+      if((D[W_index[uu][i]] > (D[uu] + W[uu][i]) && W_index[uu][i]!=-1 && W[uu][i]!=INT_MAX/* && Q[uu]==1*/))
+      {	
+        D[W_index[uu][i]] = D[uu] + W[uu][i];
+        S[W_index[uu][i]] = uu;
+      }
+      Q[uu]=0;// po=u;
+      //if(W_index[uu][i]==-1)
+      //W[uu][i]=INT_MAX;
 
-			if((D[W_index[uu][i]] > (D[uu] + W[uu][i]) && W_index[uu][i]!=-1 && W[uu][i]!=INT_MAX/* && Q[uu]==1*/))
-			{	
-				D[W_index[uu][i]] = D[uu] + W[uu][i];
-				S[W_index[uu][i]] = uu;
-			}
-     			Q[uu]=0;// po=u;
-			//if(W_index[uu][i]==-1)
-		        //W[uu][i]=INT_MAX;
-	  
-			pthread_mutex_unlock(&locks[neighbor]);
-    		}
-	}
+      pthread_mutex_unlock(&locks[neighbor]);
+    }
+  }
 
-        pthread_barrier_wait(arg->barrier);
-		
-	if(tid==0)
-	{  //pthread_mutex_lock(&lock);
-		old_range=range;
-		range = range*DEG;
-       
-		if(old_range==1)
-			old_range=0;
-       
-		if(range>=N)
-			range=N;
-                //pthread_mutex_unlock(&lock);
-		//printf("\nold:%d new:%d",old_range,range);
-			
-		difference = range-old_range;
-		if(difference<P)
-		{   
-			pid=difference;
-		}   
-		else
-			pid=P;
-		if(pid==0)
-			pid=P;
-		}
-
-		pthread_barrier_wait(arg->barrier);
+  pthread_barrier_wait(arg->barrier);
 	
-		//start = old_range  +  (difference/P)*(tid);            //(tid    * range)  / (arg->P)    + old_range;
-		//stop  = old_range  +  (difference/P)*(tid+1);            //((tid+1) * range)  / (arg->P)   + old_range;
-	  start = tid * (range/P);
-		stop = (tid+1) * (range/P);
-
-		if(stop>range)
-			stop=range;	
-
-    //if(tid==0)
-		//{ pthread_mutex_lock(&lock);
-       if(start==N || uu>N-1)
-			 {
-				 terminate=1;
-			 }
-		//} pthread_mutex_unlock(&lock);
+  if(tid==0)
+  {  //pthread_mutex_lock(&lock);
+    old_range=range;
+    range = range*DEG;
+   
+    if(old_range==1)
+      old_range=0;
+ 
+    if(range>=N)
+      range=N;
+     //pthread_mutex_unlock(&lock);
+    //printf("\nold:%d new:%d",old_range,range);
+	
+    difference = range-old_range;
+    if(difference<P)
+    {   
+      pid=difference;
+    }   
+    else
+      pid=P;
+    if(pid==0)
+      pid=P;
+    }
 
     pthread_barrier_wait(arg->barrier);
-		//printf("\n TID:%d   start:%d stop:%d terminate:%d",tid,start,stop,terminate);
-	}
-	 pthread_barrier_wait(arg->barrier);
-	if(tid==0)
-	{
-		cntr++;
-		//printf("\n %d", cntr);
-		if(cntr<P_max)
-		{
-	  terminate=0;
-		old_range=1;
-		range=1;
-		difference=0;
-		pid=0;
-		}
-	}
-	start=0;
-	stop=1;
+
+    //start = old_range  +  (difference/P)*(tid);            //(tid    * range)  / (arg->P)    + old_range;
+    //stop  = old_range  +  (difference/P)*(tid+1);            //((tid+1) * range)  / (arg->P)   + old_range; 
+    start = tid * (range/P);
+    stop = (tid+1) * (range/P);
+
+    if(stop>range)
+      stop=range;	
+
+    //if(tid==0)
+    //{ pthread_mutex_lock(&lock);
+    if(start==N || uu>N-1)
+    {
+      terminate=1;
+    }
+    //} pthread_mutex_unlock(&lock);
+
+    pthread_barrier_wait(arg->barrier);
+    //printf("\n TID:%d   start:%d stop:%d terminate:%d",tid,start,stop,terminate);
+  }
+
+  pthread_barrier_wait(arg->barrier);
+	
+  if(tid==0)
+  {
+    cntr++;
+    //printf("\n %d", cntr);
+    if(cntr<P_max)
+    {
+      terminate=0;
+      old_range=1;
+      range=1;
+      difference=0;
+      pid=0;
+    }
+  }
+  start=0;
+  stop=1;
+ 
   pthread_barrier_wait(arg->barrier);
 }
   //printf("\n %d %d",tid,terminate);
@@ -271,10 +273,10 @@ int main(int argc, char** argv)
 
   int* D;
   int* Q;
-	int* S;
+  int* S;
   posix_memalign((void**) &D, 64, N * sizeof(int));
   posix_memalign((void**) &Q, 64, N * sizeof(int));
-	posix_memalign((void**) &S, 64, N * sizeof(int));
+  posix_memalign((void**) &S, 64, N * sizeof(int));
   int d_count = N;
   pthread_barrier_t barrier;
 
@@ -303,17 +305,17 @@ int main(int argc, char** argv)
 
   pthread_barrier_init(&barrier, NULL, P);
   pthread_mutex_init(&lock, NULL);
-	for(int i=0; i<N; i++)
-		pthread_mutex_init(&locks[i], NULL);
-  
-	initialize_single_source(D, Q, S, 0, N);
+  for(int i=0; i<N; i++)
+    pthread_mutex_init(&locks[i], NULL);
+
+  initialize_single_source(D, Q, S, 0, N);
 
   for(int j = 0; j < P; j++) {
     thread_arg[j].local_min  = local_min_buffer;
     thread_arg[j].global_min = &global_min_buffer;
     thread_arg[j].Q          = Q;
     thread_arg[j].D          = D;
-		thread_arg[j].S          = S;
+    thread_arg[j].S          = S;
     thread_arg[j].W          = W;
     thread_arg[j].W_index    = W_index;
     thread_arg[j].d_count    = &d_count;
@@ -323,12 +325,12 @@ int main(int argc, char** argv)
     thread_arg[j].DEG        = DEG;
     thread_arg[j].barrier    = &barrier;
   }
-int mul = 2;
+  int mul = 2;
   // Enable performance and energy models
   //CarbonEnableModels();
 
-struct timespec requestStart, requestEnd;
-clock_gettime(CLOCK_REALTIME, &requestStart);
+  struct timespec requestStart, requestEnd;
+  clock_gettime(CLOCK_REALTIME, &requestStart);
 
          //For the easyperf performance counter API
          //uint64_t start[4], end[4];
@@ -353,9 +355,9 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
 	//printf("\nL2-Misses: %10lu, \nL3-Refs: %10lu, \nL3-Misses: %10lu, \nInst.: %10lu", end[0] - start[0], end[1] - start[1], end[2] - start[2], end[3] - start[3]);
   //perf_close();
 
-	clock_gettime(CLOCK_REALTIME, &requestEnd);
-	  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
-		  printf( "\n%lf\n", accum );
+  clock_gettime(CLOCK_REALTIME, &requestEnd);
+  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
+  printf( "\n%lf\n", accum );
 
   // Enable performance and energy models
   //CarbonDisableModels();
