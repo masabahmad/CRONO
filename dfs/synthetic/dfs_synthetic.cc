@@ -120,7 +120,7 @@ typedef struct
   int       N;
   int       DEG;
   pthread_barrier_t* barrier_total;
-	pthread_barrier_t* barrier;
+  pthread_barrier_t* barrier;
 } thread_arg_t;
 
 int local_min_buffer[1024];
@@ -154,122 +154,59 @@ void* do_work(void* args)
   const int DEG            = arg->DEG;
   int local_count          = N;
   int i, j, po;
-	//int uu = 0;
-	P_global = start;
-	int node=0;
+  //int uu = 0;
+  P_global = start;
+  int node=0;
 
   int a = 0;
   int start =  0;  //tid    * DEG / (arg->P);
   int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
-	//if(tid<P_global)
-	//{
-	   start =  tid    *  (N) / (P_global);
-	   stop =  (tid+1) *  (N) / (P_global);
+  //if(tid<P_global)
+  //{
+     start =  tid    *  (N) / (P_global);
+     stop =  (tid+1) *  (N) / (P_global);
   //}
-	
-	pthread_barrier_wait(arg->barrier_total);
+
+  pthread_barrier_wait(arg->barrier_total);
 
   //while(terminate==0)
   //{
-	  //if(tid<P_global)
-		//{
-			while(terminate==0)
-			{
-				pthread_mutex_lock(&lock);
-				uu++;
-				node = uu;
-				//printf("\n%d %d %d",tid,node,terminate);
-				pthread_mutex_unlock(&lock);
-				if(node>=N)
-				{
-					terminate=1;
-					break;
-				}
-				
+    //if(tid<P_global)
+    //{
+      while(terminate==0)
+      {
+        pthread_mutex_lock(&lock);
+        uu++;
+        node = uu;
+        //printf("\n%d %d %d",tid,node,terminate);
+        pthread_mutex_unlock(&lock);
+        if(node>=N)
+        {
+          terminate=1;
+          break;
+        }
 
         for(int i = 0; i < DEG; i++)
         {
           int neighbor = W_index[node][i];
-					if(W_index[node][i]>=N)
-						continue;
-			
-			    pthread_mutex_lock(&locks[neighbor]);
+          if(W_index[node][i]>=N)
+            continue;
 
-					Q[W_index[node][i]] = 0;
-	  
-			    pthread_mutex_unlock(&locks[neighbor]);
+          pthread_mutex_lock(&locks[neighbor]);
+
+          Q[W_index[node][i]] = 0;
+
+          pthread_mutex_unlock(&locks[neighbor]);
         }
-			}
-		//}
+      }
+    //}
     //printf("tid:%d",tid);
-		pthread_barrier_wait(arg->barrier_total);
-		
-	 /*if(tid==0)
-		{ 
-		   if(P_global>192)	
-			  P_global = P_global-32;
-			 else if(P_global<192)
-				P_global = P_global+32;
-			 else if(P_global==192)
-			  P_global = 192;
-			 old_range=range;
-		   range = range+change;
-       
-			 //if(old_range==1)
-			 // old_range=0;
-       
-			 if(range>=N)
-				 range=N;
-			
-			 difference = range-old_range;
-			 if(difference<P_global)
-			 {   
-		 			pid=difference;
-		   }   
-			 else
-				  pid=P_global;
-			 if(pid==0)
-				pid=P_global;
+    
+    pthread_barrier_wait(arg->barrier_total);
 
-			 printf("\nP_global:%d",P_global);
-			//int destroy = pthread_barrier_destroy(arg->barrier);
-			//printf("\ndestroy: %d", destroy);
-			//int init = pthread_barrier_init(arg->barrier, NULL, 32);
-      //printf("\ninit: %d", init);
-
-		}
-
-		pthread_barrier_wait(arg->barrier_total);
-
-	  if(tid<P_global)
-		{
-
-		  start = old_range  +  (difference/P_global)*(tid);            //(tid    * range)  / (arg->P)    + old_range;
-		  stop  = old_range  +  (difference/P_global)*(tid+1);            //((tid+1) * range)  / (arg->P)   + old_range;
-	  
-		  if(stop>range)
-		   stop=range;	
-
-      //if(tid==0)
-		  { pthread_mutex_lock(&lock);
-         if(start==N || uu>N-1)
-				   terminate=1;
-		  } pthread_mutex_unlock(&lock);
-
-		}*/
-
-		//pthread_barrier_wait(arg->barrier_total);
-	//}
-
-	/*if(tid==0)
-	{
-		P = 256;
-		printf("\nDone");
-	}
-	pthread_barrier_wait(arg->barrier_total);*/
   //printf("\n tid:%d",tid);
-	return NULL;
+  return NULL;
 }
 
 
@@ -283,13 +220,12 @@ int main(int argc, char** argv)
   const int DEG = atoi(argv[3]);
   //const int change1 = atoi(argv[4]);
 
-	int P = P1;
-	P_global = P1;
-	start = P1;
-	//change = change1;
-	old_range = change;
-	range = change;
-
+  int P = P1;
+  P_global = P1;
+  start = P1;
+  //change = change1;
+  old_range = change;
+  range = change;
 
         if (DEG > N)
         {
@@ -303,7 +239,7 @@ int main(int argc, char** argv)
   posix_memalign((void**) &Q, 64, N * sizeof(int));
   int d_count = N;
   pthread_barrier_t barrier_total;
-	pthread_barrier_t barrier;
+  pthread_barrier_t barrier;
 
   int** W = (int**) malloc(N*sizeof(int*));
   int** W_index = (int**) malloc(N*sizeof(int*));
@@ -329,15 +265,15 @@ int main(int argc, char** argv)
   }*/
 
   pthread_barrier_init(&barrier_total, NULL, P);
-	pthread_barrier_init(&barrier, NULL, P);
+  pthread_barrier_init(&barrier, NULL, P);
 
   pthread_mutex_init(&lock, NULL);
-	pthread_mutex_init(&ter, NULL);
-	
-	for(int i=0; i<2097152; i++)
-		pthread_mutex_init(&locks[i], NULL);
-  
-	initialize_single_source(/*D,*/ Q, 0, N);
+  pthread_mutex_init(&ter, NULL);
+
+  for(int i=0; i<2097152; i++)
+    pthread_mutex_init(&locks[i], NULL);
+
+  initialize_single_source(/*D,*/ Q, 0, N);
 
   for(int j = 0; j < P; j++) {
     thread_arg[j].local_min  = local_min_buffer;
@@ -352,14 +288,14 @@ int main(int argc, char** argv)
     thread_arg[j].N          = N;
     thread_arg[j].DEG        = DEG;
     thread_arg[j].barrier_total = &barrier_total;
-		thread_arg[j].barrier    = &barrier;
+    thread_arg[j].barrier    = &barrier;
   }
-int mul = 2;
+  int mul = 2;
   // Enable performance and energy models
   //CarbonEnableModels();
 
-struct timespec requestStart, requestEnd;
-clock_gettime(CLOCK_REALTIME, &requestStart);
+  struct timespec requestStart, requestEnd;
+  clock_gettime(CLOCK_REALTIME, &requestStart);
 
   for(int j = 1; j < P; j++) {
     pthread_create(thread_handle+j,
@@ -375,11 +311,11 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
     pthread_join(thread_handle[j],NULL);
   }
 
-	printf("Threads Joined!");
+  printf("Threads Joined!");
 
-	clock_gettime(CLOCK_REALTIME, &requestEnd);
-	  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
-		  printf( "%lf\n", accum );
+  clock_gettime(CLOCK_REALTIME, &requestEnd);
+  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
+  printf( "%lf\n", accum );
 
   // Enable performance and energy models
   //CarbonDisableModels();
