@@ -1,5 +1,5 @@
 
-CRONO v0.9.6 : A Benchmark Suite for Multithreaded Graph Algorithms Executing on Futuristic Multicores
+CRONO v1.0 : A Benchmark Suite for Multithreaded Graph Algorithms Executing on Futuristic Multicores
 ====================================================================
 
 [![build status](https://travis-ci.org/masabahmad/CRONO.svg?branch=master)](https://travis-ci.org/masabahmad/CRONO)
