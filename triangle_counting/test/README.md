@@ -3,15 +3,15 @@ Triangle Counting
 
 Run ```make``` to generate the required executables, then use the syntax below to run the benchmark
 
-Real World File Input Graphs : triangle_counting_real.cc
+Real World File Input Graphs : tri_cnt_test.cc
 
 **Real Graphs**
 
-To compile triangle_counting_real.cc
-    ```g++ triangle_counting_real.cc -o triangle_counting_real -lm -lrt -lpthread -O2```
+To compile tri_cnt_test.cc
+    ```g++ tri_cnt_test.cc -o tri_cnt_test -lm -lrt -lpthread -O2```
   
 To run with P number of threads
-    ```./triangle_counting_real P```
+    ```./tri_cnt_test P```
   
   It will then ask for the input file, enter:
   sample.txt
@@ -19,5 +19,7 @@ To run with P number of threads
   https://snap.stanford.edu/data/
 
 **Notes**
+
+All inputs must be in powers of 2.
 
 The executable then outputs the time in seconds that the program took to run, as well as the number of triangles counted.
