@@ -12,4 +12,5 @@ For real graphs, similarly compile community_real.cc, then run using the input f
 
 **Notes**
 
+All inputs must be in powers of 2.
 The executables also output the time in seconds that the program took to run.
