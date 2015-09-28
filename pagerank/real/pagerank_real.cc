@@ -159,75 +159,74 @@ void* do_work(void* args)
   const int DEG            = arg->DEG;
   int local_count          = N;
   int i, j, po;
-	int uu = 0;
-	double r = 0.15;
+  int uu = 0;
+  double r = 0.15;
   double d = 0.85;	
-	double DEGREE = DEG;
-	double sum = 0;
-	double N_real = N;
+  double DEGREE = DEG;
+  double sum = 0;
+  double N_real = N;
 
   int cntr = 0;
   int i_start =  tid     * N / (arg->P);
   int i_stop  =  (tid+1) * N / (arg->P);
-	int start = 0;
-	int stop = 1;
-	double PR = 0;
-	int iterations = 15;
+  int start = 0;
+  int stop = 1;
+  double PR = 0;
+  int iterations = 15;
   //int difference =0;
   printf("\n Start");
 
-	pthread_barrier_wait(arg->barrier);
+  pthread_barrier_wait(arg->barrier);
 
-	while(iterations>0)
-	{
+  while(iterations>0)
+  {
+    if(tid==0)
+      dp=0;
+    pthread_barrier_wait(arg->barrier);
 
-		if(tid==0)
-			dp=0;
-		pthread_barrier_wait(arg->barrier);
-
-	//for no outlinks
-	for(uu=i_start;uu<i_stop;uu++)
-	{
-		if(test3[uu]==1)
-		{
+  //for no outlinks
+  for(uu=i_start;uu<i_stop;uu++)
+  {
+    if(test3[uu]==1)
+    {
       pthread_mutex_lock(&lock);
-       dp = dp + d*(D[uu]/N_real);
-				//printf("\n %f %f %f %f",dp,d,D[uu],N_real);
-		  pthread_mutex_unlock(&lock);
-		}
-	}
-	//printf("\n Outlinks Done %f",dp);
+      dp = dp + d*(D[uu]/N_real);
+      //printf("\n %f %f %f %f",dp,d,D[uu],N_real);
+      pthread_mutex_unlock(&lock);
+    }
+  }
+  //printf("\n Outlinks Done %f",dp);
 
-	pthread_barrier_wait(arg->barrier);
+  pthread_barrier_wait(arg->barrier);
 
-	uu=0;
+  uu=0;
 
-	for(uu=i_start;uu<i_stop;uu++)
-	{
-		if(test1[uu]==1)
-		{
-    pgtmp[uu] = r;//dp + (r)/N_real;
-		//printf("\n pgtmp:%f test:%d",pgtmp[uu],test[uu]);
-		for(int j=0;j<test[uu];j++)
-		{
-      //if inlink
-			//printf("\nuu:%d id:%d",uu,W_index[uu][j]);
-			pgtmp[uu] = pgtmp[uu] + (d*D[W_index[uu][j]]/outlinks[W_index[uu][j]]);
-		}
-		}
-	}
+  for(uu=i_start;uu<i_stop;uu++)
+  {
+    if(test1[uu]==1)
+    {
+      pgtmp[uu] = r;//dp + (r)/N_real;
+      //printf("\n pgtmp:%f test:%d",pgtmp[uu],test[uu]);
+      for(int j=0;j<test[uu];j++)
+      {
+        //if inlink
+        //printf("\nuu:%d id:%d",uu,W_index[uu][j]);
+        pgtmp[uu] = pgtmp[uu] + (d*D[W_index[uu][j]]/outlinks[W_index[uu][j]]);
+      }
+    }
+  }
   //printf("\n Ranks done");
-	
-	pthread_barrier_wait(arg->barrier);
 
-	for(uu=i_start;uu<i_stop;uu++)
-	{
-		D[uu] = pgtmp[uu];
-	}
+  pthread_barrier_wait(arg->barrier);
 
-	pthread_barrier_wait(arg->barrier);
-	iterations--;
-	}
+  for(uu=i_start;uu<i_stop;uu++)
+  {
+    D[uu] = pgtmp[uu];
+  }
+
+  pthread_barrier_wait(arg->barrier);
+  iterations--;
+  }
 
   //printf("\n %d %d",tid,terminate);
   return NULL;
@@ -239,31 +238,31 @@ int main(int argc, char** argv)
   // Start the simulator
   //CarbonStartSim(argc, argv);
 
-	char filename[100];
-	//printf("Please Enter The Name Of The File You Would Like To Fetch\n");
-	//scanf("%s", filename);
-	strcpy(filename,argv[2]);
-	//filename = argv[2];
-	FILE *f = fopen(filename,"r");
+  char filename[100];
+  //printf("Please Enter The Name Of The File You Would Like To Fetch\n");
+  //scanf("%s", filename);
+  strcpy(filename,argv[2]);
+  //filename = argv[2];
+  FILE *f = fopen(filename,"r");
 
   int lines_to_check=0;
-	char c;
-	int number0;
-	int number1;
-	int starting_node = 0;
-	int previous_node = 0;
-	int check = 0;
-	int inter = -1;
-	int N = 2000000; //4194304; //can be read from file if needed, this is a default upper limit
-	int DEG = 12;     //also can be reda from file if needed, upper limit here again
+  char c;
+  int number0;
+  int number1;
+  int starting_node = 0;
+  int previous_node = 0;
+  int check = 0;
+  int inter = -1;
+  int N = 2000000; //4194304; //can be read from file if needed, this is a default upper limit
+  int DEG = 12;     //also can be reda from file if needed, upper limit here again
 
   const int P = atoi(argv[1]);
 
-        if (DEG > N)
-        {
-                fprintf(stderr, "Degree of graph cannot be grater than number of Vertices\n");
-                exit(EXIT_FAILURE);
-        }
+  if (DEG > N)
+  {
+    fprintf(stderr, "Degree of graph cannot be grater than number of Vertices\n");
+    exit(EXIT_FAILURE);
+  }
 
   double* D;
   int* Q;
@@ -271,11 +270,11 @@ int main(int argc, char** argv)
   posix_memalign((void**) &Q, 64, N * sizeof(int));
   posix_memalign((void**) &test, 64, N * sizeof(int));
   posix_memalign((void**) &test1, 64, N * sizeof(int));
-	posix_memalign((void**) &test2, 64, N * sizeof(int));
-	posix_memalign((void**) &test3, 64, N * sizeof(int));
-	posix_memalign((void**) &pgtmp, 64, N * sizeof(double));
-	posix_memalign((void**) &outlinks, 64, N * sizeof(int));
-	int d_count = N;
+  posix_memalign((void**) &test2, 64, N * sizeof(int));
+  posix_memalign((void**) &test3, 64, N * sizeof(int));
+  posix_memalign((void**) &pgtmp, 64, N * sizeof(double));
+  posix_memalign((void**) &outlinks, 64, N * sizeof(int));
+  int d_count = N;
   pthread_barrier_t barrier;
 
   double** W = (double**) malloc(N*sizeof(double*));
@@ -292,30 +291,30 @@ int main(int argc, char** argv)
     }
   }
 
-	printf("\nRead");
+  printf("\nRead");
   for(int i=0;i<N;i++)
-	{
-		for(int j=0;j<DEG;j++)
-		{
-			W[i][j] = 1000000000;
-			W_index[i][j] = INT_MAX;
-		}
-		test[i]=0;
-		test1[i]=0;
-		test2[i]=0;
-		test3[i]=0;
-		outlinks[i]=0;
-	}
+  {
+    for(int j=0;j<DEG;j++)
+    {
+      W[i][j] = 1000000000;
+      W_index[i][j] = INT_MAX;
+    }
+    test[i]=0;
+    test1[i]=0;
+    test2[i]=0;
+    test3[i]=0;
+    outlinks[i]=0;
+  }
 
-	int lines=0;
-	for(c=getc(f); c!=EOF; c=getc(f))
-	{
-		if(c=='\n')
-			lines++;
-	}
-	fclose(f);
+  int lines=0;
+  for(c=getc(f); c!=EOF; c=getc(f))
+  {
+    if(c=='\n')
+      lines++;
+  }
+  fclose(f);
 
-	FILE *file0 = fopen(filename,"r");
+  FILE *file0 = fopen(filename,"r");
 
   for(c=getc(file0); c!=EOF; c=getc(file0))
   {
@@ -328,44 +327,44 @@ int main(int argc, char** argv)
 
       inter = test[number1]; 
 
-			W[number0][inter] = 0; //drand48();
-			W_index[number1][inter] = number0;
-			previous_node = number0;
-			test[number1]++;
-			outlinks[number0]++;
-			test1[number0]=1; test1[number1]=1;
-			test2[number0]=1;
-			test3[number1]=1;
-			if(number0 > nodecount)
-				nodecount = number0;
-			if(number1 > nodecount)
-				nodecount = number1;
+      W[number0][inter] = 0; //drand48();
+      W_index[number1][inter] = number0;
+      previous_node = number0;
+      test[number1]++;
+      outlinks[number0]++;
+      test1[number0]=1; test1[number1]=1;
+      test2[number0]=1;
+      test3[number1]=1;
+      if(number0 > nodecount)
+        nodecount = number0;
+      if(number1 > nodecount)
+        nodecount = number1;
     }   
   }
-	nodecount++;
-	for(int i=0;i<N;i++)
-	{ 
-		if(test2[i]==1 && test3[i]==1)
-			test3[i]=0;
-	}
-	//printf("\n\nFile Read %d",lines_to_check);
+  nodecount++;
+  for(int i=0;i<N;i++)
+  { 
+    if(test2[i]==1 && test3[i]==1)
+      test3[i]=0;
+  }
+  //printf("\n\nFile Read %d",lines_to_check);
 
   // Calculate total nodes, in order to calculate an initial weight.
   /*for(int i=0;i<N;i++) 
-	{
+  {
     if (test1[i]==1) 
-			nodecount++;
+      nodecount++;
   }*/
-	printf("Nodes: %d",nodecount);
+  printf("Nodes: %d",nodecount);
   N = nodecount;
 
   pthread_barrier_init(&barrier, NULL, P);
   pthread_mutex_init(&lock, NULL);
-	for(int i=0; i<N; i++)
-		pthread_mutex_init(&locks[i], NULL);
+  for(int i=0; i<N; i++)
+    pthread_mutex_init(&locks[i], NULL);
   
-	//double nodecount_f = nodecount;
-	initialize_single_source(D, Q, 0, N, 0.15);
+  //double nodecount_f = nodecount;
+  initialize_single_source(D, Q, 0, N, 0.15);
   printf("\nInit");
   
 	for(int j = 0; j < P; j++) {
@@ -382,12 +381,12 @@ int main(int argc, char** argv)
     thread_arg[j].DEG        = DEG;
     thread_arg[j].barrier    = &barrier;
   }
-int mul = 2;
+  int mul = 2;
   // Enable performance and energy models
   //CarbonEnableModels();
 
-struct timespec requestStart, requestEnd;
-clock_gettime(CLOCK_REALTIME, &requestStart);
+  struct timespec requestStart, requestEnd;
+  clock_gettime(CLOCK_REALTIME, &requestStart);
 
   for(int j = 1; j < P; j++) {
     pthread_create(thread_handle+j,
@@ -401,9 +400,9 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
     pthread_join(thread_handle[j],NULL);
   }
 
-	clock_gettime(CLOCK_REALTIME, &requestEnd);
-	  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
-		  printf( "%lf\n", accum );
+  clock_gettime(CLOCK_REALTIME, &requestEnd);
+  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
+  printf( "%lf\n", accum );
 
   // Enable performance and energy models
   //CarbonDisableModels();
