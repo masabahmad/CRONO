@@ -155,33 +155,33 @@ void* do_work(void* args)
   //int* D                   = arg->D;
   int** W                  = arg->W;
   int** W_index            = arg->W_index;
-	int** sigma              = arg->sigma;
+  int** sigma              = arg->sigma;
   const int N              = arg->N;
   const int DEG            = arg->DEG;
   int local_count          = N;
   //int i, j, po;
-	int uu = 0;
-	P_global = start;
+  int uu = 0;
+  P_global = start;
 
-	int* D;
-	int* Q;
+  int* D;
+  int* Q;
 
-	posix_memalign((void**) &D, 64, N * sizeof(int));
-	posix_memalign((void**) &Q, 64, N * sizeof(int));
+  posix_memalign((void**) &D, 64, N * sizeof(int));
+  posix_memalign((void**) &Q, 64, N * sizeof(int));
 
-	for(int i=0;i<N;i++)
-	{
-		D[i] = INT_MAX;
-		Q[i] = 1;
-	}
-	D[0]=0;
+  for(int i=0;i<N;i++)
+  {
+    D[i] = INT_MAX;
+    Q[i] = 1;
+  }
+  D[0]=0;
 
   int a = 0;
   int i_start =   tid    * N / (arg->P);
   int i_stop  =  (tid+1) * N / (arg->P);
-	int start = 0;
-	int stop = 1;
-	int node = 0;
+  int start = 0;
+  int stop = 1;
+  int node = 0;
 
 	pthread_barrier_wait(arg->barrier_total);
 
@@ -189,84 +189,59 @@ void* do_work(void* args)
 
   while(node<N)
   {
+    pthread_mutex_lock(&lock); 
+    next_source++;
+    node = next_source;
+    //printf("\n %d",next_source);
+    pthread_mutex_unlock(&lock);
 
-     pthread_mutex_lock(&lock); 
-		 next_source++;
-		 node = next_source;
-		 //printf("\n %d",next_source);
-		 pthread_mutex_unlock(&lock);
-
-	    for(uu=0;uu<N;uu++)
-		  {
-        for(int i = 0; i < DEG; i++)
+    for(uu=0;uu<N;uu++)
+    {
+      for(int i = 0; i < DEG; i++)
+      {
+        if((D[W_index[uu][i]] > (D[uu] + W[uu][i])))
         {
+          int neighbor = W_index[uu][i];
+          D[neighbor] = D[uu] + W[uu][i];
+          sigma[tid][neighbor]++;
+          //printf(" %d ",sigma[tid][neighbor]);
+        }  
+        Q[uu]=0;// po=u;
+      }
+    }
+  }
 
-			    if((D[W_index[uu][i]] > (D[uu] + W[uu][i])))
-					{
-						int neighbor = W_index[uu][i];
-				    D[neighbor] = D[uu] + W[uu][i];
-						sigma[tid][neighbor]++;
-						//printf(" %d ",sigma[tid][neighbor]);
-					}
-          
-					Q[uu]=0;// po=u;
-
-					/*if((D[W_index[uu][i]] == (D[uu] + W[uu][i])))
-					{
-						int neighbor = W_index[uu][i];
-
-						//pthread_mutex_lock(&locks[neighbor]);
-            sigma[tid][neighbor]++;// = sigma[neighbor] + sigma[uu];
-						printf(" %d ",sigma[tid][neighbor]);
-						//pthread_mutex_unlock(&locks[neighbor]);
-					}*/
-        }
-		  }
-
-	}
-
-	pthread_barrier_wait(arg->barrier_total);
+  pthread_barrier_wait(arg->barrier_total);
   //BC stuff here
-	//Sum dependencies and then avg for approx
+  //Sum dependencies and then avg for approx
 
-	for(int j=i_start;j<i_stop;j++)
-	{
-		for(int k=0;k<P;k++)
-		{
-			avg[j] = avg[j] + sigma[k][j];
-		}
-		avg[j] = avg[j]/P;
-		if(avg[j]==0 || avg[j]>N)
-			avg[j]=1;
-		//printf(" %d ",avg[j]);
-	}
-	pthread_barrier_wait(arg->barrier_total);
+  for(int j=i_start;j<i_stop;j++)
+  {
+    for(int k=0;k<P;k++)
+    {
+      avg[j] = avg[j] + sigma[k][j];
+    }
+    avg[j] = avg[j]/P;
+    if(avg[j]==0 || avg[j]>N)
+      avg[j]=1;
+    //printf(" %d ",avg[j]);
+  }
+  pthread_barrier_wait(arg->barrier_total);
 
-	if(tid==0)
-	{
-  for(int j=0;j<N;j++)
-	{
-		  float div0 = avg[j];
-			float div1 = avg[N-j-1];
-			float div = div0/div1;
-			delta[j] = delta[j] + (div*(delta[N-j]+1));
-	}
-	}
-	
+  if(tid==0)
+  {
+    for(int j=0;j<N;j++)
+    {
+      float div0 = avg[j];
+      float div1 = avg[N-j-1];
+      float div = div0/div1;
+      delta[j] = delta[j] + (div*(delta[N-j]+1));
+    }
+  }
+
   pthread_barrier_wait(arg->barrier_total);	
-	
-	//printf("\n tid:%d",tid);
 
-	/*if(tid==0)
-	{
-		printf("\n");
-	for(int i=0;i<N;i++)
-	{
-		printf(" %f ",delta[i]);
-	}
-	}*/
-
-	return NULL;
+  return NULL;
 }
 
 
@@ -295,12 +270,12 @@ int main(int argc, char** argv)
   //posix_memalign((void**) &D, 64, N * sizeof(int));
   //posix_memalign((void**) &Q, 64, N * sizeof(int));
 	
-	posix_memalign((void**) &avg, 64, N * sizeof(int));
-	posix_memalign((void**) &delta, 64, N * sizeof(double));
+  posix_memalign((void**) &avg, 64, N * sizeof(int));
+  posix_memalign((void**) &delta, 64, N * sizeof(double));
 	
   int d_count = N;
   pthread_barrier_t barrier_total;
-	pthread_barrier_t barrier;
+  pthread_barrier_t barrier;
 
   int** W = (int**) malloc(N*sizeof(int*));
   int** W_index = (int**) malloc(N*sizeof(int*));
@@ -330,14 +305,13 @@ int main(int argc, char** argv)
   }
 
   pthread_barrier_init(&barrier_total, NULL, P1);
-	pthread_barrier_init(&barrier, NULL, P1);
-
+  pthread_barrier_init(&barrier, NULL, P1);
   pthread_mutex_init(&lock, NULL);
-	
-	for(int i=0; i<2097152; i++)
-		pthread_mutex_init(&locks[i], NULL);
-  
-	//initialize_single_source(D, Q, 0, N);
+
+  for(int i=0; i<2097152; i++)
+    pthread_mutex_init(&locks[i], NULL);
+
+  //initialize_single_source(D, Q, 0, N);
 
   for(int j = 0; j < P1; j++) {
     thread_arg[j].local_min  = local_min_buffer;
@@ -346,7 +320,7 @@ int main(int argc, char** argv)
     //thread_arg[j].D          = D;
     thread_arg[j].W          = W;
     thread_arg[j].W_index    = W_index;
-		thread_arg[j].sigma      = sigma;
+    thread_arg[j].sigma      = sigma;
     thread_arg[j].d_count    = &d_count;
     thread_arg[j].tid        = j;
     thread_arg[j].P          = P;
@@ -378,9 +352,9 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
 
 	printf("Threads Joined!");
 
-	clock_gettime(CLOCK_REALTIME, &requestEnd);
-	  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
-		  printf( "%lf\n", accum );
+  clock_gettime(CLOCK_REALTIME, &requestEnd);
+  double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
+  printf( "%lf\n", accum );
 
   // Enable performance and energy models
   //CarbonDisableModels();
