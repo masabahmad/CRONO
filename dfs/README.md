@@ -11,7 +11,7 @@ To run with P number of threads, and an input file
 
   The input file can be used as:
   sample.txt
-  OR any other file such as road networks from the SNAP datasets (e.g. A FaceBook Gr    aph)
+  OR any other file such as road networks from the SNAP datasets (e.g. A FaceBook Graph)
   https://snap.stanford.edu/data/
 
 **Notes**
