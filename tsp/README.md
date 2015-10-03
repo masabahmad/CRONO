@@ -14,4 +14,6 @@ e.g.
 
 **Notes**
 
+Input threads must be in powers of 2.
+
 The executable then outputs the time in seconds that the program took to run.
