@@ -135,6 +135,7 @@ int P_global = 256;
 int change = 0;
 int *test;
 int *test1;
+int largest=0;
 long long Total = 0;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
@@ -163,8 +164,8 @@ void* do_work(void* args)
   int start =  0;  //tid    * DEG / (arg->P);
   int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
-  start =  tid    *  (N) / (P);
-  stop =  (tid+1) *  (N) / (P);
+  start =  tid    *  (largest) / (P);
+  stop =  (tid+1) *  (largest) / (P);
 	
   pthread_barrier_wait(arg->barrier_total);
 
@@ -172,7 +173,7 @@ void* do_work(void* args)
   {
     if(test1[uu]==1)
     {
-      for(int i = 0; i < DEG; i++)
+      for(int i = 0; i < test[uu]; i++)
       {
         int neighbor = W_index[uu][i];
         if(neighbor>=N)
@@ -300,7 +301,7 @@ int main(int argc, char** argv)
     test[i]=0;
     test1[i]=0;
   }
-
+  
   for(c=getc(file0); c!=EOF; c=getc(file0))
   {
     if(c=='\n')
@@ -310,7 +311,10 @@ int main(int argc, char** argv)
     {
       fscanf(file0, "%d %d", &number0,&number1);
       //printf("\n%d %d",number0,number1);
-
+      if(number0>largest)
+        largest=number0;
+      if(number1>largest)
+        largest=number1;
       inter = test[number0];
 
       //W[number0][inter] = drand48();
@@ -320,7 +324,7 @@ int main(int argc, char** argv)
       test1[number0]=1; test1[number1]=1;
     }
   }
-  printf("\nFile Read");
+  printf("\nFile Read, Largest Vertex:%d",largest);
 
   //init_weights(N, DEG, W, W_index);
   /*for(int i = 0;i<100;i++)
@@ -337,8 +341,11 @@ int main(int argc, char** argv)
 
   pthread_mutex_init(&lock, NULL);
 
-  for(int i=0; i<2097152; i++)
-    pthread_mutex_init(&locks[i], NULL);
+  for(int i=0; i<largest; i++)
+  {
+    if(test1[i]==1)
+      pthread_mutex_init(&locks[i], NULL);
+  }
 
   initialize_single_source(D, Q, 0, N);
 
@@ -371,8 +378,6 @@ int main(int argc, char** argv)
                    (void*)&thread_arg[j]);
   }
   do_work((void*) &thread_arg[0]);
-
-  printf("\nThreads Returned!");
 
   for(int j = 1; j < P; j++) { //mul = mul*2;
     pthread_join(thread_handle[j],NULL);

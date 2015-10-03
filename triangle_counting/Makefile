@@ -3,7 +3,7 @@ TRGS = triangle_counting
 
 LIBS += -lpthread -lrt
 
-CXXFLAGS = -g -w --std=c++0x -O2
+CXXFLAGS = -g --std=c++0x -O2
 
 all: $(TRGS)
 
