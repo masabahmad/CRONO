@@ -3,9 +3,6 @@ Travelling Salesman Problem
 
 Run ```make``` to generate the required executable, then run using the syntax below
 
-To compile tsp.cc
-    ```g++ tsp.cc -o tsp -lm -lrt -lpthread -O2```
-  
 To run with P number of threads, C cities
     ```./tsp P C```
 
