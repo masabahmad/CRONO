@@ -5,16 +5,16 @@ Run ```make``` to generate the required executable, then run using the syntax be
 
 **Synthetic Graphs**
 
-Synthetic Graphs : tsp_synthetic.cc
+Synthetic Graphs : tsp.cc
 
-To compile tsp_synthetic.cc
-    ```g++ tsp_synthetic.cc -o tsp_synthetic -lm -lrt -lpthread -O2```
+To compile tsp.cc
+    ```g++ tsp.cc -o tsp -lm -lrt -lpthread -O2```
   
 To run with P number of threads, C cities
-    ```./tsp_synthetic P C```
+    ```./tsp P C```
 
 e.g.
-    ```./tsp_synthetic 2 16```
+    ```./tsp 2 16```
 
 **Notes**
 
