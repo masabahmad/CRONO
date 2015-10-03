@@ -1,13 +1,13 @@
 
-TRGS = triangle_counting_real
+TRGS = triangle_counting
 
 LIBS += -lpthread -lrt
 
-CXXFLAGS = -g --std=c++0x -O2
+CXXFLAGS = -g -w --std=c++0x -O2
 
 all: $(TRGS)
 
-triangle_counting_real: triangle_counting_real.cc
+triangle_counting: triangle_counting.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot
