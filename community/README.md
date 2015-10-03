@@ -16,4 +16,4 @@ Input threads must be in powers of 2.
 
 Number of iterations required comes from the approximate louvian algorithm, more iterations means higher accuracy of detection.
 
-The executable also output the time in seconds that the program took to run.
+The executable outputs the time in seconds that the program took to run.
