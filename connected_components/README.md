@@ -14,4 +14,4 @@ To run with P number of threads
 
 Input Threads must be in powers of 2.
 
-The executable also output the time in seconds that the program took to run.
+The executable outputs the time in seconds that the program took to run.
