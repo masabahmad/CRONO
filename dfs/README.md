@@ -1,7 +1,7 @@
 Depth First Search
 ==================
 
-Run ```make``` in each subdirectory to generate the required executables, then run using the syntax explained in each markdown file
+Run ```make``` to generate the required executable, then run using the syntax explained below
 
 To compile dfs.cc
    ```g++ dfs.cc -o dfs -lm -lrt -lpthread -O2```
@@ -17,4 +17,5 @@ To run with P number of threads, and an input file
 **Notes**
 
 Input threads must be in powers of 2.
+
 The executable then outputs the time in seconds that the program took to run.
