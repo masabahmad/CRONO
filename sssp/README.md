@@ -1,4 +1,4 @@
-Parallel Dijkstra
+Parallel SSSP
 =================
 
 You can run ```make``` to create executables for each program or use the following commands below
