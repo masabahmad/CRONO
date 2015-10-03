@@ -1,4 +1,4 @@
-SUBDIRS= APSP BC dijkstra pagerank triangle_counting tsp
+SUBDIRS= apsp bc dijkstra pagerank triangle_counting tsp
 
 CRONO_DIR=$(PWD)
 
