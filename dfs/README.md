@@ -3,9 +3,6 @@ Depth First Search
 
 Run ```make``` to generate the required executable, then run using the syntax explained below
 
-To compile dfs.cc
-   ```g++ dfs.cc -o dfs -lm -lrt -lpthread -O2```
-
 To run with P number of threads, and an input file
    ```./dfs P <input_file>```
 
