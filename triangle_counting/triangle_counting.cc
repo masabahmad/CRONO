@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <pthread.h>
-//#include "carbon_user.h"
+//#include "carbon_user.h"     /* For the Graphite Simulator*/
 #include <time.h>
 #include <sys/timeb.h>
 
@@ -104,8 +104,6 @@ int u = 0;
 
 
 int initialize_single_source(int* D, int* Q, int source, int N);
-void relax(int u, int i, volatile int* D, int** W, int** W_index, int N);
-int get_local_min(volatile int* Q, volatile int* D, int start, int stop, int N, int** W_index, int** W, int u);
 
 typedef struct
 {
@@ -232,13 +230,14 @@ void* do_work(void* args)
 
 
 int main(int argc, char** argv)
-{ //int mul = W_index[0][0];
-  // Start the simulator
+{
+  // Start the Graphite simulator
   //CarbonStartSim(argc, argv);
   
-  char filename[100];
-  printf("Please Enter The Name Of The File You Would Like To Fetch\n");
-  scanf("%s", filename);
+  //char filename[100];
+  const char *filename = argv[2];
+  //printf("Please Enter The Name Of The File You Would Like To Fetch\n");
+  //scanf("%s", filename);
   FILE *file0 = fopen(filename,"r");
 
   int lines_to_check=0;
@@ -291,7 +290,6 @@ int main(int argc, char** argv)
     }
   }
 
-printf("\nRead");
   for(int i=0;i<N;i++)
   {
     for(int j=0;j<DEG;j++)
@@ -359,8 +357,8 @@ printf("\nRead");
     thread_arg[j].barrier_total = &barrier_total;
     thread_arg[j].barrier    = &barrier;
   }
-  int mul = 2;
-  // Enable performance and energy models
+  
+  // Enable Graphite performance and energy models
   //CarbonEnableModels();
 
   struct timespec requestStart, requestEnd;
@@ -374,29 +372,23 @@ printf("\nRead");
   }
   do_work((void*) &thread_arg[0]);
 
-  printf("Threads Returned!");
+  printf("\nThreads Returned!");
 
   for(int j = 1; j < P; j++) { //mul = mul*2;
     pthread_join(thread_handle[j],NULL);
   }
 
-  printf("Threads Joined!");
+  printf("\nThreads Joined!");
 
   clock_gettime(CLOCK_REALTIME, &requestEnd);
   double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
-  printf( "%lf\n", accum );
+  printf( "\nTime Taken:\n%lf seconds", accum );
 
-  // Enable performance and energy models
+  // Disable Graphite performance and energy models
   //CarbonDisableModels();
-  //printf("\ndistance:%d \n",D[N-1]);
-  printf("%d",Total);
-    //for(int i = 0; i < N; i++) {
-    //  printf(" %d ", D[i]);
-    //}
-    //printf("\n");
-  printf("\n TOTAL=%d",Total);
+  printf("\nTriangles=%d\n",Total);
 
-  // Stop the simulator
+  // Stop the Graphite simulator
   //CarbonStopSim();
   return 0;
 }
@@ -414,28 +406,4 @@ int initialize_single_source(int*  D,
 
   //D[source] = 0;
   return 0;
-}
-
-int get_local_min(volatile int* Q, volatile int* D, int start, int stop, int N, int** W_index, int** W, int u)
-{
-  int min = INT_MAX;
-  int min_index = N;
-
-  for(int i = start; i < stop; i++) 
-  {
-   if(W_index[u][i]==-1 || W[u][i]==INT_MAX)
-     continue;
-    if(D[i] < min && Q[i]) 
-    {
-      min = D[i];
-      min_index = W_index[u][i];
-    }
-  }
-  return min_index;
-}
-
-void relax(int u, int i, volatile int* D, int** W, int** W_index, int N)
-{
-  if((D[W_index[u][i]] > (D[u] + W[u][i]) && (W_index[u][i]!=-1 && W_index[u][i]<N && W[u][i]!=INT_MAX)))
-    D[W_index[u][i]] = D[u] + W[u][i];
 }

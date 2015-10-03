@@ -7,9 +7,9 @@ To compile triangle_counting.cc
     ```g++ triangle_counting.cc -o triangle_counting -lm -lrt -lpthread -O2```
   
 To run with P number of threads
-    ```./triangle_counting_real P```
+    ```./triangle_counting_real P Input_file```
   
-  It will then ask for the input file, enter:
+  The input file can be used as:
   sample.txt
   OR any other file such as road networks from the SNAP datasets (e.g. A FaceBook Graph)
   https://snap.stanford.edu/data/
