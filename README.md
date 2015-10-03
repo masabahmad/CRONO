@@ -25,7 +25,7 @@ Requirements
 
 Features
 =======
-1. Ubiquitous Graph Workloads
+1. Ubiquitous graph based search, planning, and clustering algorithms
 2. Benchmarks use adjacency list representation
 3. Most benchmarks scale to 256 threads, some scale upto 1024 threads as well
 4. Easy to compile and use
