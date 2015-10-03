@@ -7,7 +7,7 @@ To compile triangle_counting.cc
     ```g++ triangle_counting.cc -o triangle_counting -lm -lrt -lpthread -O2```
   
 To run with P number of threads
-    ```./triangle_counting_real P <input_file>```
+    ```./triangle_counting P <input_file>```
   
   The input file can be used as:
   sample.txt
@@ -16,6 +16,6 @@ To run with P number of threads
 
 **Notes**
 
-All inputs must be in powers of 2.
+Input threads must be in powers of 2.
 
 The executable then outputs the time in seconds that the program took to run, as well as the number of triangles counted.
