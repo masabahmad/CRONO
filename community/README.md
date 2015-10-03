@@ -1,7 +1,7 @@
 Community Detection
 =======================
 
-Run ```make``` to generate the required executables in each subdirectory, then run using the syntax explained in each markdown file.
+Run ```make``` to generate the required executable, then run using the syntax below.
 
 To run with P number of threads, I iterations, and an input file
    ```./community P I <input_file>```
