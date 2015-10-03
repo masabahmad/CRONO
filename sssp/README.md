@@ -2,9 +2,6 @@ Parallel SSSP
 =================
 
 You can run ```make``` to create executables for each program or use the following commands below
-
-To compile sssp.cc
-  ```g++ sssp.cc -o sssp -lm -lrt -lpthread -O2```
   
 To run with P number of threads
   ```./sssp P```
