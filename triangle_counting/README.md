@@ -3,9 +3,6 @@ Triangle Counting
 
 Run ```make``` to generate the required executables, then use the syntax below to run the benchmark
 
-To compile triangle_counting.cc
-    ```g++ triangle_counting.cc -o triangle_counting -lm -lrt -lpthread -O2```
-  
 To run with P number of threads
     ```./triangle_counting P <input_file>```
   
