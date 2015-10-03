@@ -10,6 +10,6 @@ The input file can be used as: sample.txt OR any other file such as road network
 
 **Notes**
 
-All inputs must be in powers of 2.
+Input threads must be in powers of 2.
 
 The executable outputs the time in seconds that the program took to run.
