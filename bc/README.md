@@ -5,16 +5,16 @@ Run ```make``` to generate the required executables, then run using the syntax b
 
 **Synthetic Graphs**
 
-Synthetic Graphs : BC.cc
+Synthetic Graphs : bc.cc
 
-To compile BC.cc
-    ```g++ BC.cc -o BC -lm -lrt -lpthread -O2```
+To compile bc.cc
+    ```g++ bc.cc -o bc -lm -lrt -lpthread -O2```
   
 To run with P number of threads, N vertices, and DEG edges per vertex
-    ```./BC P N DEG```
+    ```./bc P N DEG```
 
 e.g.
-    ```./BC 2 16384 16```
+    ```./bc 2 16384 16```
 
 **Notes**
 

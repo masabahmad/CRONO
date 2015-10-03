@@ -1,5 +1,5 @@
 
-TRGS = BC
+TRGS = bc
 
 LIBS += -lpthread -lrt
 
@@ -11,7 +11,7 @@ CXXFLAGS = -g --std=c++0x -O2
 
 all: $(TRGS)
 
-BC: BC.cc
+bc: bc.cc
 
 ##boost_dijk_real: boost_dijk_real.cc
 

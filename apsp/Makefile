@@ -1,5 +1,5 @@
 
-TRGS = APSP
+TRGS = apsp
 
 LIBS += -lpthread -lrt
 
@@ -11,7 +11,7 @@ CXXFLAGS = -g --std=c++0x -O2
 
 all: $(TRGS)
 
-APSP: APSP.cc
+apsp: apsp.cc
 
 ##boost_dijk_real: boost_dijk_real.cc
 
