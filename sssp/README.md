@@ -1,17 +1,13 @@
 Parallel Dijkstra
 =================
 
-Real World File Input Graphs : dijk_real.cc
-
 You can run ```make``` to create executables for each program or use the following commands below
 
-**Real Graphs**
-
-To compile dijk_real.cc
-  ```g++ dijk_real.cc -o dijk_real -lm -lrt -lpthread -O2```
+To compile sssp.cc
+  ```g++ sssp.cc -o sssp -lm -lrt -lpthread -O2```
   
 To run with P number of threads
-  ```./dijk_real P```
+  ```./sssp P```
   
   It will then ask for the input file, enter:
   sample.txt

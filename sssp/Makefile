@@ -1,5 +1,5 @@
 
-TRGS = dijk_real
+TRGS = sssp
 
 LIBS += -lpthread -lrt
 
@@ -11,7 +11,7 @@ CXXFLAGS = -g --std=c++0x -O3
 
 all: $(TRGS)
 
-dijk_real: dijk_real.cc
+sssp: sssp.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot
