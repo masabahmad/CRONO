@@ -24,15 +24,15 @@ Requirements
 3. The ```pthread``` Library
 
 Features
-=======
+========
 1. Ubiquitous graph based search, planning, and clustering algorithms
 2. Benchmarks use adjacency list representation for input graphs
 3. Most benchmarks scale to 256 threads, some scale upto 1024 threads as well
 4. Easy to compile and use
 5. The input graphs are generic, i.e., the benchmarks do not assume any pre-processing or optimizations, such as graph compression and vertex/edge reordering
 
-Executing
-=========
+Getting Started
+===============
 
 Checkout the Repo:
 ```git clone https://github.com/masabahmad/CRONO```
