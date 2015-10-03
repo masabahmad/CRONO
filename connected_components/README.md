@@ -1,7 +1,7 @@
 Connected Components
 =======================
 
-Run ```make``` in each subdirectory to generate the required executables, then run using the syntax explained in each markdown file
+Run ```make``` to generate the required executable, then run using the syntax explained below
 
 To run with P number of threads
    ```./connected_components P <input_file>```
