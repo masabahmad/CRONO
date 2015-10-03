@@ -3,10 +3,6 @@ Travelling Salesman Problem
 
 Run ```make``` to generate the required executable, then run using the syntax below
 
-**Synthetic Graphs**
-
-Synthetic Graphs : tsp.cc
-
 To compile tsp.cc
     ```g++ tsp.cc -o tsp -lm -lrt -lpthread -O2```
   
