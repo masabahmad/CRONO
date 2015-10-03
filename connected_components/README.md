@@ -3,9 +3,6 @@ Connected Components
 
 Run ```make``` in each subdirectory to generate the required executables, then run using the syntax explained in each markdown file
 
-To compile connected_components.cc
-   ```g++ connected_components.cc -o connected_components -lm -lrt -lpthread -O2```
-
 To run with P number of threads
    ```./connected_components P <input_file>```
 
@@ -16,4 +13,5 @@ To run with P number of threads
 **Notes**
 
 Input Threads must be in powers of 2.
+
 The executables also output the time in seconds that the program took to run.
