@@ -4,13 +4,13 @@ CRONO v0.9 : A Benchmark Suite for Multithreaded Graph Algorithms Executing on F
 
 [![build status](https://travis-ci.org/masabahmad/CRONO.svg?branch=master)](https://travis-ci.org/masabahmad/CRONO)
 
-This is a Pre-Release repository containing 10 Graph Analytic Benchmarks.
+This is a pre-release repository containing 10 graph analytic benchmarks.
 An in-built synthetic graph generater can be included by statically configuring certain benchmarks.
 These benchmarks can run on real multicore machines as well as the Graphite Multicore Simulator.
 
 If you use these benchmarks, please cite:
 
-Masab Ahmad (UConn), Farrukh Hijaz (UConn), Qingchuan Shi (UConn), Omer Khan (UConn), CRONO : A Benchmark Suite for Multithreaded Graph Algorithms Executing on Futuristic Multicores, 2015 IEEE International Symposium on Workload Characteriz
+CRONO : A Benchmark Suite for Multithreaded Graph Algorithms Executing on Futuristic Multicores, Masab Ahmad, Farrukh Hijaz, Qingchuan Shi, Omer Khan, IEEE International Symposium on Workload Characteriz
 ation (IISWC), Oct 2015, Atlanta, Georgia, USA.
 
 Paper pdf is located at: 
