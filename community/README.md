@@ -18,4 +18,5 @@ This is an approximate version of community detection as discussion in our CRONO
 **Notes**
 
 Input threads must be in powers of 2.
+Number of iterations required comes from the approximate louvarian algorithm, more iterations means higher accuracy of detection.
 The executables also output the time in seconds that the program took to run.
