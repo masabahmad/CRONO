@@ -21,6 +21,5 @@ Paper: J.Y.Yen, "An algorithm for finding shortest routes from all source nodes 
 This parallelization can handle negative edge weights as well.
 
 The benchmark version has a parameter P_max, that is specified by ```cuberoot(N)*3```, which represents the number of iterations for the outer loop.
-Another parameter, ```range```, specifies the amount of vertices that can be worked on in an iteration. Currently, its set to multiply by DEG at each iteration. 
 
 The executable then outputs the time in seconds that the program took to run.
