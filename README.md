@@ -9,6 +9,17 @@ An in built synthetic random graph generater is included.
 Real World Graphs are also interfaced as in benchmarkreal.cc files within the folders.
 Can be easily run with the Graphite Simulator, and interfaced with performance counters (easyperf, code already included and commented out).
 
+Notice
+======
+
+If you use these programs please cite:
+
+Masab Ahmad (UConn), Farrukh Hijaz (UConn), Qingchuan Shi (UConn), Omer Khan (UConn), CRONO : A Benchmark Suite for Multithreaded Graph Algorithms Executing on Futuristic Multicores, 2015 IEEE International Symposium on Workload Characteriz
+ation (IISWC), Oct 2015, Atlanta, Georgia, USA.
+
+Paper Located At: 
+http://www.engr.uconn.edu/~omer.khan/pubs/crono-iiswc15.pdf
+
 Requirements
 ============
 
@@ -40,16 +51,6 @@ To generate executables, run ```make``` inside the CRONO directory, then run the
 OR
 
 To run, compile using the readme located in each folder
-
-Notice
-======
-
-If you use these programs please cite:
-
-Masab Ahmad (UConn), Farrukh Hijaz (UConn), Qingchuan Shi (UConn), Omer Khan (UConn), CRONO : A Benchmark Suite for Multithreaded Graph Algorithms Executing on Futuristic Multicores, 2015 IEEE International Symposium on Workload Characterization (IISWC), Oct 2015, Atlanta, Georgia, USA.
-
-Paper Located At:
-http://www.engr.uconn.edu/~omer.khan/pubs/crono-iiswc15.pdf
 
 Contact
 =======
