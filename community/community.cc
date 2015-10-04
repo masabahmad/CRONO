@@ -156,28 +156,28 @@ void* do_work(void* args)
   float sum_tot = 0;
   float sum_in = 0;
 
-  float total_edges = N*DEG;
+  //float total_edges = N*DEG;
   float mod_gain_temp = 0;
   float mod_gain_temp_temp = 0;
-  float inv_total_edges = 2/total_edges;
+  //float inv_total_edges = 2/total_edges;
 
   int a = 0;
   int start =  0;  //tid    * DEG / (arg->P);
   int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
-  start =  tid    *  (largest) / (P);
-  stop =  (tid+1) *  (largest) / (P);
-
+  start =  tid    *  (largest+1) / (P);
+  stop =  (tid+1) *  (largest+1) / (P);
+  //printf("\n %d %d %d",tid, start,stop);
   //put each node in its own community
 
-  //pthread_barrier_wait(arg->barrier_total);
+  pthread_barrier_wait(arg->barrier_total);
 
   for(uu=start;uu<stop;uu++)
   {
-    for(int i=0;i<DEG;i++)
-    {
+    //for(int i=0;i<test[uu];i++)
+    //{
       comm[uu] = uu;
-    }
+    //}
   }
 
   uu = 0;
@@ -198,11 +198,13 @@ void* do_work(void* args)
       //uu = up;
       //printf(" %d ",uu);
       //pthread_mutex_unlock(&lock);
-  
+      if(test1[uu]==0)
+        continue;	
       for(i = 0; i < test[uu]; i++)
       {
         //pthread_mutex_lock(&locks[neighbor]);
-
+        float total_edges = largest*test[uu];
+        float inv_total_edges = 2/total_edges;
         int tempo = (inv_total_edges)*(inv_total_edges);
         tempo = tempo*2;
         int subtr = sum_tot*W[uu][i];
@@ -236,44 +238,35 @@ void* do_work(void* args)
     //reconstruct
     for(uu=start;uu<stop;uu++)
     {
+      if(test1[uu]==0)
+        continue;
       for(i=0;i<test[uu];i++)
       {
         int neighbor = W_index[uu][i];
         pthread_mutex_lock(&locks[neighbor]);
-          W_index[uu][i] = comm[neighbor];
+          //W_index[uu][i] = comm[neighbor];
           W[uu][i] = comm[uu] - comm[neighbor];
         pthread_mutex_unlock(&locks[neighbor]);
       }
     }
 
     pthread_barrier_wait(arg->barrier_total);
-
-    //reduction heuristic approximate model, not very accurate though
-    if(tid==0)
-    {
-      for(i=stop;i<largest;i++)
-      {
-        for(int j=1;j<P;j++)
-        {
-          comm[i] = comm[stop-1];
-        }
-      }
-    }
-
-    pthread_barrier_wait(arg->barrier_total);
-
-    /*if(tid==0)
-    {
-      for(i=0;i<N;i++)
-      {
-        printf(" %d ",comm[i]);
-      }
-    }*/
-
     local_count++;
-    //printf("\n %d",local_count);
+	}
+    //reduction heuristic approximate model, not very accurate though
+    //if(tid==0)
+    //{
+      for(i=stop;i<largest+1;i++)
+      {
+        if(test1[uu]==0)
+          continue;
+        //for(int j=1;j<P;j++)
+        //{
+          comm[i] = comm[((1) *  (largest+1) / (P))-1];
+        //}
+      }
+    //}
 
-  }
   pthread_barrier_wait(arg->barrier_total);
 
   return NULL;
@@ -404,7 +397,7 @@ int main(int argc, char** argv)
 
   pthread_mutex_init(&lock, NULL);
 
-  for(int i=0; i<largest; i++)
+  for(int i=0; i<largest+1; i++)
   {
     if(test1[i]==1)
       pthread_mutex_init(&locks[i], NULL);
@@ -457,8 +450,9 @@ int main(int argc, char** argv)
   //CarbonDisableModels();
   //printf("\ndistance:%d \n",D[N-1]);
 
-    /*for(int i = 0; i < N; i++) {
-      printf(" %d ", D[i]);
+    /*for(int i = 0; i < largest+1; i++) {
+      if(test1[i]==1)
+      printf("\n %d %d ", i,comm[i]);
     }
     printf("\n");*/
 
