@@ -130,9 +130,8 @@ int range=1;
 int old_range =1;
 int difference=0;
 int pid=0;
-int start = 64;
 int P_global = 256;
-int change = 0;
+int change = 1;
 int *test;
 int *test1;
 int largest=0;
@@ -157,16 +156,15 @@ void* do_work(void* args)
   const int DEG            = arg->DEG;
   int local_count          = N;
   int i, j;
-  int mod=0;
+  int mod=1;
   int uu = 0;
-  P = start;
 
   int a = 0;
   int start =  0;  //tid    * DEG / (arg->P);
   int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
-  start =  tid    *  (largest) / (P);
-  stop =  (tid+1) *  (largest) / (P);
+  start =  tid    *  (largest+1) / (P);
+  stop =  (tid+1) *  (largest+1) / (P);
 	
   pthread_barrier_wait(arg->barrier_total);
   
@@ -174,13 +172,12 @@ void* do_work(void* args)
   {
     D[uu] = uu;
   }
- 
+  //printf("\n started P:%d %d",P, change); 
   pthread_barrier_wait(arg->barrier_total);
 
-while(change==1)
-{
-  if(tid==0)
-    change=0;
+while(mod==1)
+{ 
+  mod=0;
   for(uu=start;uu<stop;uu++)
   {
     if(test1[uu]==1)
@@ -188,8 +185,6 @@ while(change==1)
       for(int i = 0; i < test[uu]; i++)
       {
         int neighbor = W_index[uu][i];
-        if(neighbor>=N)
-          continue;
 
         pthread_mutex_lock(&locks[neighbor]);
 
@@ -200,11 +195,11 @@ while(change==1)
         }				
         
         pthread_mutex_unlock(&locks[neighbor]);
-      }
+      }//printf("\n %d",uu);
     }
   }
-
-  pthread_barrier_wait(arg->barrier_total);
+  //printf("\n third phase");
+  //pthread_barrier_wait(arg->barrier_total);
 
   for(uu=start;uu<stop;uu++)
   {
@@ -213,15 +208,18 @@ while(change==1)
       D[uu] = D[D[uu]];
 		}
   }
-  if(mod==1)
+  /*if(mod==1)
   {
     pthread_mutex_lock(&lock);
     change=1;
     pthread_mutex_lock(&lock);
-  }
+  }*/
+  //if(tid==0)
+  //  printf("\n change:%d",mod);
 
-  pthread_barrier_wait(arg->barrier_total);
+  //pthread_barrier_wait(arg->barrier_total);
 }
+  pthread_barrier_wait(arg->barrier_total);
   return NULL;
 }
 
@@ -252,7 +250,6 @@ int main(int argc, char** argv)
 
   int P = P1;
   P_global = P1;
-  start = P1;
   //change = change1;
   old_range = change;
   range = change;
@@ -337,7 +334,7 @@ int main(int argc, char** argv)
 
   pthread_mutex_init(&lock, NULL);
 
-  for(int i=0; i<largest; i++)
+  for(int i=0; i<largest+1; i++)
   {
     if(test1[i]==1)
       pthread_mutex_init(&locks[i], NULL);
@@ -383,7 +380,7 @@ int main(int argc, char** argv)
 
   clock_gettime(CLOCK_REALTIME, &requestEnd);
   double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
-  printf( "\nTime Taken:\n%lf seconds", accum );
+  printf( "\nTime Taken:\n%lf seconds\n", accum );
 
   // Disable Graphite performance and energy models
   //CarbonDisableModels();
