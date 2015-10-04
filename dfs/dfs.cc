@@ -130,7 +130,6 @@ int range=1;
 int old_range =1;
 int difference=0;
 int pid=0;
-int start = 64;
 int P_global = 256;
 int change = 0;
 int *test;
@@ -158,7 +157,6 @@ void* do_work(void* args)
   int local_count          = N;
   int i, j, po;
   int uu = 0;
-  P = start;
 
   int node = 0;
   int start =  0;  //tid    * DEG / (arg->P);
@@ -228,7 +226,6 @@ int main(int argc, char** argv)
 
   int P = P1;
   P_global = P1;
-  start = P1;
   //change = change1;
   old_range = change;
   range = change;
@@ -363,8 +360,12 @@ int main(int argc, char** argv)
 
   // Disable Graphite performance and energy models
   //CarbonDisableModels();
-  printf("\nTriangles=%d\n",Total);
 
+  /*for(int j=0;j<largest;j++)
+  {
+    if(test1[j]==1)
+      printf("\n %d %d",j,Q[j]);
+  }*/
   // Stop the Graphite simulator
   //CarbonStopSim();
   return 0;
