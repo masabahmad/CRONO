@@ -162,8 +162,8 @@ void* do_work(void* args)
   int start =  0;  //tid    * DEG / (arg->P);
   int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
-  start =  tid    *  (largest) / (P);
-  stop =  (tid+1) *  (largest) / (P);
+  start =  tid    *  (largest+1) / (P);
+  stop =  (tid+1) *  (largest+1) / (P);
 	
   pthread_barrier_wait(arg->barrier_total);
 
@@ -310,7 +310,7 @@ int main(int argc, char** argv)
 
   pthread_mutex_init(&lock, NULL);
 
-  for(int i=0; i<largest; i++)
+  for(int i=0; i<largest+1; i++)
   {
     if(test1[i]==1)
       pthread_mutex_init(&locks[i], NULL);
