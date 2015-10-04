@@ -119,7 +119,6 @@ int range=1;
 int old_range =1;
 int difference=0;
 int pid=0;
-int start = 64;
 int *test;
 int *test1;
 int largest=0;
@@ -151,7 +150,6 @@ void* do_work(void* args)
   int local_count          = 0;
   int uu = 0;
   float modularity = 0;
-  P = start;
   int i;
   int index = 0;
   int index_id = 0;
@@ -306,7 +304,6 @@ int main(int argc, char** argv)
 
 	int P = P1;
 	P_global = P1;
-	start = P1;
 	old_range = change;
 	range = change;
 
