@@ -49,7 +49,7 @@ int u = 0;
                   {
                           if(W_index[i][j] == -1)
                           {        
-														      int neighbor = i+j;
+                                  int neighbor = i+j;
                                   //W_index[i][j] = i+j;//rand()%(DEG);
 																	
                                   if(neighbor > last)
@@ -187,7 +187,7 @@ void* do_work(void* args)
             int neighbor = W_index[uu][i];
             pthread_mutex_lock(&locks[neighbor]);
             if(Q[neighbor]==1)
-							Q[neighbor]=0;
+              Q[neighbor]=0;
             temporary[neighbor] = 1;
             pthread_mutex_unlock(&locks[neighbor]);
           }
