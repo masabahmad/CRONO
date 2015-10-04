@@ -49,7 +49,7 @@ int u = 0;
                   {
                           if(W_index[i][j] == -1)
                           {        
-														      int neighbor = i+j;
+                                  int neighbor = i+j;
                                   //W_index[i][j] = i+j;//rand()%(DEG);
 																	
                                   if(neighbor > last)
