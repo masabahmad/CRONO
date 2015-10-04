@@ -172,8 +172,8 @@ void* do_work(void* args)
 
       while(terminate==0)
       {   
-				for(uu=start;uu<stop;uu++)
-				{
+        for(uu=start;uu<stop;uu++)
+        {
           if(test1[uu]==0)
             continue;
           //printf("\nuu:%d Q:%d %d",uu, Q[uu], D[uu]);
@@ -205,7 +205,7 @@ void* do_work(void* args)
           D[uu] = temporary[uu];
         }
         pthread_barrier_wait(arg->barrier_total);
-			}
+      }
 
   pthread_barrier_wait(arg->barrier_total);
 
