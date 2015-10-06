@@ -310,19 +310,35 @@ int main(int argc, char** argv)
     printf ("Usage:  %s <thread-count> <input-file>\n",argv[0]);
     return 1;
   }
+	int N=0;
+	int DEG=0;
+	FILE *file0;
 
-  const int P = atoi(argv[1]);
+  const int select = atoi(argv[1]);
+  const int P = atoi(argv[2]);
+	if(select==0)
+	{
+		N = atoi(argv[3]);
+		DEG = atoi(argv[4]);
+    printf("\nGraph with Parameters: N:%d DEG:%d\n",N,DEG);
+	}
+
   if (!P) {
     printf ("Error:  Thread count must be a valid integer greater than 0.");
     return 1;
   }
 
-	const char *filename = argv[2];
-	FILE *file0 = fopen(filename,"r");
+if(select==1)
+{
+	const char *filename = argv[3];
+	file0 = fopen(filename,"r");
   if (!file0) {
     printf ("Error:  Unable to open input file '%s'\n",filename);
     return 1;
   }
+	N = 2000000;  //can be read from file if needed, this is a default upper limit
+	DEG = 16;     //also can be reda from file if needed, upper limit here again
+}
 	
 	int lines_to_check=0;
 	char c;
@@ -332,8 +348,6 @@ int main(int argc, char** argv)
 	int previous_node = -1;
 	int check = 0;
 	int inter = -1;
-	int N = 2000000; //can be read from file if needed, this is a default upper limit
-	int DEG = 16;     //also can be reda from file if needed, upper limit here again
 
 	if (DEG > N)
   {
@@ -344,10 +358,10 @@ int main(int argc, char** argv)
   int* D;
   int* Q;
   
-  posix_memalign((void**) &D, 64, N * sizeof(int));
-  posix_memalign((void**) &Q, 64, N * sizeof(int));
-  posix_memalign((void**) &test, 64, N * sizeof(int));
-  posix_memalign((void**) &id, 64, N * sizeof(int));
+  int p0 = posix_memalign((void**) &D, 64, N * sizeof(int));
+  int p1 = posix_memalign((void**) &Q, 64, N * sizeof(int));
+  int p2 = posix_memalign((void**) &test, 64, N * sizeof(int));
+  int p3 = posix_memalign((void**) &id, 64, N * sizeof(int));
   int d_count = N;
   pthread_barrier_t barrier;
 
@@ -375,7 +389,8 @@ int main(int argc, char** argv)
     id[0] = 0;
   }
 
-
+if(select==1)
+{
 for(c=getc(file0); c!=EOF; c=getc(file0))
   {
     if(c=='\n')
@@ -383,7 +398,7 @@ for(c=getc(file0); c!=EOF; c=getc(file0))
 
     if(lines_to_check>3)
     {   
-      fscanf(file0, "%d %d", &number0,&number1);
+      int f0 = fscanf(file0, "%d %d", &number0,&number1);
       //printf("\n%d %d",number0,number1);
 
       if (number0 >= N) {
@@ -391,7 +406,7 @@ for(c=getc(file0); c!=EOF; c=getc(file0))
         exit (EXIT_FAILURE);
       }
 
-      test[number0] = 1; 
+      test[number0] = 1; test[number1] = 1;
       id[number0] = number0;
       if(number0==previous_node) {
         inter++;
@@ -421,9 +436,12 @@ for(c=getc(file0); c!=EOF; c=getc(file0))
       }
     }   
   } //W[2][0] = -1;
+}
 
-
-  //init_weights(N, DEG, W, W_index);
+  if(select==0)
+  {
+    init_weights(N, DEG, W, W_index);
+  }
   /*for(int i = 0;i<N;i++)
   {
         for(int j = 0;j<DEG;j++)
@@ -436,7 +454,11 @@ for(c=getc(file0); c!=EOF; c=getc(file0))
   pthread_barrier_init(&barrier, NULL, P);
   pthread_mutex_init(&lock, NULL);
   for(int i=0; i<N; i++)
+  {
     pthread_mutex_init(&locks[i], NULL);
+    if(select==0)
+      test[i]=1;
+  } 
 
   initialize_single_source(D, Q, 0, N);
 

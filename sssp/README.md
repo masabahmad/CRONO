@@ -2,14 +2,23 @@ Single Source Shortest Path
 ===========================
 
 You can run ```make``` to create executables for each program or use the following commands below
-  
+
+The first argument to the executable specifies whether you want to read the graph from a file (1), or generate a synthetic one internally (0).
+
+Input Graph from a File:
+
 To run with P number of threads
-  ```./sssp P```
+  ```./sssp 1 P <input_file>```
   
   It will then ask for the input file, enter:
   sample.txt
   OR any other file such as road networks from the SNAP datasets (e.g. roadNet-CA)
   https://snap.stanford.edu/data/#road
+
+Input Graph using the Synthetic Generator:
+
+To run with P number of threads, N vertices, and DEG edges per vertex
+  ```./sssp 0 P N DEG```
 
 **Notes**
 
