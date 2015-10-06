@@ -3,6 +3,8 @@ Triangle Counting
 
 Run ```make``` to generate the required executables, then use the syntax below to run the benchmark
 
+The first argument to the executable specifies whether you want to read the graph from a file (1), or generate a synthetic one internally (0).
+
 **Input Graph from File**
 
 To run with P number of threads, and an input file,
