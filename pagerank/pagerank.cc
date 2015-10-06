@@ -266,14 +266,14 @@ int main(int argc, char** argv)
 
   double* D;
   int* Q;
-  posix_memalign((void**) &D, 64, N * sizeof(double));
-  posix_memalign((void**) &Q, 64, N * sizeof(int));
-  posix_memalign((void**) &test, 64, N * sizeof(int));
-  posix_memalign((void**) &test1, 64, N * sizeof(int));
-  posix_memalign((void**) &test2, 64, N * sizeof(int));
-  posix_memalign((void**) &test3, 64, N * sizeof(int));
-  posix_memalign((void**) &pgtmp, 64, N * sizeof(double));
-  posix_memalign((void**) &outlinks, 64, N * sizeof(int));
+  int p0 = posix_memalign((void**) &D, 64, N * sizeof(double));
+  int p1 = posix_memalign((void**) &Q, 64, N * sizeof(int));
+  int p2 = posix_memalign((void**) &test, 64, N * sizeof(int));
+  int p3 = posix_memalign((void**) &test1, 64, N * sizeof(int));
+  int p4 = posix_memalign((void**) &test2, 64, N * sizeof(int));
+  int p5 = posix_memalign((void**) &test3, 64, N * sizeof(int));
+  int p6 = posix_memalign((void**) &pgtmp, 64, N * sizeof(double));
+  int p7 = posix_memalign((void**) &outlinks, 64, N * sizeof(int));
   int d_count = N;
   pthread_barrier_t barrier;
 
@@ -323,7 +323,7 @@ int main(int argc, char** argv)
 
     if(lines_to_check>3 && lines_to_check<lines)
     {   
-      fscanf(file0, "%d %d", &number0,&number1);
+      int f0 = fscanf(file0, "%d %d", &number0,&number1);
 
       inter = test[number1]; 
 
