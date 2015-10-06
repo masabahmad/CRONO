@@ -124,6 +124,7 @@ typedef struct
 
 int local_min_buffer[1024];
 int Total_tid[1024] = {0};
+int Total = 0;
 int global_min_buffer;
 int terminate = 0;
 int range=1;
@@ -136,7 +137,6 @@ int *test;
 int *test1;
 int *temporary;
 int largest=0;
-long long Total = 0;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 
@@ -158,6 +158,7 @@ void* do_work(void* args)
   int local_count          = N;
   int i, j, po;
   int uu = 0;
+  int iter = 0;
 
   int node = 0;
   int start =  0;  //tid    * DEG / (arg->P);
@@ -193,7 +194,7 @@ void* do_work(void* args)
           }
           
           //termination condition
-          if(Q[largest]==0)
+          if(Q[largest]==0 || iter>=Total) //largest vertex done, or all vertices done
             terminate=1;
           //if(tid==0)
           //  printf("\n%d %d %d",uu, Q[uu], P);	
@@ -204,6 +205,7 @@ void* do_work(void* args)
         {
           D[uu] = temporary[uu];
         }
+        iter++;
         pthread_barrier_wait(arg->barrier_total);
       }
 
@@ -329,7 +331,10 @@ int main(int argc, char** argv)
   for(int i=0; i<largest; i++)
   {
     if(test1[i]==1)
+    {
+      Total++;
       pthread_mutex_init(&locks[i], NULL);
+    }
   }
 
   initialize_single_source(D, Q, 0, N);
