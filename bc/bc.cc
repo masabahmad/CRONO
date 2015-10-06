@@ -166,8 +166,8 @@ void* do_work(void* args)
   int* D;
   int* Q;
 
-  posix_memalign((void**) &D, 64, N * sizeof(int));
-  posix_memalign((void**) &Q, 64, N * sizeof(int));
+  int p0 = posix_memalign((void**) &D, 64, N * sizeof(int));
+  int p1 = posix_memalign((void**) &Q, 64, N * sizeof(int));
 
   for(int i=0;i<N;i++)
   {
@@ -270,8 +270,8 @@ int main(int argc, char** argv)
   //posix_memalign((void**) &D, 64, N * sizeof(int));
   //posix_memalign((void**) &Q, 64, N * sizeof(int));
 	
-  posix_memalign((void**) &avg, 64, N * sizeof(int));
-  posix_memalign((void**) &delta, 64, N * sizeof(double));
+  int p0 = posix_memalign((void**) &avg, 64, N * sizeof(int));
+  int p1 = posix_memalign((void**) &delta, 64, N * sizeof(double));
 	
   int d_count = N;
   pthread_barrier_t barrier_total;
