@@ -5,7 +5,7 @@ You can run ```make``` to create executables for each program or use the followi
 
 The first argument to the executable specifies whether you want to read the graph from a file (1), or generate a synthetic one internally (0).
 
-Input Graph from a File:
+**Input Graph from a File**
 
 To run with P number of threads
   ```./sssp 1 P <input_file>```
@@ -15,7 +15,7 @@ To run with P number of threads
   OR any other file such as road networks from the SNAP datasets (e.g. roadNet-CA)
   https://snap.stanford.edu/data/#road
 
-Input Graph using the Synthetic Generator:
+**Generate and Input using the Synthetic Graph Generator**
 
 To run with P number of threads, N vertices, and DEG edges per vertex
   ```./sssp 0 P N DEG```
