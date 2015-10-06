@@ -18,7 +18,7 @@ To run with P number of threads, and an input file,
 **Generate and Input using the Synthetic Graph Generator**
 
 To run with P number of threads, N vertices, and DEG edges per vertex
-   ```./triangle_counting 0 P N DEG```
+   ```./pagerank 0 P N DEG```
 
 **Notes**
 
