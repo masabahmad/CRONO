@@ -164,7 +164,8 @@ void* do_work(void* args)
 
   start =  tid    *  (largest) / (P);
   stop =  (tid+1) *  (largest) / (P);
-	
+  //printf("\n %d %d %d",tid,start,stop);
+
   pthread_barrier_wait(arg->barrier_total);
 
   for(uu=start;uu<stop;uu++)
@@ -179,8 +180,8 @@ void* do_work(void* args)
 
         pthread_mutex_lock(&locks[neighbor]);
 
-        if(uu>=N)
-          terminate=1;
+        //if(uu>=N)
+        //  terminate=1;
 
         D[W_index[uu][i]]++;
         Q[W_index[uu][i]] = 0;
@@ -194,7 +195,8 @@ void* do_work(void* args)
 
   for(uu=start;uu<stop;uu++)
   {
-    if(test1[uu]==1){
+    if(test1[uu]==1)
+    {
       unsigned int ret = -1;
       /*while (D[uu] != 0) 
       {
@@ -234,10 +236,18 @@ int main(int argc, char** argv)
   //CarbonStartSim(argc, argv);
   
   //char filename[100];
-  const char *filename = argv[2];
-  //printf("Please Enter The Name Of The File You Would Like To Fetch\n");
-  //scanf("%s", filename);
-  FILE *file0 = fopen(filename,"r");
+	FILE *file0;
+  int N=0;
+  int DEG=0;
+  const int select = atoi(argv[1]);
+  
+  if(select==1)
+  {
+    const char *filename = argv[3];
+    //printf("Please Enter The Name Of The File You Would Like To Fetch\n");
+    //scanf("%s", filename);
+    file0 = fopen(filename,"r");
+  }
 
   int lines_to_check=0;
   char c;
@@ -247,10 +257,14 @@ int main(int argc, char** argv)
   int previous_node = 0;
   int check = 0;
   int inter = -1; 
-  int N = 2097152; //can be read from file if needed, this is a default upper limit
-  int DEG = 12;     //also can be reda from file if needed, upper limit here again
 
-  const int P1 = atoi(argv[1]);
+  if(select==1)
+  {
+    N = 2097152; //can be read from file if needed, this is a default upper limit
+    DEG = 12;     //also can be reda from file if needed, upper limit here again
+  }
+
+  const int P1 = atoi(argv[2]);
 
   int P = P1;
   P_global = P1;
@@ -258,6 +272,12 @@ int main(int argc, char** argv)
   old_range = change;
   range = change;
 
+  if(select==0)
+  {
+    N = atoi(argv[3]);
+    DEG = atoi(argv[4]);
+    printf("\nGraph with Parameters: N:%d DEG:%d\n",N,DEG);
+  }
         if (DEG > N)
         {
                 fprintf(stderr, "Degree of graph cannot be grater than number of Vertices\n");
@@ -266,20 +286,20 @@ int main(int argc, char** argv)
 
   int* D;
   int* Q;
-  posix_memalign((void**) &D, 64, N * sizeof(int));
-  posix_memalign((void**) &Q, 64, N * sizeof(int));
-  posix_memalign((void**) &test, 64, N * sizeof(int));
-  posix_memalign((void**) &test1, 64, N * sizeof(int));
+  int p0 = posix_memalign((void**) &D, 64, N * sizeof(int));
+  int p1 = posix_memalign((void**) &Q, 64, N * sizeof(int));
+  int p2 = posix_memalign((void**) &test, 64, N * sizeof(int));
+  int p3 = posix_memalign((void**) &test1, 64, N * sizeof(int));
   int d_count = N;
   pthread_barrier_t barrier_total;
   pthread_barrier_t barrier;
 
-  //int** W = (int**) malloc(N*sizeof(int*));
+  int** W = (int**) malloc(N*sizeof(int*));
   int** W_index = (int**) malloc(N*sizeof(int*));
   for(int i = 0; i < N; i++)
   {
     //W[i] = (int *)malloc(sizeof(int)*N);
-    //int ret = posix_memalign((void**) &W[i], 64, DEG*sizeof(int));
+    int ret = posix_memalign((void**) &W[i], 64, DEG*sizeof(int));
     int re1 = posix_memalign((void**) &W_index[i], 64, DEG*sizeof(int));
     if (re1!=0)
     {
@@ -298,7 +318,9 @@ int main(int argc, char** argv)
     test[i]=0;
     test1[i]=0;
   }
-  
+
+  if(select==1)
+  {
   for(c=getc(file0); c!=EOF; c=getc(file0))
   {
     if(c=='\n')
@@ -306,7 +328,7 @@ int main(int argc, char** argv)
 
     if(lines_to_check>3)
     {
-      fscanf(file0, "%d %d", &number0,&number1);
+      int f0 = fscanf(file0, "%d %d", &number0,&number1);
       //printf("\n%d %d",number0,number1);
       if(number0>largest)
         largest=number0;
@@ -322,8 +344,13 @@ int main(int argc, char** argv)
     }
   }
   printf("\nFile Read, Largest Vertex:%d",largest);
-
-  //init_weights(N, DEG, W, W_index);
+  }
+  
+  if(select==0)
+  {
+    init_weights(N, DEG, W, W_index);
+    largest = N;
+  }
   /*for(int i = 0;i<100;i++)
   {
         for(int j = 0;j<4;j++)
@@ -340,6 +367,11 @@ int main(int argc, char** argv)
 
   for(int i=0; i<largest; i++)
   {
+    if(select==0)
+    {
+      test1[i]=1;
+      test[i]=DEG;
+    }
     if(test1[i]==1)
       pthread_mutex_init(&locks[i], NULL);
   }
@@ -388,7 +420,7 @@ int main(int argc, char** argv)
 
   // Disable Graphite performance and energy models
   //CarbonDisableModels();
-  printf("\nTriangles=%d\n",Total);
+  printf("\nTriangles=%lld \n",Total);
 
   // Stop the Graphite simulator
   //CarbonStopSim();
