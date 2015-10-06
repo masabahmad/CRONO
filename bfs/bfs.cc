@@ -253,11 +253,11 @@ int main(int argc, char** argv)
 
   int* D;
   int* Q;
-  posix_memalign((void**) &D, 64, N * sizeof(int));
-  posix_memalign((void**) &Q, 64, N * sizeof(int));
-  posix_memalign((void**) &test, 64, N * sizeof(int));
-  posix_memalign((void**) &test1, 64, N * sizeof(int));
-  posix_memalign((void**) &temporary, 64, N * sizeof(int));
+  int p0 = posix_memalign((void**) &D, 64, N * sizeof(int));
+  int p1 = posix_memalign((void**) &Q, 64, N * sizeof(int));
+  int p2 = posix_memalign((void**) &test, 64, N * sizeof(int));
+  int p3 = posix_memalign((void**) &test1, 64, N * sizeof(int));
+  int p4 = posix_memalign((void**) &temporary, 64, N * sizeof(int));
 	int d_count = N;
   pthread_barrier_t barrier_total;
   pthread_barrier_t barrier;
@@ -295,7 +295,7 @@ int main(int argc, char** argv)
 
     if(lines_to_check>3)
     {
-      fscanf(file0, "%d %d", &number0,&number1);
+      int f0 = fscanf(file0, "%d %d", &number0,&number1);
       //printf("\n%d %d",number0,number1);
       if(number0>largest)
         largest=number0;
