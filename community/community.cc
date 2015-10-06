@@ -314,16 +314,16 @@ int main(int argc, char** argv)
   float* mod_gain;
   float* total_mod_gain;
   int* deg_node;
-  posix_memalign((void**) &D, 64, N * sizeof(int));
-  posix_memalign((void**) &Q, 64, N * sizeof(float));
-  posix_memalign((void**) &deg_node, 64, N * sizeof(int));
-  posix_memalign((void**) &test, 64, N * sizeof(int));
-  posix_memalign((void**) &test1, 64, N * sizeof(int));
+  int p0 = posix_memalign((void**) &D, 64, N * sizeof(int));
+  int p1 = posix_memalign((void**) &Q, 64, N * sizeof(float));
+  int p2 = posix_memalign((void**) &deg_node, 64, N * sizeof(int));
+  int p3 = posix_memalign((void**) &test, 64, N * sizeof(int));
+  int p4 = posix_memalign((void**) &test1, 64, N * sizeof(int));
 
-  posix_memalign((void**) &comm, 64, N * sizeof(int));
-  posix_memalign((void**) &C, 64, N * sizeof(float));
-  posix_memalign((void**) &mod_gain, 64, N * sizeof(float));
-  posix_memalign((void**) &total_mod_gain, 64, N * sizeof(float));
+  int p5 = posix_memalign((void**) &comm, 64, N * sizeof(int));
+  int p6 = posix_memalign((void**) &C, 64, N * sizeof(float));
+  int p7 = posix_memalign((void**) &mod_gain, 64, N * sizeof(float));
+  int p8 = posix_memalign((void**) &total_mod_gain, 64, N * sizeof(float));
   int d_count = N;
   
   float** W = (float**) malloc(N*sizeof(float*));
@@ -363,7 +363,7 @@ int main(int argc, char** argv)
 
     if(lines_to_check>3)
     {
-      fscanf(file0, "%d %d", &number0,&number1);
+      int f0 = fscanf(file0, "%d %d", &number0,&number1);
       //printf("\n%d %d",number0,number1);
       if(number0>largest)
         largest=number0;
