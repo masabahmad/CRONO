@@ -278,11 +278,18 @@ int main(int argc, char** argv)
   // Start the simulator
   //CarbonStartSim(argc, argv);
 
-  const int P1 = atoi(argv[1]);
-  iterations = atoi(argv[2]);
+  int N = 0;
+  int DEG = 0;
+  FILE *file0;
+  const int select = atoi(argv[1]);
+  const int P1 = atoi(argv[2]);
+  iterations = atoi(argv[3]);
 
-	const char *filename = argv[3];
-	FILE *file0 = fopen(filename,"r");
+  if(select==1)
+  {
+	  const char *filename = argv[4];
+	  file0 = fopen(filename,"r");
+  }
 
   int lines_to_check=0;
   char c;
@@ -292,14 +299,24 @@ int main(int argc, char** argv)
   int previous_node = 0;
   int check = 0;
   int inter = -1; 
-  int N = 2097152; //can be read from file if needed, this is a default upper limit
-  int DEG = 16;     //also can be reda from file if needed, upper limit here again
+
+  if(select==1)
+  {
+    N = 2097152; //can be read from file if needed, this is a default upper limit
+    DEG = 16;     //also can be reda from file if needed, upper limit here again
+  }
 
 	int P = P1;
 	P_global = P1;
 	old_range = change;
 	range = change;
 
+  if(select==0)
+  {
+    N = atoi(argv[4]);
+    DEG = atoi(argv[5]);
+    printf("\nGraph with Parameters: N:%d DEG:%d\n",N,DEG);
+  }
 
         if (DEG > N)
         {
@@ -356,6 +373,8 @@ int main(int argc, char** argv)
     test1[i]=0;
   }
 
+  if(select==1)
+  {
   for(c=getc(file0); c!=EOF; c=getc(file0))
   {
     if(c=='\n')
@@ -379,10 +398,17 @@ int main(int argc, char** argv)
     }
   }
   printf("\nFile Read, Largest Vertex:%d",largest);
+  }
 
   pthread_barrier_t barrier_total;
   pthread_barrier_t barrier;
 
+  if(select==0)
+  {
+    init_weights(N,DEG,W,W_index);
+    largest = N-1;
+  }
+  
   /*for(int i = 0;i<N;i++)
   {
         for(int j = 0;j<N;j++)
@@ -399,6 +425,11 @@ int main(int argc, char** argv)
 
   for(int i=0; i<largest+1; i++)
   {
+    if(select==0)
+    {
+      test1[i] = 1;
+      test[i] = DEG;
+    }
     if(test1[i]==1)
       pthread_mutex_init(&locks[i], NULL);
   }

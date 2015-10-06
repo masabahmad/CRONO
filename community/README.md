@@ -3,12 +3,21 @@ Community Detection
 
 Run ```make``` to generate the required executable, then run using the syntax below.
 
+The first argument to the executable specifies whether you want to read the graph from a file (1), or generate a synthetic one internally (0).
+
+**Input Graph from File**
+
 To run with P number of threads, I iterations, and an input file
-   ```./community P I <input_file>```
+   ```./community 1 P I <input_file>```
 
   For the input file, use sample.txt
   OR any other file such as road networks from the SNAP datasets (e.g. roadNet-CA)
   https://snap.stanford.edu/data/#road
+
+**Generate and Input using the Synthetic Graph Generator**
+
+To run with P number of threads, I iterations, N vertices, and DEG edges per vertex
+   ```./community 0 P I N DEG```
 
 **Notes**
 
