@@ -174,7 +174,7 @@ void* do_work(void* args)
   double PR = 0;
   int iterations = 15;
   //int difference =0;
-  printf("\n Start");
+  //printf("\n Start");
 
   pthread_barrier_wait(arg->barrier);
 
@@ -237,13 +237,22 @@ int main(int argc, char** argv)
 { //int mul = W_index[0][0];
   // Start the simulator
   //CarbonStartSim(argc, argv);
-
+  
+  FILE *file0;
+	FILE *f;
+  int N = 0;
+  int DEG = 0;
+  const int select = atoi(argv[1]);
   char filename[100];
-  //printf("Please Enter The Name Of The File You Would Like To Fetch\n");
-  //scanf("%s", filename);
-  strcpy(filename,argv[2]);
-  //filename = argv[2];
-  FILE *f = fopen(filename,"r");
+
+  if(select==1)
+  {
+    //printf("Please Enter The Name Of The File You Would Like To Fetch\n");
+    //scanf("%s", filename);
+    strcpy(filename,argv[3]);
+    //filename = argv[2];
+    f = fopen(filename,"r");
+  }
 
   int lines_to_check=0;
   char c;
@@ -253,10 +262,20 @@ int main(int argc, char** argv)
   int previous_node = 0;
   int check = 0;
   int inter = -1;
-  int N = 2000000; //4194304; //can be read from file if needed, this is a default upper limit
-  int DEG = 12;     //also can be reda from file if needed, upper limit here again
 
-  const int P = atoi(argv[1]);
+  if(select==1)
+  {
+    N = 2097152; //4194304; //can be read from file if needed, this is a default upper limit
+    DEG = 16;     //also can be reda from file if needed, upper limit here again
+  }
+
+  const int P = atoi(argv[2]);
+  if(select==0)
+  {
+    N = atoi(argv[3]);
+	  DEG = atoi(argv[4]);
+		printf("\nGraph with Parameters: N:%d DEG:%d\n",N,DEG);
+  }
 
   if (DEG > N)
   {
@@ -291,7 +310,6 @@ int main(int argc, char** argv)
     }
   }
 
-  printf("\nRead");
   for(int i=0;i<N;i++)
   {
     for(int j=0;j<DEG;j++)
@@ -306,6 +324,8 @@ int main(int argc, char** argv)
     outlinks[i]=0;
   }
 
+  if(select==1)
+  {
   int lines=0;
   for(c=getc(f); c!=EOF; c=getc(f))
   {
@@ -355,13 +375,30 @@ int main(int argc, char** argv)
     if (test1[i]==1) 
       nodecount++;
   }*/
-  printf("Nodes: %d",nodecount);
+  printf("\nLargest Vertex: %d",nodecount);
   N = nodecount;
+  }
+
+  if(select==0)
+  {
+    init_weights(N, DEG, W, W_index);
+  }
 
   pthread_barrier_init(&barrier, NULL, P);
   pthread_mutex_init(&lock, NULL);
   for(int i=0; i<N; i++)
+  {
+    if(select==0)
+    {
+      test1[i]=1;
+      if(i%100==0)
+      {
+        test3[i]=1;
+      }
+      test[i] = DEG;
+    }
     pthread_mutex_init(&locks[i], NULL);
+  }
   
   //double nodecount_f = nodecount;
   initialize_single_source(D, Q, 0, N, 0.15);
@@ -402,7 +439,7 @@ int main(int argc, char** argv)
 
   clock_gettime(CLOCK_REALTIME, &requestEnd);
   double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
-  printf( "%lf\n", accum );
+  printf( "\nTime:%lf seconds\n", accum );
 
   // Enable performance and energy models
   //CarbonDisableModels();
