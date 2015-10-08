@@ -163,7 +163,7 @@ void* do_work(void* args)
   int uu = 0;
   P_global = start;
 
-  int* D;
+  /*int* D;
   int* Q;
 
   int p0 = posix_memalign((void**) &D, 64, N * sizeof(int));
@@ -174,7 +174,7 @@ void* do_work(void* args)
     D[i] = INT_MAX;
     Q[i] = 1;
   }
-  D[0]=0;
+  D[0]=0;*/
 
   int a = 0;
   int i_start =   tid    * N / (arg->P);
@@ -194,6 +194,14 @@ void* do_work(void* args)
     node = next_source;
     //printf("\n %d",next_source);
     pthread_mutex_unlock(&lock);
+
+    int *D;
+    int *Q;
+
+    int p0 = posix_memalign((void**) &D, 64, N * sizeof(int));
+    int p1 = posix_memalign((void**) &Q, 64, N * sizeof(int));
+
+    initialize_single_source(D, Q, node, N);
 
     for(uu=0;uu<N;uu++)
     {
@@ -344,17 +352,17 @@ clock_gettime(CLOCK_REALTIME, &requestStart);
   }
   do_work((void*) &thread_arg[0]);
 
-  printf("Threads Returned!");
+  printf("\nThreads Returned!");
 
   for(int j = 1; j < P1; j++) { //mul = mul*2;
     pthread_join(thread_handle[j],NULL);
   }
 
-	printf("Threads Joined!");
+	printf("\nThreads Joined!");
 
   clock_gettime(CLOCK_REALTIME, &requestEnd);
   double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
-  printf( "%lf\n", accum );
+  printf( "\nTime: %lf seconds\n", accum );
 
   // Enable performance and energy models
   //CarbonDisableModels();
