@@ -51,7 +51,10 @@ int u = 0;
                           if(W_index[i][j] == -1)
                           {
                                   int neighbor = rand()%(i+max*2);
-																	W_index[i][j] = neighbor;
+                                  if(neighbor<j)
+																	  W_index[i][j] = neighbor;
+                                  else
+                                    W_index[i][j] = N-1;
                                   /*if(neighbor > last)
                                   {
                                           W_index[i][j] = neighbor;
@@ -92,7 +95,7 @@ int u = 0;
                                   W[i][j] = 0;
   
                           else
-                                  W[i][j] = (double) (v) + 1;
+                                  W[i][j] = 0;//(double) (v) + 1;
                           //printf("   %d  ",W_index[i][j]);
                   }
                   //printf("\n");
@@ -212,6 +215,7 @@ void* do_work(void* args)
         //if inlink
         //printf("\nuu:%d id:%d",uu,W_index[uu][j]);
         pgtmp[uu] = pgtmp[uu] + (d*D[W_index[uu][j]]/outlinks[W_index[uu][j]]);
+        //printf("\n %f",pgtmp[uu]);
       }
     }
   }
@@ -221,7 +225,11 @@ void* do_work(void* args)
 
   for(uu=i_start;uu<i_stop;uu++)
   {
-    D[uu] = pgtmp[uu];
+    if(test1[uu]==1)
+    {
+      D[uu] = pgtmp[uu];
+      //printf("\n %f",D[uu]);
+    }
   }
 
   pthread_barrier_wait(arg->barrier);
@@ -382,6 +390,12 @@ int main(int argc, char** argv)
   if(select==0)
   {
     init_weights(N, DEG, W, W_index);
+    for(int i=0;i<N;i++)
+    {
+      outlinks[i] = rand()%(N)/DEG;
+      if(outlinks[i]==0)
+        outlinks[i] = N;
+    }
   }
 
   pthread_barrier_init(&barrier, NULL, P);
