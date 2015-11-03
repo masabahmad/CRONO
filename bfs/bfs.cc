@@ -205,9 +205,6 @@ void* do_work(void* args)
 
 int main(int argc, char** argv)
 {
-   // Start the Graphite simulator
-   //CarbonStartSim(argc, argv);
-
    FILE *file0 = NULL;
    int N = 0;
    int DEG = 0;
@@ -426,8 +423,6 @@ int main(int argc, char** argv)
    // Disable Graphite performance and energy models
    //CarbonDisableModels();
 
-   // Stop the Graphite simulator
-   //CarbonStopSim();
    return 0;
 }
 

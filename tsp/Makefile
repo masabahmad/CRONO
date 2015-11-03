@@ -4,6 +4,7 @@ TRGS = tsp
 LIBS += -lpthread -lrt
 
 CXXFLAGS = -g --std=c++0x -O2
+CXXFLAGS += -Wall -Werror
 
 all: $(TRGS)
 
