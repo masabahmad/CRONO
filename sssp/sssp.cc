@@ -341,25 +341,21 @@ int main(int argc, char** argv)
    int* D;
    int* Q;
 
-   //int p0 = posix_memalign((void**) &D, 64, N * sizeof(int));
    if (posix_memalign((void**) &D, 64, N * sizeof(int))) 
    {
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   //int p1 = posix_memalign((void**) &Q, 64, N * sizeof(int));
    if( posix_memalign((void**) &Q, 64, N * sizeof(int)))
    {
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   //int p2 = posix_memalign((void**) &test, 64, N * sizeof(int));
    if( posix_memalign((void**) &test, 64, N * sizeof(int)))
    {
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   //int p3 = posix_memalign((void**) &id, 64, N * sizeof(int));
    if(posix_memalign((void**) &id, 64, N * sizeof(int)))
    {
       fprintf(stderr, "Allocation of memory failed\n");

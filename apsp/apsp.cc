@@ -33,8 +33,6 @@ int u = 0;
 
   void init_weights(int N, int DEG, int** W, int** W_index)
   {
-          int range = DEG + (N - DEG)/16;
-  
           // Initialize to -1
           for(int i = 0; i < N; i++)
                   for(int j = 0; j < DEG; j++)
@@ -44,8 +42,6 @@ int u = 0;
           for(int i = 0; i < N; i++)
           {
                   int last = 0;
-                  int min = 0;
-                  int max = DEG;
                   for(int j = 0; j < DEG; j++)
                   {
                           if(W_index[i][j] == -1)
@@ -140,19 +136,12 @@ void* do_work(void* args)
 {
   volatile thread_arg_t* arg = (thread_arg_t*) args;
 
-  volatile int* count      = arg->d_count;
-  volatile int* global_min = arg->global_min;
-  volatile int* local_min  = arg->local_min;
-  int tid                  = arg->tid;
-  int P                    = arg->P;
   //volatile int* Q          = arg->Q;
   //int* D                   = arg->D;
   int** W                  = arg->W;
   int** W_index            = arg->W_index;
   const int N              = arg->N;
   const int DEG            = arg->DEG;
-  int local_count          = N;
-  int i, j, po;
   int uu = 0;
   P_global = start;
 
@@ -170,11 +159,6 @@ void* do_work(void* args)
   }
   D[0]=0;*/
 
-  int a = 0;
-  int i_start =  0;  //tid    * DEG / (arg->P);
-  int i_stop  = 0;   //(tid+1) * DEG / (arg->P);
-  int start = 0;
-  int stop = 1;
   int node = 0;
 
   pthread_barrier_wait(arg->barrier_total);
@@ -189,8 +173,16 @@ void* do_work(void* args)
      
      int *D;
      int *Q;
-     int p0 = posix_memalign((void**) &D, 64, N * sizeof(int));
-     int p1 = posix_memalign((void**) &Q, 64, N * sizeof(int));
+   if (posix_memalign((void**) &D, 64, N * sizeof(int))) 
+   {
+      fprintf(stderr, "Allocation of memory failed\n");
+      exit(EXIT_FAILURE);
+   }
+   if ( posix_memalign((void**) &Q, 64, N * sizeof(int)))
+   {
+      fprintf(stderr, "Allocation of memory failed\n");
+      exit(EXIT_FAILURE);
+   }
      initialize_single_source(D, Q, node, N);
 
 	   for(uu=0;uu<N;uu++)
@@ -212,9 +204,7 @@ void* do_work(void* args)
 
 
 int main(int argc, char** argv)
-{ //int mul = W_index[0][0];
-  // Start the simulator
-  //CarbonStartSim(argc, argv);
+{
 
   const int P1 = atoi(argv[1]);
   const int N = atoi(argv[2]);
@@ -287,12 +277,11 @@ int main(int argc, char** argv)
     thread_arg[j].barrier_total = &barrier_total;
 		thread_arg[j].barrier    = &barrier;
   }
-int mul = 2;
-  // Enable performance and energy models
-  //CarbonEnableModels();
-
   struct timespec requestStart, requestEnd;
   clock_gettime(CLOCK_REALTIME, &requestStart);
+
+  // Enable Graphite performance and energy models
+  //CarbonEnableModels();
 
   for(int j = 1; j < P1; j++) {
     pthread_create(thread_handle+j,
@@ -308,14 +297,15 @@ int mul = 2;
     pthread_join(thread_handle[j],NULL);
   }
 
-	printf("\nThreads Joined!");
+  // Disable Graphite performance and energy models
+  //CarbonDisableModels();
+
+  printf("\nThreads Joined!");
 
 	clock_gettime(CLOCK_REALTIME, &requestEnd);
 	double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
 	printf( "\nTime: %lf seconds\n", accum );
 
-  // Enable performance and energy models
-  //CarbonDisableModels();
   //printf("\ndistance:%d \n",D[N-1]);
 
     /*for(int i = 0; i < N; i++) {
@@ -323,8 +313,6 @@ int mul = 2;
     }
     printf("\n");
 */
-  // Stop the simulator
-  //CarbonStopSim();
   return 0;
 }
 
