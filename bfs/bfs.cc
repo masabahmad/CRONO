@@ -180,23 +180,21 @@ void* do_work(void* args)
             temporary[neighbor] = 1;
             pthread_mutex_unlock(&locks[neighbor]);
          }
-
-         //termination condition
-         if(Q[largest]==0 || iter>=Total) //largest vertex done, or all vertices done
-            terminate=1;
-         //if(tid==0)
-         //  printf("\n%d %d %d",uu, Q[uu], P);	
       }
       //if(tid==0) printf("\n %d",Q[largest]);
       pthread_barrier_wait(arg->barrier_total);
+      
       for(uu=start;uu<stop;uu++)
       {
          D[uu] = temporary[uu];
       }
+      
+      if(Q[largest]==0 || iter>=Total)
+        terminate=1;
       iter++;
       pthread_barrier_wait(arg->barrier_total);
    }
-
+   //printf("\n %d %d",tid,terminate);
    pthread_barrier_wait(arg->barrier_total);
 
    return NULL;
@@ -364,7 +362,7 @@ int main(int argc, char** argv)
 
    pthread_mutex_init(&lock, NULL);
 
-   for(int i=0; i<largest; i++)
+   for(int i=0; i<largest+1; i++)
    {
       if(select==0)
       {
@@ -377,6 +375,7 @@ int main(int argc, char** argv)
          pthread_mutex_init(&locks[i], NULL);
       }
    }
+   printf("\n %d %d %d",N,largest,Total);
 
    initialize_single_source(D, Q, 0, N);
 
