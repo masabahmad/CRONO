@@ -1,118 +1,24 @@
 #include <cstdio>
 #include <cstdlib>
 #include <pthread.h>
-//#include "carbon_user.h"
+//#include "carbon_user.h"   /*For the Graphite Simulator*/
 #include <time.h>
 #include <sys/timeb.h>
 #include <string.h>
 
 #define MAX            100000000
 #define INT_MAX        100000000
-// #define DEBUG              1
 #define BILLION 1E9
 
-
-int _W[8][8] =
-{
-   {0,   2,      1,      17,     MAX,    MAX,    MAX,    MAX},
-   {2,   0,      MAX,    MAX,    2,      6,      MAX,    MAX},
-   {1,   MAX,    0,      MAX,    MAX,    MAX,    MAX,    8},
-   {17,  MAX,    MAX,    0,      MAX,    2,      1,      9},
-   {MAX, 2,      MAX,    MAX,    0,      4,      MAX,    MAX},
-   {MAX, 6,      MAX,    2,      4,      0,      5,      MAX},
-   {MAX, MAX,    MAX,    1,      MAX,    5,      0,      3},
-   {MAX, MAX,    8,      9,      MAX,    MAX,    3,      0}
-};
-
-int min = INT_MAX;
-int min_index = 0;
-pthread_mutex_t lock;
-pthread_mutex_t locks[4194304];
-int u = 0;
-
-
-void init_weights(int N, int DEG, double** W, int** W_index)
-{
-   // Initialize to -1
-   for(int i = 0; i < N; i++)
-      for(int j = 0; j < DEG; j++)
-         W_index[i][j]= -1;
-
-   // Populate Index Array
-   for(int i = 0; i < N; i++)
-   {
-      int max = DEG;
-      for(int j = 0; j < DEG; j++)
-      {
-         if(W_index[i][j] == -1)
-         {
-            int neighbor = rand()%(i+max*2);
-            if(neighbor<j)
-               W_index[i][j] = neighbor;
-            else
-               W_index[i][j] = N-1;
-            /*if(neighbor > last)
-              {
-              W_index[i][j] = neighbor;
-              last = W_index[i][j];
-              }
-              else
-              {
-              if(last < (N-1))
-              {
-              W_index[i][j] = (last + 1);
-              last = W_index[i][j];
-              }
-              }*/
-         }
-         else
-         {
-         }
-         if(W_index[i][j]>=N)
-         {
-            W_index[i][j] = N-1;
-         }
-      }
-   }
-
-   // Populate Cost Array
-   for(int i = 0; i < N; i++)
-   {
-      for(int j = 0; j < DEG; j++)
-      {
-         /*if(v > 0.8 || W_index[i][j] == -1)
-           {       W[i][j] = MAX;
-           W_index[i][j] = -1;
-           }
-
-           else*/ if(W_index[i][j] == i)
-         W[i][j] = 0;
-
-         else
-            W[i][j] = 0;//(double) (v) + 1;
-         //printf("   %d  ",W_index[i][j]);
-      }
-      //printf("\n");
-   }
-}
-
-
-
-
-
-int initialize_single_source(double* D, int* Q, int source, int N, double initial_rank);
-void relax(int u, int i, volatile int* D, int** W, int** W_index, int N);
-int get_local_min(volatile int* Q, volatile int* D, int start, int stop, int N, int** W_index, int** W, int u);
-
+//Thread Structure
 typedef struct
 {
    int*      local_min;
    int*      global_min;
    int*      Q;
-   double*      D;
-   double**     W;
+   double*   PR;
+   double**  W;
    int**     W_index;
-   int*      d_count;
    int       tid;
    int       P;
    int       N;
@@ -120,44 +26,48 @@ typedef struct
    pthread_barrier_t* barrier;
 } thread_arg_t;
 
+//Global Variables
+pthread_mutex_t lock;           //single lock
+pthread_mutex_t locks[4194304]; //upper limit for locks, can be increased
 int local_min_buffer[1024];
 int global_min_buffer;
-int terminate = 0;
-int range=1;
-int old_range =1;
-int difference=0;
-int pid=0;
-//int iterations=64;
-int *test;
-int *test1;
+int terminate = 0;  //terminate variable
+int *test;          //test variable arrays for graph storage
+int *exist;
 int *test2;
-int *test3;
-int *outlinks;
-double dp = 0;
-double *pgtmp;
+int *dangling;
+int *outlinks;      //array for outlinks
+double dp = 0;      //dangling pointer variable
+double *pgtmp;      //temporary pageranks
 int nodecount = 0;
-thread_arg_t thread_arg[1024];
-pthread_t   thread_handle[1024];
+thread_arg_t thread_arg[1024];    //MAX threads
+pthread_t   thread_handle[1024];  //pthread handlers
 
+//Function declarations
+int initialize_single_source(double* PR, int* Q, int source, int N, double initial_rank);
+void init_weights(int N, int DEG, double** W, int** W_index);
+
+//Primary Parallel Function
 void* do_work(void* args)
 {
    volatile thread_arg_t* arg = (thread_arg_t*) args;
+   int tid                    = arg->tid;
+   double* PR                 = arg->PR;
+   int** W_index              = arg->W_index;
+   const int N                = arg->N;
+   int v                      = 0;      //variable for current vertex
+   double r                   = 0.15;   //damping coefficient
+   double d                   = 0.85;	  //damping coefficient
+   double N_real              = N;
 
-   int tid                  = arg->tid;
-   double* D                   = arg->D;
-   int** W_index            = arg->W_index;
-   const int N              = arg->N;
-   int uu = 0;
-   double r = 0.15;
-   double d = 0.85;	
-   double N_real = N;
-
+   //Allocate work among threads
    int i_start =  tid     * N / (arg->P);
    int i_stop  =  (tid+1) * N / (arg->P);
-   int iterations = 15;
-   //int difference =0;
-   //printf("\n Start");
 
+   //Pagerank iteration count
+   int iterations = 15;
+
+   //Barrier before starting work
    pthread_barrier_wait(arg->barrier);
 
    while(iterations>0)
@@ -166,13 +76,13 @@ void* do_work(void* args)
          dp=0;
       pthread_barrier_wait(arg->barrier);
 
-      //for no outlinks
-      for(uu=i_start;uu<i_stop;uu++)
+      //for no outlinks, dangling pages calculation
+      for(v=i_start;v<i_stop;v++)
       {
-         if(test3[uu]==1)
+         if(dangling[v]==1)
          {
             pthread_mutex_lock(&lock);
-            dp = dp + d*(D[uu]/N_real);
+            dp = dp + d*(PR[v]/N_real);
             //printf("\n %f %f %f %f",dp,d,D[uu],N_real);
             pthread_mutex_unlock(&lock);
          }
@@ -181,20 +91,20 @@ void* do_work(void* args)
 
       pthread_barrier_wait(arg->barrier);
 
-      uu=0;
+      v=0;
 
-      for(uu=i_start;uu<i_stop;uu++)
+      //Calculate Pageranks
+      for(v=i_start;v<i_stop;v++)
       {
-         if(test1[uu]==1)
+         if(exist[v]==1)   //if vertex exists
          {
-            pgtmp[uu] = r;//dp + (r)/N_real;
+            pgtmp[v] = r;//dp + (r)/N_real;     //dangling pointer usage commented out
             //printf("\n pgtmp:%f test:%d",pgtmp[uu],test[uu]);
-            for(int j=0;j<test[uu];j++)
+            for(int j=0;j<test[v];j++)
             {
                //if inlink
                //printf("\nuu:%d id:%d",uu,W_index[uu][j]);
-               pgtmp[uu] = pgtmp[uu] + (d*D[W_index[uu][j]]/outlinks[W_index[uu][j]]);
-               //printf("\n %f",pgtmp[uu]);
+               pgtmp[v] = pgtmp[v] + (d*PR[W_index[v][j]]/outlinks[W_index[v][j]]);
             }
          }
       }
@@ -202,11 +112,12 @@ void* do_work(void* args)
 
       pthread_barrier_wait(arg->barrier);
 
-      for(uu=i_start;uu<i_stop;uu++)
+      //Put temporary pageranks into final pageranks
+      for(v=i_start;v<i_stop;v++)
       {
-         if(test1[uu]==1)
+         if(exist[v]==1)
          {
-            D[uu] = pgtmp[uu];
+            PR[v] = pgtmp[v];
             //printf("\n %f",D[uu]);
          }
       }
@@ -220,16 +131,18 @@ void* do_work(void* args)
 }
 
 
+//Main 
 int main(int argc, char** argv)
 {
 
    FILE *file0 = NULL;
    FILE *f = NULL;
-   int N = 0;
-   int DEG = 0;
-   const int select = atoi(argv[1]);
+   int N = 0;                         //Total vertices
+   int DEG = 0;                       //Edges per vertex
+   const int select = atoi(argv[1]);  //0 for synthetic, 1 for file read
    char filename[100];
 
+   //For graph through file input
    if(select==1)
    {
       //printf("Please Enter The Name Of The File You Would Like To Fetch\n");
@@ -239,19 +152,20 @@ int main(int argc, char** argv)
       f = fopen(filename,"r");
    }
 
-   int lines_to_check=0;
+   int lines_to_check=0;      //file processing variables
    char c;
    int number0;
    int number1;
    int inter = -1;
 
+   //For graph through file input, upper limits
    if(select==1)
    {
       N = 2097152; //4194304; //can be read from file if needed, this is a default upper limit
       DEG = 16;     //also can be reda from file if needed, upper limit here again
    }
 
-   const int P = atoi(argv[2]);
+   const int P = atoi(argv[2]);  //number of threads
    if(select==0)
    {
       N = atoi(argv[3]);
@@ -265,9 +179,10 @@ int main(int argc, char** argv)
       exit(EXIT_FAILURE);
    }
 
-   double* D;
+   //Memory allocations
+   double* PR;
    int* Q;
-   if(posix_memalign((void**) &D, 64, N * sizeof(double)))
+   if(posix_memalign((void**) &PR, 64, N * sizeof(double)))
    {
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
@@ -282,7 +197,7 @@ int main(int argc, char** argv)
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   if(posix_memalign((void**) &test1, 64, N * sizeof(int)))
+   if(posix_memalign((void**) &exist, 64, N * sizeof(int)))
    {
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
@@ -292,7 +207,7 @@ int main(int argc, char** argv)
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   if(posix_memalign((void**) &test3, 64, N * sizeof(int)))
+   if(posix_memalign((void**) &dangling, 64, N * sizeof(int)))
    {
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
@@ -307,7 +222,6 @@ int main(int argc, char** argv)
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   int d_count = N;
    pthread_barrier_t barrier;
 
    double** W = (double**) malloc(N*sizeof(double*));
@@ -324,6 +238,7 @@ int main(int argc, char** argv)
       }
    }
 
+   //Memory initialization
    for(int i=0;i<N;i++)
    {
       for(int j=0;j<DEG;j++)
@@ -332,12 +247,13 @@ int main(int argc, char** argv)
          W_index[i][j] = INT_MAX;
       }
       test[i]=0;
-      test1[i]=0;
+      exist[i]=0;
       test2[i]=0;
-      test3[i]=0;
+      dangling[i]=0;
       outlinks[i]=0;
    }
 
+   //If graph read from file
    if(select==1)
    {
       int lines=0;
@@ -370,9 +286,9 @@ int main(int argc, char** argv)
             W_index[number1][inter] = number0;
             test[number1]++;
             outlinks[number0]++;
-            test1[number0]=1; test1[number1]=1;
+            exist[number0]=1; exist[number1]=1;
             test2[number0]=1;
-            test3[number1]=1;
+            dangling[number1]=1;
             if(number0 > nodecount)
                nodecount = number0;
             if(number1 > nodecount)
@@ -382,8 +298,8 @@ int main(int argc, char** argv)
       nodecount++;
       for(int i=0;i<N;i++)
       { 
-         if(test2[i]==1 && test3[i]==1)
-            test3[i]=0;
+         if(test2[i]==1 && dangling[i]==1)
+            dangling[i]=0;
       }
       //printf("\n\nFile Read %d",lines_to_check);
 
@@ -397,65 +313,72 @@ int main(int argc, char** argv)
       N = nodecount;
    }
 
+   //If graph to be generated synthetically
    if(select==0)
    {
       init_weights(N, DEG, W, W_index);
       for(int i=0;i<N;i++)
       {
-         outlinks[i] = rand()%(N)/DEG;
+         outlinks[i] = rand()%(N)/DEG; //random outlinks
          if(outlinks[i]==0)
             outlinks[i] = N;
       }
    }
 
+   //Synchronization parameters
    pthread_barrier_init(&barrier, NULL, P);
    pthread_mutex_init(&lock, NULL);
+
    for(int i=0; i<N; i++)
    {
       if(select==0)
       {
-         test1[i]=1;
+         exist[i]=1;
          if(i%100==0)
          {
-            test3[i]=1;
+            dangling[i]=1;
          }
          test[i] = DEG;
       }
       pthread_mutex_init(&locks[i], NULL);
    }
 
-   //double nodecount_f = nodecount;
-   initialize_single_source(D, Q, 0, N, 0.15);
-   printf("\nInit");
+   //Initialize PageRanks
+   initialize_single_source(PR, Q, 0, N, 0.15);
+   printf("\nInitialization Done");
 
+   //Thread arguments
    for(int j = 0; j < P; j++) {
       thread_arg[j].local_min  = local_min_buffer;
       thread_arg[j].global_min = &global_min_buffer;
       thread_arg[j].Q          = Q;
-      thread_arg[j].D          = D;
+      thread_arg[j].PR         = PR;
       thread_arg[j].W          = W;
       thread_arg[j].W_index    = W_index;
-      thread_arg[j].d_count    = &d_count;
       thread_arg[j].tid        = j;
       thread_arg[j].P          = P;
       thread_arg[j].N          = N;
       thread_arg[j].DEG        = DEG;
       thread_arg[j].barrier    = &barrier;
    }
+
+   //Start CPU clock
    struct timespec requestStart, requestEnd;
    clock_gettime(CLOCK_REALTIME, &requestStart);
 
    // Enable Graphite performance and energy models
    //CarbonEnableModels();
 
+   //Spawn Threads
    for(int j = 1; j < P; j++) {
       pthread_create(thread_handle+j,
             NULL,
             do_work,
             (void*)&thread_arg[j]);
    }
-   do_work((void*) &thread_arg[0]);
+   do_work((void*) &thread_arg[0]);  //Spawn main
 
+   //Join threads
    for(int j = 1; j < P; j++) { //mul = mul*2;
       pthread_join(thread_handle[j],NULL);
    }
@@ -463,17 +386,19 @@ int main(int argc, char** argv)
    // Disable Graphite performance and energy models
    //CarbonDisableModels();
 
+   //Read clock and print time
    clock_gettime(CLOCK_REALTIME, &requestEnd);
    double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
    printf( "\nTime:%lf seconds\n", accum );
 
    //printf("\ndistance:%d \n",D[N-1]);
 
+   //Print pageranks to file
    FILE *f1 = fopen("file.txt", "w");
 
    for(int i = 0; i < N; i++) {
-      if(test1[i]==1)
-         fprintf(f1,"pr(%d) = %f\n", i,D[i]);
+      if(exist[i]==1)
+         fprintf(f1,"pr(%d) = %f\n", i,PR[i]);
    }
    printf("\n");
    fclose(f1);
@@ -481,7 +406,7 @@ int main(int argc, char** argv)
    return 0;
 }
 
-int initialize_single_source(double*  D,
+int initialize_single_source(double*  PR,
       int*  Q,
       int   source,
       int   N,
@@ -489,7 +414,7 @@ int initialize_single_source(double*  D,
 {
    for(int i = 0; i < N; i++)
    {
-      D[i] = 0.15;//initial_rank;
+      PR[i] = 0.15;//initial_rank;
       pgtmp[i] = 0.15;//initial_rank;
       Q[i] = 0;
    }
@@ -498,26 +423,52 @@ int initialize_single_source(double*  D,
    return 0;
 }
 
-int get_local_min(volatile int* Q, volatile int* D, int start, int stop, int N, int** W_index, int** W, int u)
+void init_weights(int N, int DEG, double** W, int** W_index)
 {
-   int min = INT_MAX;
-   int min_index = N;
+   // Initialize to -1
+   for(int i = 0; i < N; i++)
+      for(int j = 0; j < DEG; j++)
+         W_index[i][j]= -1;
 
-   for(int i = start; i < stop; i++) 
+   // Populate Index Array
+   for(int i = 0; i < N; i++)
    {
-      if(W_index[u][i]==-1 || W[u][i]==INT_MAX)
-         continue;
-      if(D[i] < min && Q[i]) 
+      int max = DEG;
+      for(int j = 0; j < DEG; j++)
       {
-         min = D[i];
-         min_index = W_index[u][i];
+         if(W_index[i][j] == -1)
+         {
+            int neighbor = rand()%(i+max*2);
+            if(neighbor<j)
+               W_index[i][j] = neighbor;
+            else
+               W_index[i][j] = N-1;
+         }
+         else
+         {
+         }
+         if(W_index[i][j]>=N)
+         {
+            W_index[i][j] = N-1;
+         }
       }
    }
-   return min_index;
-}
 
-void relax(int u, int i, volatile int* D, int** W, int** W_index, int N)
-{
-   if((D[W_index[u][i]] > (D[u] + W[u][i]) && (W_index[u][i]!=-1 && W_index[u][i]<N && W[u][i]!=INT_MAX)))
-      D[W_index[u][i]] = D[u] + W[u][i];
+   // Populate Cost Array
+   for(int i = 0; i < N; i++)
+   {
+      for(int j = 0; j < DEG; j++)
+      {
+         /*if(v > 0.8 || W_index[i][j] == -1)
+           {       W[i][j] = MAX;
+           W_index[i][j] = -1;
+           }
+
+           else*/ if(W_index[i][j] == i)
+         W[i][j] = 0;
+
+         else
+            W[i][j] = 0;//(double) (v) + 1;
+      }
+   }
 }
