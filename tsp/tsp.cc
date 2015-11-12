@@ -1,3 +1,9 @@
+/*
+    Travelling Salesman Problem (TSP), Uses Parallel Branch and Bound to find paths with least distances
+    This program was originally written/modified by george kurian (MIT, Google), Hank Hoffmann (MIT)
+	Modified later by Masab Ahmad (UConn)
+*/
+
 #include <pthread.h>
 #include <cstdio>
 #include <cstdlib>
@@ -6,11 +12,12 @@
 #include <list>
 using std::vector;
 using std::list;
-//#include "carbon_user.h"
+//#include "carbon_user.h"        /*For the Graphite Simulator*/
 
 // #define DEBUG           1
 #define INF             100000000
 
+//Default graph edge weights
 int _WEIGHTS[5][5] = {
    { INF, 2,   3,   1,   INF },
    { INF, INF, 5,   7,   4   },
@@ -19,6 +26,7 @@ int _WEIGHTS[5][5] = {
    { 7,   INF, 6,   1,   INF }
 };
 
+//Graph Structure
 int** _weights;
 
 // Globals
@@ -26,6 +34,7 @@ int _best_tour_cost ;
 int _best_tid;
 pthread_mutex_t _lock;
 
+//Graph Creation
 void initCities(int NUM_CITIES)
 {
    _weights = new int*[NUM_CITIES];
@@ -43,7 +52,7 @@ void initCities(int NUM_CITIES)
       for(int i = 0; i < NUM_CITIES; i++) {
          _weights[i][i] = INF;
          for(int j = i+1; j < NUM_CITIES; j++) {
-            double v = drand48();
+            double v = drand48();                   //Uniform Random edge weights
 
             _weights[i][j] = INF;
             if(v < 0.8) {
@@ -133,6 +142,7 @@ PartialTour::print() const
 
 typedef list<PartialTour*> WorkQueue;
 
+//Thread Argument Structure
 class ThreadData
 {
    public:
@@ -163,6 +173,7 @@ class ThreadData
 ThreadData::~ThreadData()
 {}
 
+//Primary Parallel Function
    void
 doWork(int tid, WorkQueue& work_queue, PartialTour* tour, PartialTour* best_tour, int NUM_CITIES)
 {
@@ -230,6 +241,7 @@ doWork(int tid, WorkQueue& work_queue, PartialTour* tour, PartialTour* best_tour
    }
 }
 
+//Master Parallel Function
 void* threadWork(void* targ)
 {
    ThreadData* arg         = (ThreadData*) targ;
@@ -320,6 +332,7 @@ dividePartialTours(const vector<PartialTour*>& partial_tour_vec, vector<WorkQueu
 
 int main(int argc, char** argv)
 {
+   //Input Arguments
    int NUM_THREADS = atoi(argv[1]);
    int NUM_CITIES  = atoi(argv[2]);
 
@@ -328,8 +341,10 @@ int main(int argc, char** argv)
    // Initialize globals
    _best_tour_cost = INF;
    _best_tid = -1;
+   //Lock for upper distance bound
    pthread_mutex_init(&_lock, NULL);
 
+   //Initialize Graph
    initCities(NUM_CITIES);
 
    vector<PartialTour*> partial_tour_vec;
@@ -372,6 +387,7 @@ int main(int argc, char** argv)
    // Enable Graphite performance and power models
    //CarbonEnableModels();
 
+   //Create threads
    for (int i = 1; i < NUM_THREADS; i++)
    {
       int ret = pthread_create(&thread_handle[i], NULL, threadWork, (void*) thread_data[i]);
@@ -381,8 +397,9 @@ int main(int argc, char** argv)
          exit(EXIT_FAILURE);
       }
    }
-   threadWork((void*) thread_data[0]);
+   threadWork((void*) thread_data[0]);    //master thread spawns itself
 
+   //Join threads
    for (int i = 1; i < NUM_THREADS; i++)
    {
       pthread_join(thread_handle[i], NULL);
@@ -391,6 +408,7 @@ int main(int argc, char** argv)
    // Disable Graphite performance and power models
    //CarbonDisableModels();
 
+   //Print TSP Data
    for (int i = 0 ; i < NUM_THREADS; i++)
    {
       printf("Thread: %i, Final Best Tour:\n", i);
