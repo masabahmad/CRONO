@@ -1,7 +1,13 @@
+/*
+    Distributed Under the MIT license
+	Uses the Range based of Bellman-Ford/Dijkstra Algorithm to find shortest path distances
+    Programs by Masab Ahmad (UConn)
+*/
+
 #include <cstdio>
 #include <cstdlib>
 #include <pthread.h>
-//#include "carbon_user.h"
+//#include "carbon_user.h"    /*For the Graphite Simulator*/
 #include <time.h>
 #include <sys/timeb.h>
 
@@ -9,100 +15,7 @@
 #define INT_MAX        100000000
 #define BILLION 1E9
 
-//#define DISTANCE_LABELS
-
-int _W[8][8] =
-{
-   {0,   2,      1,      17,     MAX,    MAX,    MAX,    MAX},
-   {2,   0,      MAX,    MAX,    2,      6,      MAX,    MAX},
-   {1,   MAX,    0,      MAX,    MAX,    MAX,    MAX,    8},
-   {17,  MAX,    MAX,    0,      MAX,    2,      1,      9},
-   {MAX, 2,      MAX,    MAX,    0,      4,      MAX,    MAX},
-   {MAX, 6,      MAX,    2,      4,      0,      5,      MAX},
-   {MAX, MAX,    MAX,    1,      MAX,    5,      0,      3},
-   {MAX, MAX,    8,      9,      MAX,    MAX,    3,      0}
-};
-
-int min = INT_MAX;
-int min_index = 0;
-pthread_mutex_t lock;
-
-//change the number of locks to approx or greater N
-pthread_mutex_t locks[2097152];
-int u = -1;
-
-
-void init_weights(int N, int DEG, int** W, int** W_index)
-{
-   // Initialize to -1
-   for(int i = 0; i < N; i++)
-      for(int j = 0; j < DEG; j++)
-         W_index[i][j]= -1;
-
-   // Populate Index Array
-   for(int i = 0; i < N; i++)
-   {
-      int last = 0;
-      for(int j = 0; j < DEG; j++)
-      {
-         if(W_index[i][j] == -1)
-         {
-            int neighbor = i + j;//rand()%(max);
-            if(neighbor > last)
-            {
-               W_index[i][j] = neighbor;
-               last = W_index[i][j];
-            }
-            else
-            {
-               if(last < (N-1))
-               {
-                  W_index[i][j] = (last + 1);
-                  last = W_index[i][j];
-               }
-            }
-         }
-         else
-         {
-            last = W_index[i][j];
-         }
-         if(W_index[i][j]>=N)
-         {
-            W_index[i][j] = N-1;
-         }
-      }
-   }
-
-   // Populate Cost Array
-   for(int i = 0; i < N; i++)
-   {
-      for(int j = 0; j < DEG; j++)
-      {
-         double v = drand48();
-         /*if(v > 0.8 || W_index[i][j] == -1)
-           {       W[i][j] = MAX;
-           W_index[i][j] = -1;
-           }
-
-           else*/ if(W_index[i][j] == i)
-         W[i][j] = 0;
-
-         else
-            W[i][j] = (int) (v*100) + 1;
-         //printf("   %d  ",W_index[i][j]);
-      }
-      //printf("\n");
-   }
-}
-
-
-
-
-
-int initialize_single_source(int* D, int* Q, int source, int N);
-void relax(int u, int i, volatile int* D, int** W, int** W_index, int N);
-int get_local_min(volatile int* Q, volatile int* D, int start, int stop, int N, int** W_index, int** W, int u);
-
+//Thread Argument Structure
 typedef struct
 {
    int*      local_min;
@@ -119,31 +32,44 @@ typedef struct
    pthread_barrier_t* barrier;
 } thread_arg_t;
 
+//Function Initializers
+int initialize_single_source(int* D, int* Q, int source, int N);
+void relax(int u, int i, volatile int* D, int** W, int** W_index, int N);
+int get_local_min(volatile int* Q, volatile int* D, int start, int stop, int N, int** W_index, int** W, int u);
+void init_weights(int N, int DEG, int** W, int** W_index);
+
+//Global Variables
+int min = INT_MAX;
+int min_index = 0;
+pthread_mutex_t lock;
+pthread_mutex_t locks[2097152]; //change the number of locks to approx or greater N
+int u = -1;
 int local_min_buffer[1024];
 int global_min_buffer;
 int terminate = 0;
-int range=1;
+int range=1;       //starting range
 int old_range =1;
 int difference=0;
 int pid=0;
-int *test;
+int *exist;
 int *id;
 int P_max=256;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 
+//Primary Parallel Function
 void* do_work(void* args)
 {
    volatile thread_arg_t* arg = (thread_arg_t*) args;
 
-   int tid                  = arg->tid;
-   int P                    = arg->P;
-   int* D                   = arg->D;
-   int** W                  = arg->W;
-   int** W_index            = arg->W_index;
-   const int N              = arg->N;
-   const int DEG            = arg->DEG;
-   int uu = 0;
+   int tid                  = arg->tid;      //thread id
+   int P                    = arg->P;        //Max threads
+   int* D                   = arg->D;        //distabces
+   int** W                  = arg->W;        //edge weights
+   int** W_index            = arg->W_index;  //graph structure
+   const int N              = arg->N;        //Max vertices
+   const int DEG            = arg->DEG;      //edges per vertex
+   int v = 0;
 
    int cntr = 0;
    int start = 0;
@@ -155,29 +81,29 @@ void* do_work(void* args)
    while(terminate==0){
       while(terminate==0)
       {
-         for(uu=start;uu<stop;uu++)
+         for(v=start;v<stop;v++)
          {
 
-            if(test[uu]==0)
+            if(exist[v]==0)
                continue;
 
             for(int i = 0; i < DEG; i++)
             {
-               if(uu<N)
-                  neighbor = W_index[uu][i];
+               if(v<N)
+                  neighbor = W_index[v][i];
 
                if(neighbor>=N)
                   break;
 
                pthread_mutex_lock(&locks[neighbor]);
 
-               //if(uu>=N)
+               //if(v>=N)
                //	terminate=1;
 
                //relax
-               if((D[W_index[uu][i]] > (D[uu] + W[uu][i])))
-                  D[W_index[uu][i]] = D[uu] + W[uu][i];
-               //Q[uu]=0;
+               if((D[W_index[v][i]] > (D[v] + W[v][i])))    //relax, update distance
+                  D[W_index[v][i]] = D[v] + W[v][i];
+               //Q[v]=0;
 
                pthread_mutex_unlock(&locks[neighbor]);
             }
@@ -195,7 +121,7 @@ void* do_work(void* args)
             //	 old_range=0;
 
             if(range>=N)
-               range=N;
+               range=N;    
 
             // difference = range-old_range;
             //if(difference<P)
@@ -219,7 +145,7 @@ void* do_work(void* args)
             stop=range;	
 
          //{ pthread_mutex_lock(&lock);
-         if(start==N || uu>N-1)
+         if(start==N || v>N-1)
             terminate=1;
          //} pthread_mutex_unlock(&lock);
 
@@ -248,7 +174,7 @@ void* do_work(void* args)
 }
 
 // Create a dotty graph named 'fn'.
-void make_dot_graph(int **W,int **W_index,int *test,int *D,int N,int DEG,const char *fn)
+void make_dot_graph(int **W,int **W_index,int *exist,int *D,int N,int DEG,const char *fn)
 {
    FILE *of = fopen(fn,"w");
    if (!of) {
@@ -265,7 +191,7 @@ void make_dot_graph(int **W,int **W_index,int *test,int *D,int N,int DEG,const c
 
    // Write out all edges.
    for (int i = 0; i != N; ++i) {
-      if (test[i]) {
+      if (exist[i]) {
          for (int j = 0; j != DEG; ++j) {
             if (W_index[i][j] != INT_MAX) {
                fprintf (of,"%d -> %d [label=\"%d\"]\n",i,W_index[i][j],W[i][j]);
@@ -351,7 +277,7 @@ int main(int argc, char** argv)
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   if( posix_memalign((void**) &test, 64, N * sizeof(int)))
+   if( posix_memalign((void**) &exist, 64, N * sizeof(int)))
    {
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
@@ -384,7 +310,7 @@ int main(int argc, char** argv)
          W[i][j] = INT_MAX;
          W_index[i][j] = INT_MAX;
       }
-      test[i]=0;
+      exist[i]=0;
       id[0] = 0;
    }
 
@@ -410,7 +336,7 @@ int main(int argc, char** argv)
                exit (EXIT_FAILURE);
             }
 
-            test[number0] = 1; test[number1] = 1;
+            exist[number0] = 1; exist[number1] = 1;
             id[number0] = number0;
             if(number0==previous_node) {
                inter++;
@@ -442,30 +368,26 @@ int main(int argc, char** argv)
       } //W[2][0] = -1;
    }
 
+   //Generate a uniform random graph
    if(select==0)
    {
       init_weights(N, DEG, W, W_index);
    }
-   /*for(int i = 0;i<N;i++)
-     {
-     for(int j = 0;j<DEG;j++)
-     {
-     printf(" %d ",W[i][j]);
-     }
-     printf("\n");
-     }*/
 
+   //Synchronization Variables
    pthread_barrier_init(&barrier, NULL, P);
    pthread_mutex_init(&lock, NULL);
    for(int i=0; i<N; i++)
    {
       pthread_mutex_init(&locks[i], NULL);
       if(select==0)
-         test[i]=1;
+         exist[i]=1;
    } 
 
+   //Initialize data structures
    initialize_single_source(D, Q, 0, N);
 
+   //Thread Arguments
    for(int j = 0; j < P; j++) {
       thread_arg[j].local_min  = local_min_buffer;
       thread_arg[j].global_min = &global_min_buffer;
@@ -512,7 +434,7 @@ int main(int argc, char** argv)
 
    //printf("\ndistance:%d \n",D[N-1]);
 
-   make_dot_graph(W,W_index,test,D,N,DEG,"rgraph.dot");
+   make_dot_graph(W,W_index,exist,D,N,DEG,"rgraph.dot");
 
    //for distance values check
    FILE * pfile;
@@ -566,4 +488,67 @@ void relax(int u, int i, volatile int* D, int** W, int** W_index, int N)
 {
    if((D[W_index[u][i]] > (D[u] + W[u][i]) && (W_index[u][i]!=-1 && W_index[u][i]<N && W[u][i]!=INT_MAX)))
       D[W_index[u][i]] = D[u] + W[u][i];
+}
+
+void init_weights(int N, int DEG, int** W, int** W_index)
+{
+   // Initialize to -1
+   for(int i = 0; i < N; i++)
+      for(int j = 0; j < DEG; j++)
+         W_index[i][j]= -1;
+
+   // Populate Index Array
+   for(int i = 0; i < N; i++)
+   {
+      int last = 0;
+      for(int j = 0; j < DEG; j++)
+      {
+         if(W_index[i][j] == -1)
+         {
+            int neighbor = i + j;//rand()%(max);
+            if(neighbor > last)
+            {
+               W_index[i][j] = neighbor;
+               last = W_index[i][j];
+            }
+            else
+            {
+               if(last < (N-1))
+               {
+                  W_index[i][j] = (last + 1);
+                  last = W_index[i][j];
+               }
+            }
+         }
+         else
+         {
+            last = W_index[i][j];
+         }
+         if(W_index[i][j]>=N)
+         {
+            W_index[i][j] = N-1;
+         }
+      }
+   }
+
+   // Populate Cost Array
+   for(int i = 0; i < N; i++)
+   {
+      for(int j = 0; j < DEG; j++)
+      {
+         double v = drand48();
+         /*if(v > 0.8 || W_index[i][j] == -1)
+           {       W[i][j] = MAX;
+           W_index[i][j] = -1;
+           }
+
+           else*/ if(W_index[i][j] == i)
+         W[i][j] = 0;
+
+         else
+            W[i][j] = (int) (v*100) + 1;
+         //printf("   %d  ",W_index[i][j]);
+      }
+      //printf("\n");
+   }
 }
