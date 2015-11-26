@@ -30,6 +30,7 @@ typedef struct
 pthread_mutex_t lock;           //single lock
 pthread_mutex_t locks[4194304]; //upper limit for locks, can be increased
 int local_min_buffer[1024];
+double dp_tid[1024];            //dangling pages for each thread, reduced later by locks
 int global_min_buffer;
 int terminate = 0;  //terminate variable
 int *test;          //test variable arrays for graph storage
@@ -81,12 +82,13 @@ void* do_work(void* args)
       {
          if(dangling[v]==1)
          {
-            pthread_mutex_lock(&lock);
-            dp = dp + d*(PR[v]/N_real);
+            dp_tid[tid] = dp_tid[tid] + d*(PR[v]/N_real);
             //printf("\n %f %f %f %f",dp,d,D[uu],N_real);
-            pthread_mutex_unlock(&lock);
          }
       }
+      pthread_mutex_lock(&lock);
+      dp = dp + dp_tid[tid];
+      pthread_mutex_unlock(&lock);
       //printf("\n Outlinks Done %f",dp);
 
       pthread_barrier_wait(arg->barrier);
@@ -104,7 +106,7 @@ void* do_work(void* args)
             {
                //if inlink
                //printf("\nuu:%d id:%d",uu,W_index[uu][j]);
-               pgtmp[v] = pgtmp[v] + (d*PR[W_index[v][j]]/outlinks[W_index[v][j]]);
+               pgtmp[v] = pgtmp[v] + (d*PR[W_index[v][j]]/outlinks[W_index[v][j]]);  //replace d with dp if dangling PRs required
             }
          }
       }
