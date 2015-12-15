@@ -51,10 +51,14 @@ void* do_work(void* args)
    int tid                  = arg->tid;      //thread id
    int P                    = arg->P;        //Total threads
    int* D                   = arg->D;        //contains components
+   //Output: Array D,with D[i] being the component
+   //to which vertex i belongs
+   //
    //int** W                = arg->W;
    int** W_index            = arg->W_index;  //Graph Structure
    int mod                  = 1;             //modularity
    int v                    = 0;             //current vertex
+   int iterations           = 0;             //iterations  
    int start =  0;  //tid    * DEG / (arg->P);
    int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
@@ -76,6 +80,7 @@ void* do_work(void* args)
    while(mod==1)
    { 
       mod=0;
+      iterations++;
       for(v=start;v<stop;v++)                  //for each vertex
       { 
          if(exist[v]==1)                       //if vertex exists
@@ -85,10 +90,10 @@ void* do_work(void* args)
                int neighbor = W_index[v][i];
                pthread_mutex_lock(&locks[neighbor]);
 
-               if((D[v] < D[i]) && (D[i] == D[D[i]]))
+               if((D[v] < D[neighbor]) && (D[neighbor] == D[D[neighbor]]))
                {
                   mod=1;                      //some change occured
-                  D[D[i]] = D[v];
+                  D[D[neighbor]] = D[v];
                }				
 
                pthread_mutex_unlock(&locks[neighbor]);
@@ -117,6 +122,7 @@ void* do_work(void* args)
 
       //pthread_barrier_wait(arg->barrier_total);
    }
+   //printf("\n Iterations:%d",iterations);
    pthread_barrier_wait(arg->barrier_total);
    return NULL;
 }
@@ -333,10 +339,10 @@ int main(int argc, char** argv)
    double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
    printf( "\nTime Taken:\n%lf seconds\n", accum );
 
-   /*for(int j=N-100;j<N;j++){
-     if(exist[j]==1)
-     printf("\n%d",D[j]);	
-     }*/
+   //for(int j=0;j<100;j++){
+   //  if(exist[j]==1)
+   //  printf("\n%d",D[j]);	
+   //  }
 
    return 0;
 }
@@ -366,15 +372,15 @@ void init_weights(int N, int DEG, int** W, int** W_index)
    // Populate Index Array
    for(int i = 0; i < N; i++)
    {
-      int last = 0;
+      //int last = 0;
       for(int j = 0; j < DEG; j++)
       {
          if(W_index[i][j] == -1)
          {        
-            int neighbor = i+j;
-            //W_index[i][j] = i+j;//rand()%(DEG);
+            //int neighbor = i+j;
+            W_index[i][j] = rand()%(N-1);
 
-            if(neighbor > last)
+            /*if(neighbor > last)
             {
                W_index[i][j] = neighbor;
                last = W_index[i][j];
@@ -386,11 +392,12 @@ void init_weights(int N, int DEG, int** W, int** W_index)
                   W_index[i][j] = (last + 1);
                   last = W_index[i][j];
                }
-            }
+            }*/
          }
          else
          {
-            last = W_index[i][j];
+            //last = W_index[i][j];
+            W_index[i][j] = i;
          }
          if(W_index[i][j]>=N)
          {
