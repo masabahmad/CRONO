@@ -6,9 +6,9 @@ This folder is made to interface and run this benchmark with the Graphite Simula
 Simply copy this benchmark folder (apsp) into the directory
 /GraphiteHome/tests/benchmarks/
 
-and run ```make```
+and run ```make``` in the benchmark folder
 
-OR run ```make apsp_bench_test```
+OR run ```make apsp_bench_test``` in the Graphite Home directory
 
 **Notes**
 
