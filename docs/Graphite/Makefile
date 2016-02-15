@@ -1,3 +1,5 @@
+#Example Makefile for the apsp benchmark running with the Graphite Simulator
+
 TARGET := apsp
 OBJECTS := $(TARGET).o
 
