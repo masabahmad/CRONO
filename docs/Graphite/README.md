@@ -15,7 +15,7 @@ Simply copy a benchmark folder (e.g. apsp) into the directory
    and disabling them
    ```CarbonDisableModels();```
 
-3. and run ```make``` in the benchmark folder
+4. and run ```make``` in the benchmark folder
 
    OR run ```make apsp_bench_test``` in the Graphite Home directory
 
