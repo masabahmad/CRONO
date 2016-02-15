@@ -12,6 +12,7 @@ Simply copy a benchmark folder (e.g. apsp) into the directory
    ```#include "carbon_user.h"  /*For the Graphite Simulator*/```
 3. Uncomment enabling and disabling simulator models
    ```CarbonEnableModels();```
+
    ```CarbonDisableModels();```
 
 3. and run ```make``` in the benchmark folder
