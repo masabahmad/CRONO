@@ -86,37 +86,41 @@ void* do_work(void* args)
    }
 	 //int a = posix_memalign((void**) &stack, 64, (largest+1/P) * sizeof(int));
    stack[ptr] = start;
+   int disjoint = start;
    ptr++;
 
    //pthread_barrier_wait(arg->barrier_total);
 
       for(vv=start;vv<stop;vv++)
       {
-				ptr--;
-				v = stack[ptr];
+        if(ptr>0)
+        {
+          ptr--;
+          v = stack[ptr];
+        }
+        else
+        {
+          disjoint++;
+          v = disjoint;
+        }//printf("\n %d",v);
 
-         if(exist[v]==0)
+        if(exist[v]==0)
             continue;                              //if not in graph
          pthread_mutex_lock(&locks[v]);
          if(Q[v]==1)                       //if unset then set
            Q[v]=0;
          pthread_mutex_unlock(&locks[v]);
-				 //printf("\nv:%d Q:%d ptr:%d",v, Q[v], ptr);
-         //if(D[v]==0 || D[v]==2)                    //already colored
-         //   continue;
-         //printf("\nuu:%d Q:%d %d",v, Q[v], P); 
-         //D[v]=2;
 
          for(int i = 0; i < edges[v]; i++)
          {   
             int neighbor = W_index[v][i];
-						stack[ptr] = neighbor;
-						if(ptr<(largest+1/P))
-						 ptr++;
-            //pthread_mutex_lock(&locks[neighbor]);
-            //if(Q[neighbor]==1)                       //if unset then set
-            //   Q[neighbor]=0;
-            //pthread_mutex_unlock(&locks[neighbor]);
+
+            if(Q[neighbor]==0)
+              continue;
+
+            stack[ptr] = neighbor;
+            if(ptr<(largest+1/P))
+              ptr++;
          }
       }
    //pthread_barrier_wait(arg->barrier_total);
@@ -346,7 +350,7 @@ int main(int argc, char** argv)
    printf( "\nTime Taken:\n%lf seconds", accum );
 
 	 /*for(int j=0;j<N;j++)
-	 {
+	 {if(Q[j]==0)
 		 printf(" %d ",Q[j]);
 	 }*/
 
