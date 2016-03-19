@@ -1,6 +1,7 @@
 /*
     Distributed Under the MIT license
-	Uses the Range based of Bellman-Ford/Dijkstra Algorithm to find shortest path distances
+    Uses the Range based of Bellman-Ford/Dijkstra Algorithm to find shortest path distances
+    For more info, see Yen's Optimization for the Bellman-Ford Algorithm, or the Pannotia Benchmark Suite.
     Programs by Masab Ahmad (UConn)
 */
 
@@ -76,6 +77,11 @@ void* do_work(void* args)
    int stop = 1;
    int neighbor=0;
 
+   //For precision dynamic work allocation
+   double P_d = P;
+   double range_d = 1.0;
+   double tid_d = tid;
+
    pthread_barrier_wait(arg->barrier);
 
    while(terminate==0){
@@ -114,32 +120,20 @@ void* do_work(void* args)
          if(tid==0)
          {
             //range heuristic here
-            //old_range=range;
             range = range*DEG; //change this for range heuristic e.g. range = range+DEG;
-
-            //if(old_range==1)
-            //	 old_range=0;
 
             if(range>=N)
                range=N;    
 
-            // difference = range-old_range;
-            //if(difference<P)
-            //{   
-            //		pid=difference;
-            //}   
-            //else
-            //	  pid=P;
-            //if(pid==0)
-            //	pid=P;
          }
 
          pthread_barrier_wait(arg->barrier);
 
-         //start = old_range  +  (difference/P)*(tid);            //(tid    * range)  / (arg->P)    + old_range;
-         //stop  = old_range  +  (difference/P)*(tid+1);            //((tid+1) * range)  / (arg->P)   + old_range;
-         start = tid * (range/P);
-         stop = (tid+1) * (range/P);
+         range_d = range;
+         double start_d = (range_d/P_d) * tid_d;
+         double stop_d = (range_d/P_d) * (tid_d+1.0);
+         start = start_d;//tid * (range/P);
+         stop = stop_d;//(tid+1) * (range/P);
 
          if(stop>range)
             stop=range;	
@@ -162,8 +156,6 @@ void* do_work(void* args)
             terminate=0;
             //old_range=1;
             range=1;
-            //difference=0;
-            //pid=0;
          }
       }
       start=0;
