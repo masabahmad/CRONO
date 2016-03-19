@@ -22,8 +22,6 @@ To run with P number of threads, N vertices, and DEG edges per vertex
 
 **Notes**
 
-Input threads must be in powers of 2.
-
 This version of sssp parallelizes the O(V^2) version of Dijkstra's Algorithm, given by Yen's Optimization.
 Paper: J.Y.Yen, "An algorithm for finding shortest routes from all source nodes to a given destination in general networks", Quarterly of Applied Mathematics 01/1970.
 
