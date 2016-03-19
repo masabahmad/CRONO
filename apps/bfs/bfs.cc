@@ -67,12 +67,19 @@ void* do_work(void* args)
    int v = 0;
    int iter = 0;
 
+   //For precision work allocation
+   double P_d = P;
+   double tid_d = tid;
+   double largest_d = largest+1.0;
+
    int start =  0;  //tid    * DEG / (arg->P);
    int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
    //Partition data into threads
-   start =  tid    *  (largest+1) / (P);
-   stop =  (tid+1) *  (largest+1) / (P);
+   double start_d = (tid) * (largest_d/P_d);
+   double stop_d = (tid_d+1.0) * (largest_d/P_d);
+   start = start_d; //tid    *  (largest+1) / (P);
+   stop = stop_d; //(tid+1) *  (largest+1) / (P);
 
    //printf("\n tid:%d %d %d",tid,start,stop);
 
@@ -95,7 +102,7 @@ void* do_work(void* args)
             int neighbor = W_index[v][i];
             pthread_mutex_lock(&locks[neighbor]);
             if(Q[neighbor]==1)                       //if unset then set
-               Q[neighbor]=0;
+               Q[neighbor]=0;                        //Can be set to Parent
             temporary[neighbor] = 1;
             pthread_mutex_unlock(&locks[neighbor]);
          }
@@ -294,7 +301,7 @@ int main(int argc, char** argv)
          pthread_mutex_init(&locks[i], NULL);
       }
    }
-   printf("\n %d %d %d",N,largest,Total);
+   //printf("\n %d %d %d",N,largest,Total);
 
    //Initialize Data Structures
    initialize_single_source(D, Q, 0, N);
@@ -345,6 +352,12 @@ int main(int argc, char** argv)
 
    // Disable Graphite performance and energy models
    //CarbonDisableModels();
+
+   //Print Result
+   /*for(int j=0;j<largest;j++)
+   {
+     if(exist[j]==1) printf(" %d ",Q[j]);
+   }*/
 
    return 0;
 }
