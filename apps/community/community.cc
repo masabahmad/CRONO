@@ -62,6 +62,9 @@ void* do_work(void* args)
    int index                = 0;                    //stores edge id
    float sum_tot            = 0;
    float sum_in             = 0;
+   double P_d = P;
+   double tid_d = tid;
+   double largest_d = largest+1.0;
 
    //float total_edges = N*DEG;
    float mod_gain_temp = 0;                         //temporary modularity gain for outer loop
@@ -71,8 +74,12 @@ void* do_work(void* args)
    int start =  0;  //tid    * DEG / (arg->P);
    int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
-   start =  tid    *  (largest+1) / (P);
-   stop =  (tid+1) *  (largest+1) / (P);
+   //Allocate work via double precision
+   double start_d = (tid_d) * (largest_d/P_d);
+   double stop_d = (tid_d+1.0) * (largest_d/P_d);
+
+   start = start_d; //tid    *  (largest+1) / (P);
+   stop =  stop_d;//(tid+1) *  (largest+1) / (P);
    //printf("\n %d %d %d",tid, start,stop);
    //put each node in its own community
 
@@ -427,6 +434,7 @@ int main(int argc, char** argv)
 
    //printf("\ndistance:%d \n",D[N-1]);
 
+   //Print Results
    /*for(int i = 0; i < largest+1; i++) {
      if(exist[i]==1)
      printf("\n %d %d ", i,comm[i]);

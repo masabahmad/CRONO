@@ -21,8 +21,6 @@ To run with P number of threads, I iterations, N vertices, and DEG edges per ver
 
 **Notes**
 
-Input threads must be in powers of 2.
-
 Number of iterations required comes from the approximate louvian algorithm, more iterations means higher accuracy of detection.
 
 The executable outputs the time in seconds that the program took to run.
