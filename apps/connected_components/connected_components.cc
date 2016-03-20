@@ -61,10 +61,15 @@ void* do_work(void* args)
    int iterations           = 0;             //iterations  
    int start =  0;  //tid    * DEG / (arg->P);
    int stop  = 0;   //(tid+1) * DEG / (arg->P);
+   double tid_d = tid;
+   double P_d = P;
+   double largest_d = largest+1.0;
 
-   //Chunk work for threads
-   start =  tid    *  (largest+1) / (P);
-   stop =  (tid+1) *  (largest+1) / (P);
+   //Chunk work for threads via double precision
+   double start_d = (tid_d) * (largest_d/P_d);
+   double stop_d  = (tid_d+1.0) * (largest_d/P_d);
+   start =  start_d;//tid    *  (largest+1) / (P);
+   stop =  stop_d;//(tid+1) *  (largest+1) / (P);
 
    pthread_barrier_wait(arg->barrier_total);
 
