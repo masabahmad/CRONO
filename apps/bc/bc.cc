@@ -74,6 +74,9 @@ void* do_work(void* args)
    int v                    = 0;            //current vertex
    int** sigma              = arg->sigma;   //shortest paths passing
    P_global = start;
+   double tid_d = tid;
+   double P_d = arg->P;
+   double N_d = N;
 
    /*int* D;
      int* Q;
@@ -88,9 +91,11 @@ void* do_work(void* args)
      }
      D[0]=0;*/
 
-   //divide work among threads
-   int i_start =   tid    * N / (arg->P);
-   int i_stop  =  (tid+1) * N / (arg->P);
+   //divide work among threads via double precision
+   double start_d = tid_d * (N_d/P_d);
+   double stop_d  = (tid_d+1.0) * (N_d/P_d);
+   int i_start =  start_d;// tid    * N / (arg->P);
+   int i_stop  =  stop_d;//(tid+1) * N / (arg->P);
    int node = 0;
 
    pthread_barrier_wait(arg->barrier_total);
