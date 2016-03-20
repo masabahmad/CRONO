@@ -77,7 +77,7 @@ void* do_work(void* args)
    int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
    //Partition data into threads via double precision
-   double start_d = (tid) * (largest_d/P_d);
+   double start_d = (tid_d) * (largest_d/P_d);
    double stop_d = (tid_d+1.0) * (largest_d/P_d);
    start = start_d; //tid    *  (largest+1) / (P);
    stop = stop_d; //(tid+1) *  (largest+1) / (P);
