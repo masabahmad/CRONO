@@ -60,13 +60,17 @@ void* do_work(void* args)
    double r                   = 0.15;   //damping coefficient
    double d                   = 0.85;	  //damping coefficient
    double N_real              = N;
+   double tid_d = tid;
+   double P_d = arg->P;
 
    //Allocate work among threads
-   int i_start =  tid     * N / (arg->P);
-   int i_stop  =  (tid+1) * N / (arg->P);
+   double start_d = (tid_d) * (N_real/P_d);
+   double stop_d = (tid_d+1.0) * (N_real/P_d);
+   int i_start = start_d;// tid     * N / (arg->P);
+   int i_stop  = stop_d;// (tid+1) * N / (arg->P);
 
    //Pagerank iteration count
-   int iterations = 15;
+   int iterations = 1;
 
    //Barrier before starting work
    pthread_barrier_wait(arg->barrier);
@@ -109,6 +113,8 @@ void* do_work(void* args)
                pgtmp[v] = pgtmp[v] + (d*PR[W_index[v][j]]/outlinks[W_index[v][j]]);  //replace d with dp if dangling PRs required
             }
          }
+				 if(pgtmp[v]>=1.0)
+					 pgtmp[v] = 1.0;
       }
       //printf("\n Ranks done");
 
@@ -318,10 +324,13 @@ int main(int argc, char** argv)
    //If graph to be generated synthetically
    if(select==0)
    {
+		 int div = N;
+		 if(DEG>=N)
+			 div = DEG;
       init_weights(N, DEG, W, W_index);
       for(int i=0;i<N;i++)
       {
-         outlinks[i] = rand()%(N)/DEG; //random outlinks
+         outlinks[i] = rand()%(div); //random outlinks
          if(outlinks[i]==0)
             outlinks[i] = N;
       }

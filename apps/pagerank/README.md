@@ -22,8 +22,6 @@ To run with P number of threads, N vertices, and DEG edges per vertex
 
 **Notes**
 
-Input number of threads must be in powers of 2.
-
 The executable then outputs the time in seconds that the program took to run.
 It also outputs a file that contains the pageranks (normalized to 1).
 
