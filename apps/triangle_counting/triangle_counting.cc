@@ -58,13 +58,18 @@ void* do_work(void* args)
    int** W_index            = arg->W_index;   //Graph connections
    const int N              = arg->N;
    int v                    = 0;              //for each vertex
+   double P_d = P;
+   double tid_d = tid;
+   double largest_d = largest;
 
    int start =  0;  //tid    * DEG / (arg->P);
    int stop  = 0;   //(tid+1) * DEG / (arg->P);
 
    //Chunk work into threads
-   start =  tid    *  (largest) / (P);
-   stop =  (tid+1) *  (largest) / (P);
+   double start_d = (tid_d) * (largest_d/P_d);
+   double stop_d = (tid_d+1.0) * (largest_d/P_d);
+   start = start_d; //tid    *  (largest) / (P);
+   stop  = stop_d; //(tid+1) *  (largest) / (P);
    //printf("\n %d %d %d",tid,start,stop);
 
    pthread_barrier_wait(arg->barrier_total);

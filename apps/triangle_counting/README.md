@@ -22,6 +22,4 @@ To run with P number of threads, N vertices, and DEG edges per vertex
 
 **Notes**
 
-Input threads must be in powers of 2.
-
 The executable then outputs the time in seconds that the program took to run, as well as the number of triangles counted.
