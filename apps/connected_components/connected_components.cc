@@ -33,13 +33,14 @@ void init_weights(int N, int DEG, int** W, int** W_index);
 
 //Global Variables
 pthread_mutex_t lock;
-pthread_mutex_t locks[4194304];    //locks for each vertex
+//pthread_mutex_t locks[4194304];    //locks for each vertex
 int local_min_buffer[1024];
 int global_min_buffer;
 int P_global = 256;
 int *edges;
 int *exist;
 int largest=0;
+int change = 0;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];   //Max threads and pthread handlers
 
@@ -82,10 +83,13 @@ void* do_work(void* args)
    pthread_barrier_wait(arg->barrier_total);
 
    //start connecting, second phase
-   while(mod==1)
+   while(change<P)
    { 
       mod=0;
       iterations++;
+      pthread_barrier_wait(arg->barrier_total);
+      if(tid==0)
+        change=0;
       for(v=start;v<stop;v++)                  //for each vertex
       { 
          if(exist[v]==1)                       //if vertex exists
@@ -116,14 +120,14 @@ void* do_work(void* args)
             D[v] = D[D[v]];
          }
       }
-      /*if(mod==1)
-        {
+
+      //For termination Condition
+      if(mod==0)
+      {
         pthread_mutex_lock(&lock);
-        change=1;
-        pthread_mutex_lock(&lock);
-        }*/
-      //if(tid==0)
-      //  printf("\n change:%d",mod);
+         change++;
+        pthread_mutex_unlock(&lock);
+       }
 
       pthread_barrier_wait(arg->barrier_total);
    }
@@ -290,8 +294,8 @@ int main(int argc, char** argv)
          exist[i] = 1;
          edges[i] = DEG;
       }
-      if(exist[i]==1)
-         pthread_mutex_init(&locks[i], NULL);
+      //if(exist[i]==1)
+      //   pthread_mutex_init(&locks[i], NULL);
    }
 
    //Initialize arrays
@@ -344,10 +348,13 @@ int main(int argc, char** argv)
    double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
    printf( "\nTime Taken:\n%lf seconds\n", accum );
 
-   //for(int j=0;j<100;j++){
-   //  if(exist[j]==1)
-   //  printf("\n%d",D[j]);	
-   //  }
+	 /*FILE * pfile;
+	    pfile = fopen("myfile.txt","w");
+   for(int j=0;j<largest;j++){
+     if(exist[j]==1)
+     fprintf(pfile,"\n%d",D[j]);	
+     }
+	 fclose(pfile);*/
 
    return 0;
 }
