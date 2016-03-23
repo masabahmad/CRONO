@@ -125,7 +125,7 @@ void* do_work(void* args)
       //if(tid==0)
       //  printf("\n change:%d",mod);
 
-      //pthread_barrier_wait(arg->barrier_total);
+      pthread_barrier_wait(arg->barrier_total);
    }
    //printf("\n Iterations:%d",iterations);
    pthread_barrier_wait(arg->barrier_total);
