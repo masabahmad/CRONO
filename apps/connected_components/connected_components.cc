@@ -106,7 +106,7 @@ void* do_work(void* args)
          }
       }
       //printf("\n third phase");
-      //pthread_barrier_wait(arg->barrier_total);
+      pthread_barrier_wait(arg->barrier_total);
 
 	  //Third phase, assign components
       for(v=start;v<stop;v++)
