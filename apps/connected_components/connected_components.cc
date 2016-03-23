@@ -93,7 +93,7 @@ void* do_work(void* args)
             for(int i = 0; i < edges[v]; i++)   //for each edge
             {
                int neighbor = W_index[v][i];
-               pthread_mutex_lock(&locks[neighbor]);
+               //pthread_mutex_lock(&locks[neighbor]);
 
                if((D[v] < D[neighbor]) && (D[neighbor] == D[D[neighbor]]))
                {
@@ -101,7 +101,7 @@ void* do_work(void* args)
                   D[D[neighbor]] = D[v];
                }				
 
-               pthread_mutex_unlock(&locks[neighbor]);
+               //pthread_mutex_unlock(&locks[neighbor]);
             }
          }
       }
