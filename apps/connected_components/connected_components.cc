@@ -87,9 +87,6 @@ void* do_work(void* args)
    { 
       mod=0;
       iterations++;
-      pthread_barrier_wait(arg->barrier_total);
-      if(tid==0)
-        change=0;
       for(v=start;v<stop;v++)                  //for each vertex
       { 
          if(exist[v]==1)                       //if vertex exists
@@ -110,7 +107,11 @@ void* do_work(void* args)
          }
       }
       //printf("\n third phase");
+      if(tid==0)
+        change=0;
       pthread_barrier_wait(arg->barrier_total);
+      //if(tid==0)                              //Reset Termination Condition
+      //  change=0;
 
 	  //Third phase, assign components
       for(v=start;v<stop;v++)
@@ -132,7 +133,7 @@ void* do_work(void* args)
       pthread_barrier_wait(arg->barrier_total);
    }
    //printf("\n Iterations:%d",iterations);
-   pthread_barrier_wait(arg->barrier_total);
+   //pthread_barrier_wait(arg->barrier_total);
    return NULL;
 }
 
