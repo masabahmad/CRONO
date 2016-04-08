@@ -84,7 +84,7 @@ void* do_work(void* args)
    //printf("\n tid:%d %d %d",tid,start,stop);
 
    int *stack;
-	 if(posix_memalign((void**) &stack, 64, (largest+1/P) * sizeof(int)))
+	 if(posix_memalign((void**) &stack, 64, ((largest+1)/P) * sizeof(int)))
 	 {
      fprintf(stderr, "Allocation of memory failed\n");
      exit(EXIT_FAILURE);
@@ -124,7 +124,7 @@ void* do_work(void* args)
               continue;
 
             stack[ptr] = neighbor;
-            if(ptr<(largest+1/P))
+            if(ptr<((largest+1)/P))
               ptr++;
          }
       }
