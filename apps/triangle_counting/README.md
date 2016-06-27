@@ -7,8 +7,11 @@ The first argument to the executable specifies whether you want to read the grap
 
 **Input Graph from File**
 
-To run with P number of threads, and an input file,
-    ```./triangle_counting 1 P <input_file>```
+To run with P number of threads, and an .gr type (vertex edge) input file,
+    ```./triangle_counting_lock 1 P <input_file>```
+
+To run a matrix format file (.mtx)
+    ```./triangle_counting_lock 2 P <input_file>```
   
   The input file can be used as:
   sample.txt
@@ -18,8 +21,10 @@ To run with P number of threads, and an input file,
 **Generate and Input using the Synthetic Graph Generator**
 
 To run with P number of threads, N vertices, and DEG edges per vertex
-   ```./triangle_counting 0 P N DEG```
+   ```./triangle_counting_lock 0 P N DEG```
 
 **Notes**
 
 The executable then outputs the time in seconds that the program took to run, as well as the number of triangles counted.
+
+The file utilizing atomic instructions has the same arguments as specified above.
