@@ -4,6 +4,7 @@
 //#include "carbon_user.h"     /* For the Graphite Simulator*/
 #include <time.h>
 #include <sys/timeb.h>
+#include "../../common/mtx.h"
 
 #define MAX            100000000
 #define INT_MAX        100000000
@@ -37,9 +38,9 @@ pthread_mutex_t lock;
 int local_min_buffer[1024];
 int global_min_buffer;
 int P_global = 256;
-int *edges;
-int *exist;
-int largest=0;
+//int *edges;
+//int *exist;
+//int largest=0;
 int change = 0;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];   //Max threads and pthread handlers
@@ -64,7 +65,7 @@ void* do_work(void* args)
    int stop  = 0;   //(tid+1) * DEG / (arg->P);
    double tid_d = tid;
    double P_d = P;
-   double largest_d = largest+1.0;
+   double largest_d = largest;
 
    //Chunk work for threads via double precision
    double start_d = (tid_d) * (largest_d/P_d);
@@ -108,7 +109,9 @@ void* do_work(void* args)
       }
       //printf("\n third phase");
       if(tid==0)
-        change=0;
+      {
+        change=0; //iterations++;
+      }
       pthread_barrier_wait(arg->barrier_total);
       //if(tid==0)                              //Reset Termination Condition
       //  change=0;
@@ -143,7 +146,7 @@ int main(int argc, char** argv)
    int N = 0;  //Graph vertices
    int DEG = 0; //edges per vertex
    FILE *file0 = NULL;
-   const int select = atoi(argv[1]);
+   int select = atoi(argv[1]);
 
    //char filename[100];
    //If graph to be read from file
@@ -154,6 +157,15 @@ int main(int argc, char** argv)
       //scanf("%s", filename);
       file0 = fopen(filename,"r");
    }
+   
+   //Matrix .mtx file
+   if(select==2)
+   {
+     const char *filename = argv[3];
+     mtx(filename);
+     //select = 1;
+     file0 = fopen(conv_file,"r");
+   }
 
    int lines_to_check=0;
    char c;
@@ -163,8 +175,73 @@ int main(int argc, char** argv)
 
    if(select==1)
    {
-      N = 2097152; //can be read from file if needed, this is a default upper limit
-      DEG = 12;     //also can be reda from file if needed, upper limit here again
+      N = 0;//2097152; //can be read from file if needed, this is a default upper limit
+      DEG = 0;//26;     //also can be reda from file if needed, upper limit here again
+      FILE *file_gr = NULL;
+      const char *filename0 = argv[3];
+      file_gr = fopen(filename0,"r");
+      char ch0;
+      int number_of_lines0 = 0;
+      while(EOF != (ch0=getc(file_gr)))
+      {
+        if(ch0=='\n')
+          number_of_lines0++;
+        if(number_of_lines0>3)
+        {
+          int f0 = fscanf(file_gr, "%d %d", &number0, &number1);
+          if(f0 != 2 && f0 !=EOF)
+          {
+            printf ("Error: Read %d values, expected 2. Parsing failed.\n",f0);
+            exit (EXIT_FAILURE);
+          }
+          if(number0>N)
+            N = number0;
+          if(number1>N)
+            N = number1;
+        }
+      }
+      fclose(file_gr); //Now N has the largest Vertex ID
+      
+      int *temp;
+      number_of_lines0 = 0;
+      if(posix_memalign((void**) &temp, 64, N * sizeof(int)))
+      {
+        fprintf(stderr, "Allocation of memory failed\n");
+        exit(EXIT_FAILURE);
+      }
+      for(int i=0;i<N;i++)
+        temp[i] = 0;
+      file_gr = fopen(filename0,"r");
+      while(EOF != (ch0=getc(file_gr)))
+      {
+        if(ch0=='\n')
+          number_of_lines0++;
+        if(number_of_lines0>3)
+        {
+          int f0 = fscanf(file_gr, "%d %d", &number0, &number1);
+          if(f0 != 2 && f0 !=EOF)
+          {
+            printf ("Error: Read %d values, expected 2. Parsing failed.\n",f0);
+            exit (EXIT_FAILURE);
+          }
+          temp[number0]++;
+        }
+      }
+      fclose(file_gr);
+      for(int i=0;i<N;i++)
+			{
+        if(temp[i]>DEG)
+          DEG = temp[i];
+      }
+      free(temp);
+      printf("\n .gr graph with parameters: Vertices:%d Degree:%d \n",N,DEG);
+   }
+   
+   if(select==2)
+   {
+     N = largest;
+     DEG = degree;
+     select = 1;
    }
 
    const int P1 = atoi(argv[2]);   //Max threads to be spawned
@@ -187,6 +264,20 @@ int main(int argc, char** argv)
    }
 
    //Memory allocations
+   if(select!=2) {
+   if(posix_memalign((void**) &edges, 64, (N+2) * sizeof(int)))
+   {
+      fprintf(stderr, "Allocation of memory failed\n");
+      exit(EXIT_FAILURE);
+   }
+   if(posix_memalign((void**) &exist, 64, (N+2) * sizeof(int)))
+   {
+      fprintf(stderr, "Allocation of memory failed\n");
+      exit(EXIT_FAILURE);
+   }
+   }
+   
+   
    int* D;
    int* Q;
    if(posix_memalign((void**) &D, 64, N * sizeof(int)))
@@ -199,32 +290,25 @@ int main(int argc, char** argv)
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   if(posix_memalign((void**) &edges, 64, N * sizeof(int)))
-   {
-      fprintf(stderr, "Allocation of memory failed\n");
-      exit(EXIT_FAILURE);
-   }
-   if(posix_memalign((void**) &exist, 64, N * sizeof(int)))
-   {
-      fprintf(stderr, "Allocation of memory failed\n");
-      exit(EXIT_FAILURE);
-   }
+  
+  
    int d_count = N;
    pthread_barrier_t barrier_total;
    pthread_barrier_t barrier;
 
    //Graph data structures
-   int** W = (int**) malloc(N*sizeof(int*));        //contains edge weights
-   int** W_index = (int**) malloc(N*sizeof(int*));  //graph connectivity
-   for(int i = 0; i < N; i++)
+   if(select!=2) {
+   W = (int**) malloc((N+2)*sizeof(int*));
+   W_index = (int**) malloc((N+2)*sizeof(int*));
+   for(int i = 0; i < N+2; i++)
    {
       //W[i] = (int *)malloc(sizeof(int)*N);
-      if(posix_memalign((void**) &W[i], 64, DEG*sizeof(int)))
+      if(posix_memalign((void**) &W[i], 64, (DEG+1)*sizeof(int)))
       {
          fprintf(stderr, "Allocation of memory failed\n");
          exit(EXIT_FAILURE);
       }
-      if(posix_memalign((void**) &W_index[i], 64, DEG*sizeof(int)))
+      if(posix_memalign((void**) &W_index[i], 64, (DEG+1)*sizeof(int)))
       {
          fprintf(stderr, "Allocation of memory failed\n");
          exit(EXIT_FAILURE);
@@ -232,9 +316,9 @@ int main(int argc, char** argv)
    }
 
    //Initialize graph structures
-   for(int i=0;i<N;i++)
+   for(int i=0;i<N+2;i++)
    {
-      for(int j=0;j<DEG;j++)
+      for(int j=0;j<DEG+1;j++)
       {
          //W[i][j] = 1000000000;
          W_index[i][j] = INT_MAX;
@@ -242,6 +326,7 @@ int main(int argc, char** argv)
       edges[i]=0;
       exist[i]=0;
    }
+   }//select!=2
 
    //Read graph from file
    if(select==1)
@@ -265,7 +350,7 @@ int main(int argc, char** argv)
             if(number1>largest)
                largest=number1;
             inter = edges[number0];
-
+            
             //W[number0][inter] = drand48();
             W_index[number0][inter] = number1;
             //previous_node = number0;
@@ -280,7 +365,7 @@ int main(int argc, char** argv)
    if(select==0)
    {
       init_weights(N, DEG, W, W_index);
-      largest = N-1;
+      largest = N;
    }
 
    //Synchronization Initializations
@@ -300,7 +385,7 @@ int main(int argc, char** argv)
    }
 
    //Initialize arrays
-   initialize_single_source(D, Q, 0, N);
+   initialize_single_source(D, Q, 0, largest);
 
    //Thread arguments
    for(int j = 0; j < P; j++) {
@@ -349,13 +434,29 @@ int main(int argc, char** argv)
    double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
    printf( "\nTime Taken:\n%lf seconds\n", accum );
 
-	 /*FILE * pfile;
+	 FILE * pfile;
 	    pfile = fopen("myfile.txt","w");
-   for(int j=0;j<largest;j++){
+   for(int j=0;j<largest-1;j++){
      if(exist[j]==1)
      fprintf(pfile,"\n%d",D[j]);	
      }
-	 fclose(pfile);*/
+	 fclose(pfile);
+/*
+   //Code Snippet taken from Jaiganesh, Jayadharini, Texas Tech University
+   N = largest;
+   int Unique[N];
+   for (int i = 0; i < N; i++) Unique[i] = 0;
+     for (int i = 0; i < N; i ++)
+     {
+       if (Unique[D[i]] == 0)
+         Unique[D[i]] = 1;
+     } 
+     
+   int count = 0;
+   for (int i = 0; i < N; i++)
+     count += Unique[i];
+   printf("\nUnique Components Count:%d",count);
+   */
 
    return 0;
 }
