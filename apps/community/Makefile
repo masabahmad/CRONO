@@ -1,5 +1,5 @@
 
-TRGS = community
+TRGS = community_lock community_atomic
 
 LIBS += -lpthread -lrt
 
@@ -8,7 +8,8 @@ CXXFLAGS += -Wall -Werror
 
 all: $(TRGS)
 
-community: community.cc
+community_lock: community_lock.cc
+community_atomic: community_atomic.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot

@@ -4,6 +4,7 @@
 //#include "carbon_user.h"       /*For the Graphite Simulator*/
 #include <time.h>
 #include <sys/timeb.h>
+#include "../../common/mtx.h"
 
 #define MAX            100000000
 #define INT_MAX        100000000
@@ -14,7 +15,7 @@ typedef struct
 {
    float*      Q;
    int*        D;
-   float**     W;                    //Graph edge weights
+   float**     W_f;                  //Graph edge weights
    int**       W_index;              //Graph edge connections
    float*      mod_gain;
    float*      total_mod_gain;
@@ -31,15 +32,17 @@ typedef struct
 
 //Function declarations
 int initialize_single_source(int* D, float* Q, int source, int N);
-void init_weights(int N, int DEG, float** W, int** W_index);
+void init_weights(int N, int DEG, float** W_f, int** W_index);
 
 //Global Variables
+float** W_f;                                     //Weights
 pthread_mutex_t lock;                          //single lock
-pthread_mutex_t locks[2097152];                //Max locks for each vertex
+pthread_mutex_t *locks;
+//pthread_mutex_t locks[2097152];                //Max locks for each vertex
 int iterations = 0;                            //Iterations for community over the graph
-int *edges;                                    //Edges per vertex
-int *exist;                                    //If vertex exists in the graph
-int largest=0;                                 //Final vertex
+//int *edges;                                    //Edges per vertex
+//int *exist;                                    //If vertex exists in the graph
+//int largest=0;                                 //Final vertex
 int P_global = 256;
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];               //MAX threads and pthread handlers
@@ -52,7 +55,7 @@ void* do_work(void* args)
 
    int tid                  = arg->tid;
    int P                    = arg->P;
-   float** W                = arg->W;
+   float** W_f              = arg->W_f;
    int** W_index            = arg->W_index;
    float* mod_gain          = arg->mod_gain;
    int* comm                = arg->comm;
@@ -64,7 +67,7 @@ void* do_work(void* args)
    float sum_in             = 0;
    double P_d = P;
    double tid_d = tid;
-   double largest_d = largest+1.0;
+   double largest_d = largest;
 
    //float total_edges = N*DEG;
    float mod_gain_temp = 0;                         //temporary modularity gain for outer loop
@@ -121,9 +124,9 @@ void* do_work(void* args)
             float inv_total_edges = 2/total_edges;
             int tempo = (inv_total_edges)*(inv_total_edges);
             tempo = tempo*2;
-            int subtr = sum_tot*W[v][i];
+            int subtr = sum_tot*W_f[v][i];
             subtr = subtr*tempo;
-            subtr = W[v][i] - subtr;
+            subtr = W_f[v][i] - subtr;
             mod_gain_temp_temp = (inv_total_edges)*(subtr);
             //total_mod_gain[v] = total_mod_gain[v] + mod_gain[v];
 
@@ -141,8 +144,8 @@ void* do_work(void* args)
 
          //update individual  sums
          //pthread_mutex_lock(&lock);
-         sum_tot = sum_tot + W[v][i];
-         sum_in = sum_in + W[v][i];
+         sum_tot = sum_tot + W_f[v][i];
+         sum_in = sum_in + W_f[v][i];
          //pthread_mutex_unlock(&lock);	
       }
 
@@ -153,12 +156,13 @@ void* do_work(void* args)
       {
          if(exist[v]==0)
             continue;
-         for(i=0;i<edges[v];i++)
+         for(i=0;i<edges[v]-1;i++)
          {
             int neighbor = W_index[v][i];
+						//printf("\n %d",neighbor);
             pthread_mutex_lock(&locks[neighbor]);
             //W_index[v][i] = comm[neighbor];
-            W[v][i] = comm[v] - comm[neighbor];
+            W_f[v][i] = comm[v] - comm[neighbor];
             pthread_mutex_unlock(&locks[neighbor]);
          }
       }
@@ -191,7 +195,7 @@ int main(int argc, char** argv)
    int N = 0;
    int DEG = 0;
    FILE *file0 = NULL;
-   const int select = atoi(argv[1]);
+   int select = atoi(argv[1]);
    const int P1 = atoi(argv[2]);
    iterations = atoi(argv[3]);
 
@@ -200,6 +204,15 @@ int main(int argc, char** argv)
    {
       const char *filename = argv[4];
       file0 = fopen(filename,"r");
+   }
+   
+   //Matrix .mtx file
+   if(select==2)
+	 {
+		 const char *filename = argv[4];
+     mtx(filename);
+     //select = 1;
+     file0 = fopen(conv_file,"r");
    }
 
    int lines_to_check=0;   //File reading variables
@@ -210,8 +223,74 @@ int main(int argc, char** argv)
 
    if(select==1)
    {
-      N = 2097152; //can be read from file if needed, this is a default upper limit
-      DEG = 16;     //also can be reda from file if needed, upper limit here again
+      N = 0;//2097152; //can be read from file if needed, this is a default upper limit
+      DEG = 0;//26;     //also can be reda from file if needed, upper limit here again
+      FILE *file_gr = NULL;
+      const char *filename0 = argv[4];
+      file_gr = fopen(filename0,"r");
+      char ch0;
+      int number_of_lines0 = 0;
+      while(EOF != (ch0=getc(file_gr)))
+      {
+        if(ch0=='\n')
+          number_of_lines0++;
+        if(number_of_lines0>3)
+        {
+          int f0 = fscanf(file_gr, "%d %d", &number0, &number1);
+          if(f0 != 2 && f0 !=EOF)
+          {
+            printf ("Error: Read %d values, expected 2. Parsing failed.\n",f0);
+            exit (EXIT_FAILURE);
+          }
+          if(number0>N)
+            N = number0;
+          if(number1>N)
+            N = number1;
+        }
+      }
+      fclose(file_gr); //Now N has the largest Vertex ID
+      
+      int *temp;
+      number_of_lines0 = 0;
+      if(posix_memalign((void**) &temp, 64, N * sizeof(int)))
+      {
+        fprintf(stderr, "Allocation of memory failed\n");
+        exit(EXIT_FAILURE);
+      }
+      for(int i=0;i<N;i++)
+        temp[i] = 0;
+      file_gr = fopen(filename0,"r");
+      while(EOF != (ch0=getc(file_gr)))
+      {
+        if(ch0=='\n')
+          number_of_lines0++;
+        if(number_of_lines0>3)
+        {
+          int f0 = fscanf(file_gr, "%d %d", &number0, &number1);
+          if(f0 != 2 && f0 !=EOF)
+          {
+            printf ("Error: Read %d values, expected 2. Parsing failed.\n",f0);
+            exit (EXIT_FAILURE);
+          }
+          temp[number0]++;
+        }
+      }
+      fclose(file_gr);
+      for(int i=0;i<N;i++)
+			{
+        if(temp[i]>DEG)
+          DEG = temp[i];
+      }
+      free(temp);
+			
+      printf("\n .gr graph with parameters: Vertices:%d Degree:%d \n",N,DEG);
+   }
+   
+   if(select==2)
+   {
+     N = largest;
+     DEG = degree;
+     select = 1;
    }
 
    int P = P1;
@@ -238,7 +317,6 @@ int main(int argc, char** argv)
    int* comm;
    float* mod_gain;
    float* total_mod_gain;
-   int* deg_node;
    if(posix_memalign((void**) &D, 64, N * sizeof(int)))
    {
       fprintf(stderr, "Allocation of memory failed\n");
@@ -249,20 +327,18 @@ int main(int argc, char** argv)
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   if(posix_memalign((void**) &deg_node, 64, N * sizeof(int)))
+  
+   if(select!=2) {
+   if(posix_memalign((void**) &edges, 64, (N+2) * sizeof(int)))
+   {
+     fprintf(stderr, "Allocation of memory failed\n");
+     exit(EXIT_FAILURE);
+   }
+   if(posix_memalign((void**) &exist, 64, (N+2) * sizeof(int)))
    {
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   if(posix_memalign((void**) &edges, 64, N * sizeof(int)))
-   {
-      fprintf(stderr, "Allocation of memory failed\n");
-      exit(EXIT_FAILURE);
-   }
-   if(posix_memalign((void**) &exist, 64, N * sizeof(int)))
-   {
-      fprintf(stderr, "Allocation of memory failed\n");
-      exit(EXIT_FAILURE);
    }
 
    if(posix_memalign((void**) &comm, 64, N * sizeof(int)))
@@ -286,39 +362,40 @@ int main(int argc, char** argv)
       exit(EXIT_FAILURE);
    }
    int d_count = N;
-
-   float** W = (float**) malloc(N*sizeof(float*));
-   int** W_index = (int**) malloc(N*sizeof(int*));
-   for(int i = 0; i < N; i++)
+   
+   if(select!=2) {
+   W_f = (float**) malloc((N+2)*sizeof(float*));
+   W_index = (int**) malloc((N+2)*sizeof(int*));
+   for(int i = 0; i < N+2; i++)
    {
       //W[i] = (int *)malloc(sizeof(int)*N);
-      if(posix_memalign((void**) &W[i], 64, DEG*sizeof(float)))
+      if(posix_memalign((void**) &W_f[i], 64, (DEG+1)*sizeof(float)))
       {
          fprintf(stderr, "Allocation of memory failed\n");
          exit(EXIT_FAILURE);
       }
-      if(posix_memalign((void**) &W_index[i], 64, DEG*sizeof(int)))
+      if(posix_memalign((void**) &W_index[i], 64, (DEG+1)*sizeof(int)))
       {
          fprintf(stderr, "Allocation of memory failed\n");
          exit(EXIT_FAILURE);
       }
-   } printf("\nMemory Allocated");
+   }
 
-   //Memory initializations
-   for(int i=0;i<N;i++)
+   for(int i=0;i<N+2;i++)
    {
-      for(int j=0;j<DEG;j++)
+      for(int j=0;j<DEG+1;j++)
       {
          //W[i][j] = 1000000000;
          W_index[i][j] = INT_MAX;
          double v = drand48();
          if(W_index[i][j] == i)
-            W[i][j] = 0;
+            W_f[i][j] = 0;
          else
-            W[i][j] = (int) (v*100) +1;
+            W_f[i][j] = (int) (v*100) +1;
       }
       edges[i]=0;
       exist[i]=0;
+   }
    }
 
    //Read graph from file
@@ -345,12 +422,14 @@ int main(int argc, char** argv)
             inter = edges[number0];
 
             //W[number0][inter] = drand48();
+						//printf("\n num %d inter %d",number0,inter);
             W_index[number0][inter] = number1;
             //previous_node = number0;
             edges[number0]++;
             exist[number0]=1; exist[number1]=1;
          }
       }
+			
       printf("\nFile Read, Largest Vertex:%d",largest);
    }
 
@@ -360,34 +439,34 @@ int main(int argc, char** argv)
    //Generate synthetic graphs
    if(select==0)
    {
-      init_weights(N,DEG,W,W_index);
-      largest = N-1;
+      init_weights(N,DEG,W_f,W_index);
+      largest = N;
    }
 
    //Synchronization variables
    pthread_barrier_init(&barrier_total, NULL, P);
    pthread_barrier_init(&barrier, NULL, P);
-   pthread_mutex_init(&lock, NULL);
+   locks = (pthread_mutex_t*) malloc((largest+16) * sizeof(pthread_mutex_t));
 
    for(int i=0; i<largest+1; i++)
    {
       if(select==0)
       {
-         exist[i] = 1;
-         edges[i] = DEG;
+         exist[i]=1;
+         edges[i]=DEG;
       }
       if(exist[i]==1)
          pthread_mutex_init(&locks[i], NULL);
    }
 
    //Initialize data structures
-   initialize_single_source(D, Q, 0, N);
+   initialize_single_source(D, Q, 0, largest);
 
    //Thread arguments
    for(int j = 0; j < P; j++) {
       thread_arg[j].Q          = Q;
       thread_arg[j].D          = D;
-      thread_arg[j].W          = W;
+      thread_arg[j].W_f        = W_f;
       thread_arg[j].W_index    = W_index;
       thread_arg[j].comm       = comm;
       thread_arg[j].C          = C;
@@ -401,7 +480,8 @@ int main(int argc, char** argv)
       thread_arg[j].barrier_total = &barrier_total;
       thread_arg[j].barrier    = &barrier;
    }
-   
+  
+   printf("Largest Vertex:%d",largest); 
    //CPU clock
    struct timespec requestStart, requestEnd;
    clock_gettime(CLOCK_REALTIME, &requestStart);
@@ -458,7 +538,7 @@ int initialize_single_source(int*  D,
    return 0;
 }
 
-void init_weights(int N, int DEG, float** W, int** W_index)
+void init_weights(int N, int DEG, float** W_f, int** W_index)
 {
    // Initialize to -1
    for(int i = 0; i < N; i++)
@@ -513,10 +593,10 @@ void init_weights(int N, int DEG, float** W, int** W_index)
            }
 
            else*/ if(W_index[i][j] == i)
-         W[i][j] = 0;
+         W_f[i][j] = 0;
 
          else
-            W[i][j] = (int) (v*100) + 1;
+            W_f[i][j] = (int) (v*100) + 1;
          //printf("   %d  ",W_index[i][j]);
       }
       //printf("\n");
