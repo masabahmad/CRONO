@@ -555,11 +555,13 @@ int main(int argc, char** argv)
    //printf("\ndistance:%d \n",D[N-1]);
 
    //Print Results
-   /*for(int i = 0; i < largest+1; i++) {
+   /*FILE * pfile;
+   pfile = fopen("myfile.txt","w");
+   for(int i = 0; i < largest; i++) {
      if(exist[i]==1)
-     printf("\n %d %d ", i,comm[i]);
+       fprintf(pfile,"\n %d %d ", i,comm[i]);
      }
-     printf("\n");*/
+   printf("\n");*/
 
    return 0;
 }
