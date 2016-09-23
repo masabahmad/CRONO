@@ -39,6 +39,14 @@ Checkout the Repo:
 
 To generate the executable for a benchmark, run ```make``` inside the CRONO directory, then execute each benchmark using the syntax specified by the individual README.md.
 
+External Users
+==============
+
+1. "Lease/release: architectural support for scaling contended data structures", SK Haider (MSR), W Hasenplaugh (MIT), D Alistarh (MSR), PPoPP '16 Proceedings of the 21st ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming.
+
+2. "Dictionary Sharing: An Efficient Cache Compression Scheme for Compressed Caches", B Panda (INRIA), A Seznec (INRIA), MICRO '16, 49th Annual IEEE/ACM International Symposium on Microarchitecture, 2016.
+
+
 Contact
 =======
 
