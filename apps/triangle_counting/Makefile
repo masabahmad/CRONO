@@ -3,7 +3,7 @@ TRGS = triangle_counting_lock triangle_counting_atomic
 
 LIBS += -lpthread -lrt
 
-CXXFLAGS = -g --std=c++0x -O2
+CXXFLAGS = -g --std=c++0x -O3
 CXXFLAGS += #-Wall -Werror
 
 all: $(TRGS)

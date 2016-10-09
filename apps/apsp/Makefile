@@ -7,7 +7,7 @@ LIBS += -lpthread -lrt
 
 ##BOOST_FLAGS = -I$(BOOST_PATH)/include -L$(BOOST_PATH)/lib -lboost_graph
 
-CXXFLAGS = -g --std=c++0x -O2
+CXXFLAGS = -g --std=c++0x -O3
 CXXFLAGS += -Wall -Werror
 
 all: $(TRGS)

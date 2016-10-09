@@ -6,6 +6,7 @@
 #include <sys/timeb.h>
 #include <getopt.h>
 #include "../../common/mtx.h"
+#include "../../common/barrier.h"
 
 #define MAX            100000000
 #define INT_MAX        100000000
@@ -55,32 +56,7 @@ int P_global = 256;
 long long Total_Tri = 0;                 //Stores total triangles
 thread_arg_t thread_arg[1024];       //Max threads and pthread handlers
 pthread_t   thread_handle[1024];
-volatile int passed = 0;
-int bar = 0;
-int PMAX = 0;
 
-void barrier_wait()
-{
-    int passed_old = passed; // Should be evaluated before incrementing *bar*!
-
-    if(__sync_fetch_and_add(&bar,1) == (PMAX - 1)) 
-    {   
-        // The last thread, faced barrier.
-        bar = 0;
-        // *bar* should be reseted strictly before updating of barriers counter.
-        __sync_synchronize();
-        passed++; // Mark barrier as passed.
-    }   
-    else
-    {   
-        // Not the last thread. Wait others.
-        while(passed == passed_old) {}; 
-        // Need to synchronize cache with other threads, passed barrier.
-        __sync_synchronize();
-    }   
-}
-
-//Primary Parallel Function
 void* do_work(void* args)
 {
    //Thread Variables

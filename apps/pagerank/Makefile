@@ -3,7 +3,7 @@ TRGS = pagerank
 
 LIBS += -lpthread -lrt
 
-CXXFLAGS = -g --std=c++0x -O2
+CXXFLAGS = -g --std=c++0x -O3
 CXXFLAGS += -Wall -Werror
 
 all: $(TRGS)
