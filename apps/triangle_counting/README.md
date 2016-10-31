@@ -28,3 +28,5 @@ To run with P number of threads, N vertices, and DEG edges per vertex
 The executable then outputs the time in seconds that the program took to run, as well as the number of triangles counted.
 
 The file utilizing atomic instructions has the same arguments as specified above.
+
+The file sorted_neighbors_tri_lock.cc contains a variation of the algorithm that required sorted neighbors. This is run the same way as above, although lines 96 and 97 may need to be commented out to allow graphs having forward progressing triangle connections.
