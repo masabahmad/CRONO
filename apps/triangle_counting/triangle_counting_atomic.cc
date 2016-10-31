@@ -41,7 +41,7 @@ pthread_mutex_t lock;
 pthread_mutex_t *locks;
 //pthread_mutex_t locks[4194304];      //Lock for each vertex
 int local_min_buffer[1024];
-int Total_tid[1024] = {0};           //To store triangles per thread
+double Total_tid[1024] = {0};           //To store triangles per thread
 int global_min_buffer;
 int P_global = 256;
 //int **W;
@@ -53,7 +53,7 @@ int P_global = 256;
 //int *unique;
 //int largest=0;
 //int degree=0;
-long long Total_Tri = 0;                 //Stores total triangles
+double Total_Tri = 0;                 //Stores total triangles
 thread_arg_t thread_arg[1024];       //Max threads and pthread handlers
 pthread_t   thread_handle[1024];
 
@@ -71,7 +71,7 @@ void* do_work(void* args)
    int v                    = 0;              //for each vertex
    double P_d = P;
    double tid_d = tid;
-   double largest_d = largest;
+   double largest_d = largest+1.0;
 
    int start =  0;  //tid    * DEG / (arg->P);
    int stop  = 0;   //(tid+1) * DEG / (arg->P);
@@ -116,27 +116,39 @@ void* do_work(void* args)
       {
 				//if(v<50)
 				//	printf("\n %d",D[v]);
-         unsigned int ret = -1;
+         float ret = D[v];
          /*while (D[uu] != 0) 
            {
            D[uu] >>= 1;
            ret++;
            }*/
-         ret = D[v]/3;
-         D[v]=ret;
-         if(D[v]>=1)
-         {
+         //ret = D[v]/3;
+         //D[v]=ret;
+         //if(D[v]>=1)
+         //{
             //pthread_mutex_lock(&lock);
-            Total_tid[tid] = Total_tid[tid]+D[v];
+            Total_tid[tid] = Total_tid[tid]+ret;
             //pthread_mutex_unlock(&lock);
-         }
+         //}
       }
    }
 
-   int t = Total_tid[tid];
-  int b = __sync_fetch_and_add(&Total_Tri,t);
+   //int t = Total_tid[tid];
+   //int b = __sync_fetch_and_add(&Total_Tri,t);
    
    barrier_wait();
+   
+   if(tid==0)
+   {
+		 for(int i=0;i<P;i++)
+     {
+       Total_Tri = Total_Tri + Total_tid[i];
+     }
+     Total_Tri = Total_Tri/3;
+   }
+
+	 barrier_wait();
+
    //pthread_barrier_wait(arg->barrier_total);
 
    //The master thread sums up all triangles
@@ -464,7 +476,9 @@ int main(int argc, char** argv)
    double accum = ( requestEnd.tv_sec - requestStart.tv_sec ) + ( requestEnd.tv_nsec - requestStart.tv_nsec ) / BILLION;
    printf( "\nTime Taken:\n%lf seconds", accum );
 
-   printf("\nTriangles=%lld \n",Total_Tri);
+	 long long count = 0;
+   count = Total_Tri;
+   printf("\nTriangles=%lld \n",count);
 
    return 0;
 }
