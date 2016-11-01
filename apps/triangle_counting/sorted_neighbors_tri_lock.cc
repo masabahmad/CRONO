@@ -93,22 +93,22 @@ void* do_work(void* args)
          for(int i = 0; i < edges[v]; i++)
          {
             int neighbor = W_index[v][i];
-            if(neighbor > v)
-              break;
+            //if(neighbor > v)
+            //  break;
 
             for(int j = 0; j< edges[neighbor]; j++)
-						{
-							if(W_index[neighbor][j] > neighbor)
-								break;
-							int counter = 0;
-							//printf("\n %d %d %d", neighbor, edges[neighbor], it);
-							while(counter < edges[neighbor])
-							{
-								counter++;
-							}
-							if(edges[neighbor] == counter)
-								Total_tid[tid]++;
-						}
+            {
+              if(W_index[neighbor][j] > neighbor)
+                break;
+              int counter = 0;
+              //printf("\n %d %d %d", neighbor, edges[neighbor], it);
+              while(counter < edges[neighbor])
+              {
+                counter++;
+              }
+              if(edges[neighbor] == counter)
+                Total_tid[tid]++;
+            }
 
             //if(neighbor>=largest)
             //   continue;
