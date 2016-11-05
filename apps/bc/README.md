@@ -12,3 +12,5 @@ e.g.
 **Notes**
 
 The executable outputs the time in seconds that the program took to run.
+
+bc_non_partitioned.cc contains a variant of the parallelization that updates sigma values via locks. This removes the need to initialize a sigma array for each thread separately. However the original partitioned version mostly has better performance.

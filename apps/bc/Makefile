@@ -1,5 +1,5 @@
 
-TRGS = bc
+TRGS = bc bc_non_partitioned
 
 LIBS += -lpthread -lrt
 
@@ -13,6 +13,7 @@ CXXFLAGS += -Wall -Werror
 all: $(TRGS)
 
 bc: bc.cc
+bc_non_partitioned: bc_non_partitioned.cc
 
 ##boost_dijk_real: boost_dijk_real.cc
 
