@@ -1,5 +1,5 @@
 
-TRGS = pagerank
+TRGS = pagerank pagerank_lock
 
 LIBS += -lpthread -lrt
 
@@ -9,6 +9,7 @@ CXXFLAGS += -Wall -Werror
 all: $(TRGS)
 
 pagerank: pagerank.cc
+pagerank_lock: pagerank_lock.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot

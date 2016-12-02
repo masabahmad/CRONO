@@ -25,4 +25,6 @@ To run with P number of threads, N vertices, and DEG edges per vertex
 The executable then outputs the time in seconds that the program took to run.
 It also outputs a file that contains the pageranks (normalized to 1).
 
+```pagerank_lock.cc``` updates dangling page values via locks instead of using a distributed data structure. This is meant for architectural simulation works trying to improve lock accesses.
+
 Some very small differences in pageranks might occur due to floating point round offs within the program.
