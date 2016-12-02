@@ -96,10 +96,10 @@ void* do_work(void* args)
       //pthread_mutex_lock(&lock);
       //dp = dp + dp_tid[tid];
       //pthread_mutex_unlock(&lock);
-      pthread_barrier_wait(arg->barrier);
+      //pthread_barrier_wait(arg->barrier);
       
-      if(tid==0)
-        printf("\n Outlinks Done %f",dp);
+      //if(tid==0)
+      //  printf("\n Outlinks Done %f",dp);
 
       pthread_barrier_wait(arg->barrier);
 
