@@ -28,3 +28,5 @@ Paper: J.Y.Yen, "An algorithm for finding shortest routes from all source nodes 
 SSSP has a parameter P_max that is specified by ```cuberoot(N)*3```, which represents the number of iterations for the outer loop.
 
 The executable then outputs the time in seconds that the program took to run.
+
+```sssp_outer.cc``` implemented a conventional parallelization of the bellman-ford algorithm. This is an iterative algorithm generally used in GPU implementations.

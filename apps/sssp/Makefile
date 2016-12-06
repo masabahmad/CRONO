@@ -1,5 +1,5 @@
 
-TRGS = sssp
+TRGS = sssp sssp_outer
 
 LIBS += -lpthread -lrt
 
@@ -13,6 +13,7 @@ CXXFLAGS += -Wall -Werror
 all: $(TRGS)
 
 sssp: sssp.cc
+sssp_outer: sssp_outer.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot
