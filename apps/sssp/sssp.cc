@@ -54,7 +54,7 @@ int difference=0;
 int pid=0;
 int *exist;
 int *id;
-int P_max=256;
+int P_max=256;     //Heuristic parameter. A lower value will result in incorrect distances
 thread_arg_t thread_arg[1024];
 pthread_t   thread_handle[1024];
 
@@ -100,18 +100,17 @@ void* do_work(void* args)
 
                if(neighbor>=N)
                   break;
-
+               if((D[W_index[v][i]] > (D[v] + W[v][i]))) {     //Uncomment for test and test and set
+               
                pthread_mutex_lock(&locks[neighbor]);
-
                //if(v>=N)
                //	terminate=1;
-
                //relax
-               if((D[W_index[v][i]] > (D[v] + W[v][i])))    //relax, update distance
+               if((D[W_index[v][i]] > (D[v] + W[v][i])))        //relax, update distance
                   D[W_index[v][i]] = D[v] + W[v][i];
                //Q[v]=0;
-
                pthread_mutex_unlock(&locks[neighbor]);
+							}                                               //Uncomment for test and test and set
             }
          }
 

@@ -1,6 +1,6 @@
 /*
     Distributed Under the MIT license
-    Uses the Bellman-Ford/Dijkstra Algorithm to find shortest path distances
+    Bellman-Ford/Dijkstra Algorithm to find shortest path distances
     Programs by Masab Ahmad (UConn)
 */
 
@@ -10,6 +10,7 @@
 //#include "carbon_user.h"    /*For the Graphite Simulator*/
 #include <time.h>
 #include <sys/timeb.h>
+#include "../../common/barrier.h"
 
 #define MAX            100000000
 #define INT_MAX        100000000
@@ -88,7 +89,8 @@ void* do_work(void* args)
    
    //printf("\n %d %d %d",tid,start,stop);
 
-   pthread_barrier_wait(arg->barrier);
+   //pthread_barrier_wait(arg->barrier);
+   barrier_wait();
 
    while(terminate==0)
    {
@@ -98,9 +100,11 @@ void* do_work(void* args)
            D[v] = D_temp[v];
          }
 
-         pthread_barrier_wait(arg->barrier);
+         //pthread_barrier_wait(arg->barrier);
+         barrier_wait();
 
-         terminate = 1;
+         if(tid==0)
+           terminate = 1;
 
          for(v=start;v<stop;v++)
          {
@@ -126,7 +130,8 @@ void* do_work(void* args)
             }
          }
          
-         pthread_barrier_wait(arg->barrier);
+         //pthread_barrier_wait(arg->barrier);
+         barrier_wait();
 
          for(v=start;v<stop;v++)
          {
@@ -136,7 +141,8 @@ void* do_work(void* args)
            }
          }
 
-         pthread_barrier_wait(arg->barrier);
+         //pthread_barrier_wait(arg->barrier);
+         barrier_wait();
          cntr_0++; 
    }
    //printf("\n terminate  %d",tid);
@@ -144,7 +150,8 @@ void* do_work(void* args)
    if(tid==0)
      cntr = cntr_0;
 
-   pthread_barrier_wait(arg->barrier);
+   //pthread_barrier_wait(arg->barrier);
+   barrier_wait();
 
    return NULL;
 }
@@ -371,6 +378,8 @@ int main(int argc, char** argv)
 
    //Initialize data structures
    initialize_single_source(D, D_temp, Q, 0, N);
+
+   PMAX = P; //for atomic barrier
 
    //Thread Arguments
    for(int j = 0; j < P; j++) {

@@ -1,5 +1,5 @@
 
-TRGS = sssp sssp_outer
+TRGS = sssp sssp_outer sssp_outer_atomic
 
 LIBS += -lpthread -lrt
 
@@ -14,6 +14,7 @@ all: $(TRGS)
 
 sssp: sssp.cc
 sssp_outer: sssp_outer.cc
+sssp_outer_atomic: sssp_outer_atomic.cc
 
 clean:
 	rm -f $(TRGS) *.o *.dot

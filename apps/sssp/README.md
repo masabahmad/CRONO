@@ -29,4 +29,4 @@ SSSP has a parameter P_max that is specified by ```cuberoot(N)*3```, which repre
 
 The executable then outputs the time in seconds that the program took to run.
 
-```sssp_outer.cc``` implemented a conventional parallelization of the bellman-ford algorithm. This is an iterative algorithm generally used in GPU implementations.
+```sssp_outer.cc``` implemented a conventional parallelization of the bellman-ford algorithm. This is an iterative algorithm generally used in GPU implementations. ```sssp_outer_atomic.cc``` just replaces pthread_barriers with atomic barriers.
