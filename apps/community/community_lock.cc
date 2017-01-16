@@ -160,10 +160,10 @@ void* do_work(void* args)
          {
             int neighbor = W_index[v][i];
 						//printf("\n %d",neighbor);
-            pthread_mutex_lock(&locks[neighbor]);
+            //pthread_mutex_lock(&locks[neighbor]);  //Fine Grained lock removed as neighbors are not being updated
             //W_index[v][i] = comm[neighbor];
             W_f[v][i] = comm[v] - comm[neighbor];
-            pthread_mutex_unlock(&locks[neighbor]);
+            //pthread_mutex_unlock(&locks[neighbor]);
          }
       }
 
