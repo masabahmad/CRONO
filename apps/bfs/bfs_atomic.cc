@@ -10,6 +10,7 @@
 //#include "carbon_user.h"     /* For the Graphite Simulator*/
 #include <time.h>
 #include <sys/timeb.h>
+#include "../../common/barrier.h"
 
 #define MAX            100000000
 #define INT_MAX        100000000
@@ -39,16 +40,15 @@ int initialize_single_source(int* D, int* Q, int source, int N);
 void init_weights(int N, int DEG, int** W, int** W_index);
 
 //Global Variables
-pthread_mutex_t lock;              //single lock
+pthread_mutex_t lock;            //single lock
 //pthread_mutex_t locks[4194304];  //locks for each vertes, upper limit
-pthread_mutex_t *locks;
 int local_min_buffer[1024];
 int global_min_buffer;
 int Total = 0;
-int terminate = 0;                 //work termination
+int terminate = 0;               //work termination
 int P_global = 256;
-int *edges;                        //deg of a given vertex
-int *exist;                        //whether vertex in graph
+int *edges;                       //deg of a given vertex
+int *exist;                      //whether vertex in graph
 int *temporary;
 int largest=0;
 thread_arg_t thread_arg[1024];
@@ -84,7 +84,8 @@ void* do_work(void* args)
 
    //printf("\n tid:%d %d %d",tid,start,stop);
 
-   pthread_barrier_wait(arg->barrier_total);
+   //pthread_barrier_wait(arg->barrier_total);
+   barrier_wait();
 
    while(terminate==0)
    {   
@@ -102,20 +103,32 @@ void* do_work(void* args)
          {   
             int neighbor = W_index[v][i];
             //printf("\n Came in");
-            if(Q[neighbor]==1)                       //Uncomment for test and test and set
+            if(Q[neighbor]==1)                                  //Uncomment for test and test and set
             {
-            pthread_mutex_lock(&locks[neighbor]);
-            if(Q[neighbor]==1)                       //if unset then set
-               Q[neighbor]=0;                        //Can be set to Parent
+              if(Q[neighbor]==1)
+                int a1 = __sync_fetch_and_sub(&Q[neighbor],1);
+              /*int c; int d;                                   //Uncomment for compare and swap implementation
+              do{
+              int a = Q[neighbor];
+              //int b = temporary[neighbor];
+              c=1;
+              c = __sync_bool_compare_and_swap(&Q[neighbor], a, 0);
+              //d = __sync_bool_compare_and_swap(&temporary[neighbor], b, 1);
+            }while(!c);*/
             temporary[neighbor] = 1;
-            pthread_mutex_unlock(&locks[neighbor]);
+            //pthread_mutex_lock(&locks[neighbor]);
+            //if(Q[neighbor]==1)                       //if unset then set
+            //   Q[neighbor]=0;                        //Can be set to Parent
+            //temporary[neighbor] = 1;
+            //pthread_mutex_unlock(&locks[neighbor]);
             }
          }
       }
       //if(tid==0) printf("\n %d",Q[largest]);
 
-      pthread_barrier_wait(arg->barrier_total);
-    
+      //pthread_barrier_wait(arg->barrier_total);
+      barrier_wait();
+
       //Update colors	
       for(v=start;v<stop;v++)
       {
@@ -129,10 +142,12 @@ void* do_work(void* args)
       if(Q[largest]==0 || iter>=Total)
         terminate=1;
       iter++;
-      pthread_barrier_wait(arg->barrier_total);
+      //pthread_barrier_wait(arg->barrier_total);
+      barrier_wait();
    }
    //printf("\n %d %d",tid,terminate);
-   pthread_barrier_wait(arg->barrier_total);
+   //pthread_barrier_wait(arg->barrier_total);
+   barrier_wait();
 
    return NULL;
 }
@@ -293,7 +308,7 @@ int main(int argc, char** argv)
    //Synchronization variables
    pthread_barrier_init(&barrier_total, NULL, P);
    pthread_barrier_init(&barrier, NULL, P);
-   locks = (pthread_mutex_t*) malloc((largest+16) * sizeof(pthread_mutex_t));
+
    pthread_mutex_init(&lock, NULL);
 
    for(int i=0; i<largest+1; i++)
@@ -306,13 +321,15 @@ int main(int argc, char** argv)
       if(exist[i]==1)
       {
          Total++;
-         pthread_mutex_init(&locks[i], NULL);
+         //pthread_mutex_init(&locks[i], NULL);
       }
    }
    //printf("\n %d %d %d",N,largest,Total);
 
    //Initialize Data Structures
    initialize_single_source(D, Q, 0, N);
+
+   PMAX = P;
 
    //Thread arguments
    for(int j = 0; j < P; j++) {
@@ -365,10 +382,10 @@ int main(int argc, char** argv)
    FILE * pfile;
    pfile = fopen("myfile.txt","w");
    for(int j=0;j<largest;j++)
-   {
+   {   
      if(exist[j]==1) //printf("\n %d ",Q[j]);
        fprintf(pfile,"\n %d %d ", j,Q[j]);
-   }
+   }   
    printf("\n");
    fclose(pfile);
 
