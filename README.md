@@ -46,6 +46,7 @@ External Users
 
 2. "Dictionary Sharing: An Efficient Cache Compression Scheme for Compressed Caches", B Panda (INRIA), A Seznec (INRIA/IRISA), MICRO '16, 49th Annual IEEE/ACM International Symposium on Microarchitecture, 2016.
 
+3. "BoDNoC: Providing bandwidth-on-demand interconnection for multi-granularity memory systems", S Lian, Y Wang, Y Han, X Li (Chinese Academy of Sciences), ASP-DAC '17, 22nd Asia and South Pacific Design Automation Conference, 2017.
 
 Contact
 =======
