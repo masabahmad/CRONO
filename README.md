@@ -48,6 +48,8 @@ External Users
 
 3. "BoDNoC: Providing bandwidth-on-demand interconnection for multi-granularity memory systems", S Lian, Y Wang, Y Han, X Li (Chinese Academy of Sciences), ASP-DAC '17, 22nd Asia and South Pacific Design Automation Conference, 2017.
 
+4. "Redundant Memory Array Architecture for Efficient Selective Protection", R Zheng, MC Huang (University of Rochester), ISCA '17, 44th Annual International Symposium on Computer Architecture, 2017.
+
 Contact
 =======
 
