@@ -69,6 +69,7 @@ void* do_work(void* args)
    int** W_index            = arg->W_index;   //Graph connections
    //const int N              = arg->N;
    int v                    = 0;              //for each vertex
+   int local_count          = 0;;
    double P_d = P;
    double tid_d = tid;
    double largest_d = largest + 1.0;
@@ -93,21 +94,22 @@ void* do_work(void* args)
          for(int i = 0; i < edges[v]; i++)
          {
             int neighbor = W_index[v][i];
-            //if(neighbor > v)
-            //  break;
+            if(neighbor > v)
+              break;
+            int counter = 0;
 
             for(int j = 0; j< edges[neighbor]; j++)
             {
               if(W_index[neighbor][j] > neighbor)
                 break;
-              int counter = 0;
+              
               //printf("\n %d %d %d", neighbor, edges[neighbor], it);
-              while(counter < edges[neighbor])
+              while(W_index[v][counter] < W_index[neighbor][j])
               {
                 counter++;
               }
-              if(edges[neighbor] == counter)
-                Total_tid[tid]++;
+              if(W_index[neighbor][j] == W_index[v][counter])
+                Total_tid[tid]++;//local_count++;
             }
 
             //if(neighbor>=largest)
@@ -119,6 +121,7 @@ void* do_work(void* args)
          }
       }
    }
+   //Total_tid[tid] = local_count;
 
    pthread_barrier_wait(arg->barrier_total);
 
@@ -393,6 +396,7 @@ int main(int argc, char** argv)
       if(exist[i]==1)
          pthread_mutex_init(&locks[i], NULL);
    }
+	 Total_tid[0]++;
 
    //Initialize 1-d arrays
    if(select!=2)
