@@ -93,7 +93,7 @@ void* do_work(void* args)
       iterations++;
       for(v=start;v<stop;v++)                  //for each vertex
       { 
-         if(exist[v]==1)                       //if vertex exists
+         if(edges[v]!=0)                       //if vertex exists
          { 
             for(int i = 0; i < edges[v]; i++)   //for each edge
             {
@@ -276,11 +276,11 @@ int main(int argc, char** argv)
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   if(posix_memalign((void**) &exist, 64, (N+2) * sizeof(int)))
-   {
-      fprintf(stderr, "Allocation of memory failed\n");
-      exit(EXIT_FAILURE);
-   }
+   //if(posix_memalign((void**) &exist, 64, (N+2) * sizeof(int)))
+   //{
+   //   fprintf(stderr, "Allocation of memory failed\n");
+   //   exit(EXIT_FAILURE);
+   //}
    }
    
    
@@ -330,7 +330,7 @@ int main(int argc, char** argv)
          W_index[i][j] = INT_MAX;
       }
       edges[i]=0;
-      exist[i]=0;
+      //exist[i]=0;
    }
    }//select!=2
 
@@ -361,7 +361,7 @@ int main(int argc, char** argv)
             W_index[number0][inter] = number1;
             //previous_node = number0;
             edges[number0]++;
-            exist[number0]=1; exist[number1]=1;
+            //exist[number0]=1; exist[number1]=1;
          }
       }
       printf("\nFile Read, Largest Vertex:%d",largest);
@@ -383,7 +383,7 @@ int main(int argc, char** argv)
    {
       if(select==0)
       {
-         exist[i] = 1;
+         //exist[i] = 1;
          edges[i] = DEG;
       }
       //if(exist[i]==1)
@@ -445,7 +445,7 @@ int main(int argc, char** argv)
 	 FILE * pfile;
 	    pfile = fopen("myfile.txt","w");
    for(int j=0;j<largest-1;j++){
-     if(exist[j]==1)
+     if(edges[j]!=0)
      fprintf(pfile,"\n%d",D[j]);	
      }
 	 fclose(pfile);
