@@ -118,7 +118,7 @@ void* do_work(void* args)
          //v = v_test;
          //printf(" %d ",v);
          //pthread_mutex_unlock(&lock);
-         if(exist[v]==0)
+         if(edges[v]==0)
             continue;	
          for(i = 0; i < edges[v]; i++)
          {
@@ -158,7 +158,7 @@ void* do_work(void* args)
       //reconstruct
       for(v=start;v<stop;v++)
       {
-         if(exist[v]==0)
+         if(edges[v]==0)
             continue;
          for(i=0;i<edges[v]-1;i++)
          {
@@ -188,7 +188,7 @@ void* do_work(void* args)
    //{
    for(i=stop;i<largest+1;i++)
    {
-      if(exist[v]==0)
+      if(edges[v]==0)
          continue;
       //for(int j=1;j<P;j++)
       //{
@@ -348,11 +348,11 @@ int main(int argc, char** argv)
      fprintf(stderr, "Allocation of memory failed\n");
      exit(EXIT_FAILURE);
    }
-   if(posix_memalign((void**) &exist, 64, (N+2) * sizeof(int)))
-   {
-      fprintf(stderr, "Allocation of memory failed\n");
-      exit(EXIT_FAILURE);
-   }
+   //if(posix_memalign((void**) &exist, 64, (N+2) * sizeof(int)))
+   //{
+   //   fprintf(stderr, "Allocation of memory failed\n");
+   //   exit(EXIT_FAILURE);
+   //}
    }
 
    if(posix_memalign((void**) &comm, 64, N * sizeof(int)))
@@ -408,7 +408,7 @@ int main(int argc, char** argv)
             W_f[i][j] = (int) (v*100) +1;
       }
       edges[i]=0;
-      exist[i]=0;
+      //exist[i]=0;
    }
    }
 
@@ -440,7 +440,7 @@ int main(int argc, char** argv)
             W_index[number0][inter] = number1;
             //previous_node = number0;
             edges[number0]++;
-            exist[number0]=1; exist[number1]=1;
+            //exist[number0]=1; exist[number1]=1;
          }
       }
 			
@@ -466,10 +466,10 @@ int main(int argc, char** argv)
    {
       if(select==0)
       {
-         exist[i]=1;
+         //exist[i]=1;
          edges[i]=DEG;
       }
-      if(exist[i]==1)
+      if(edges[i]!=0)
          pthread_mutex_init(&locks[i], NULL);
    }
 
@@ -531,13 +531,13 @@ int main(int argc, char** argv)
    //printf("\ndistance:%d \n",D[N-1]);
 
    //Print Results
-   /*FILE * pfile;
+   FILE * pfile;
    pfile = fopen("myfile.txt","w");
    for(int i = 0; i < largest; i++) {
-     if(exist[i]==1)
+     if(edges[i]!=0)
        fprintf(pfile,"\n %d %d ", i,comm[i]);
      }
-   printf("\n");*/
+   printf("\n");
 
    return 0;
 }
