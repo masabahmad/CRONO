@@ -69,6 +69,7 @@ void* do_work(void* args)
    int** W_index            = arg->W_index;   //Graph connections
    //const int N              = arg->N;
    int v                    = 0;              //for each vertex
+   int local_count          = 0;
    double P_d = P;
    double tid_d = tid;
    double largest_d = largest + 1.0;
@@ -88,7 +89,7 @@ void* do_work(void* args)
    //Look at all edges
    for(v=start;v<stop;v++)
    {
-      if(exist[v]==1)
+      if(edges[v]!=0)
       {
          for(int i = 0; i < edges[v]; i++)
          {
@@ -113,12 +114,11 @@ void* do_work(void* args)
    //Find triangles for each thread
    for(v=start;v<stop;v++)
    {
-      if(exist[v]==1)
+      if(edges[v]!=0)
       {
 				//if(v<50)
 				//	printf("\n %d",D[v]);
          ////unsigned int ret = -1;
-         //float ret = -1.0;
          float temp = D[v];
          /*while (D[uu] != 0) 
            {
@@ -130,11 +130,12 @@ void* do_work(void* args)
          ////if(D[v]>=1)
          //{
             //pthread_mutex_lock(&lock);
-            Total_tid[tid] = Total_tid[tid]+temp;
+            local_count = local_count+temp;
             //pthread_mutex_unlock(&lock);
          //}
       }
    }
+   Total_tid[tid] = local_count;
    //printf("\n \n %f",Total_tid[tid]);
 
    pthread_barrier_wait(arg->barrier_total);
@@ -303,11 +304,11 @@ int main(int argc, char** argv)
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }
-   if(posix_memalign((void**) &exist, 64, (N+2) * sizeof(int)))
-   {
-      fprintf(stderr, "Allocation of memory failed\n");
-      exit(EXIT_FAILURE);
-   }
+   //if(posix_memalign((void**) &exist, 64, (N+2) * sizeof(int)))
+   //{
+   //   fprintf(stderr, "Allocation of memory failed\n");
+   //   exit(EXIT_FAILURE);
+   //}
    }
    int *D; int *Q;
    if(posix_memalign((void**) &D, 64, N * sizeof(int)))
@@ -351,7 +352,7 @@ int main(int argc, char** argv)
          W_index[i][j] = INT_MAX;
       }
       edges[i]=0;
-      exist[i]=0;
+      //exist[i]=0;
    }
    }
 
@@ -382,7 +383,7 @@ int main(int argc, char** argv)
             W_index[number0][inter] = number1;
             //previous_node = number0;
             edges[number0]++;
-            exist[number0]=1; exist[number1]=1;
+            //exist[number0]=1; exist[number1]=1;
          }
       }
       printf("\nFile Read, Largest Vertex:%d",largest);
@@ -405,10 +406,10 @@ int main(int argc, char** argv)
    {
       if(select==0)
       {
-         exist[i]=1;
+         //exist[i]=1;
          edges[i]=DEG;
       }
-      if(exist[i]==1)
+      //if(exist[i]==1)
          pthread_mutex_init(&locks[i], NULL);
    }
 
