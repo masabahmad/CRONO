@@ -78,7 +78,7 @@ void* do_work(void* args)
    while(iterations>0)
    {
       if(tid==0)
-         dp=0;
+         dp=d;
       pthread_barrier_wait(arg->barrier);
 
       //for no outlinks, dangling pages calculation
