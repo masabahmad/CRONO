@@ -59,15 +59,15 @@ void* do_work(void* args)
    int v                      = 0;      //variable for current vertex
    double r                   = 0.15;   //damping coefficient
    double d                   = 0.85;	  //damping coefficient
-   double N_real              = N;
-   double tid_d = tid;
-   double P_d = arg->P;
+   //double N_real              = N;
+   //double tid_d = tid;
+   //double P_d = arg->P;
 
    //Allocate work among threads
-   double start_d = (tid_d) * (N_real/P_d);
-   double stop_d = (tid_d+1.0) * (N_real/P_d);
-   int i_start = start_d;// tid     * N / (arg->P);
-   int i_stop  = stop_d;// (tid+1) * N / (arg->P);
+   //double start_d = (tid_d) * (N_real/P_d);
+   //double stop_d = (tid_d+1.0) * (N_real/P_d);
+   int i_start = (double)tid     * (double)N/(double)P; 
+   int i_stop  = (double)(tid+1) * (double)N/(double)P;  
 
    //Pagerank iteration count
    int iterations = 1;
@@ -78,7 +78,7 @@ void* do_work(void* args)
    while(iterations>0)
    {
       if(tid==0)
-         dp=0;
+         dp=d;
       pthread_barrier_wait(arg->barrier);
 
       //for no outlinks, dangling pages calculation
