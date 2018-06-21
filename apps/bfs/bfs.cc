@@ -364,7 +364,7 @@ int main(int argc, char** argv)
    //Print Result
    FILE * pfile;
    pfile = fopen("myfile.txt","w");
-   for(int j=0;j<largest;j++)
+   for(int j=0;j<=largest;j++)
    {
      if(exist[j]==1) //printf("\n %d ",Q[j]);
        fprintf(pfile,"\n %d %d ", j,Q[j]);
