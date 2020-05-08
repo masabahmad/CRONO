@@ -227,8 +227,18 @@ int main(int argc, char** argv)
       avg[i]=0;
       int ret = posix_memalign((void**) &W[i], 64, DEG*sizeof(int));
       int re1 = posix_memalign((void**) &W_index[i], 64, DEG*sizeof(int));
+      if (ret != 0 || re1!=0)
+      {
+         fprintf(stderr, "Could not allocate memory\n");
+         exit(EXIT_FAILURE);
+      }
+   }
+
+   // The new sigma memory allocation loop
+   for(int i = 0; i < P; i++)
+   {
       int re2 = posix_memalign((void**) &sigma[i], 64, N*sizeof(int));
-      if (ret != 0 || re1!=0 || re2!=0)
+      if (re2!=0)
       {
          fprintf(stderr, "Could not allocate memory\n");
          exit(EXIT_FAILURE);
