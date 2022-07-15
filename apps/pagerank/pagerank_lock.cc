@@ -193,6 +193,7 @@ int main(int argc, char** argv)
         }
       }
       fclose(file_gr); //Now N has the largest Vertex ID
+      N++;
       
       int *temp;
       number_of_lines0 = 0;

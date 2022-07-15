@@ -320,12 +320,12 @@ int main(int argc, char** argv)
    //}
    }
    int *D; int *Q;
-   if(posix_memalign((void**) &D, 64, (N) * sizeof(int)))
+   if(posix_memalign((void**) &D, 64, (N+1) * sizeof(int)))
    {   
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
    }   
-   if(posix_memalign((void**) &Q, 64, (N) * sizeof(int)))
+   if(posix_memalign((void**) &Q, 64, (N+1) * sizeof(int)))
    {   
       fprintf(stderr, "Allocation of memory failed\n");
       exit(EXIT_FAILURE);
