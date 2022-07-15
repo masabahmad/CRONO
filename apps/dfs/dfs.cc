@@ -292,7 +292,7 @@ int main(int argc, char** argv)
 
    pthread_mutex_init(&lock, NULL);
 
-   for(int i=0; i<largest+1; i++)
+   for(int i=0; i<largest; i++)
    {
       if(select==0)
       {
@@ -370,7 +370,7 @@ int initialize_single_source(int*  D,
       int   source,
       int   N)
 {
-   for(int i = 0; i < N+1; i++)
+   for(int i = 0; i < N; i++)
    {
       D[i] = 0;
       Q[i] = 1;

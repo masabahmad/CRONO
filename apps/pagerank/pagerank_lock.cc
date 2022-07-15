@@ -201,7 +201,7 @@ int main(int argc, char** argv)
         fprintf(stderr, "Allocation of memory failed\n");
         exit(EXIT_FAILURE);
       }
-      for(int i=0;i<=N;i++)
+      for(int i=0;i<N;i++)
         temp[i] = 0;
       file_gr = fopen(filename0,"r");
       while(EOF != (ch0=getc(file_gr)))
@@ -220,7 +220,7 @@ int main(int argc, char** argv)
         }
       }
       fclose(file_gr);
-      for(int i=0;i<=N;i++)
+      for(int i=0;i<N;i++)
 			{
         if(temp[i]>DEG)
           DEG = temp[i];

@@ -48,7 +48,6 @@ pthread_mutex_t *locks;
 int u = 0;                  //next best vertex
 int local_min_buffer[1024];
 int global_min_buffer;
-int next_source = -1;
 int start = 64;
 int P_global = 256;  
 
@@ -103,13 +102,6 @@ void* do_work(void* args)
    //all_pairs shortest path first here
    while(node<N)
    {
-      //vertex capture
-      pthread_mutex_lock(&lock); 
-      next_source++;
-      node = next_source;
-      //printf("\n %d",next_source);
-      pthread_mutex_unlock(&lock);
-
       int *D;
       int *Q;
 
@@ -142,6 +134,12 @@ void* do_work(void* args)
             Q[v]=0;
          }
       }
+
+       //vertex capture
+       pthread_mutex_lock(&lock);
+       node++;
+       //printf("\n %d",next_source);
+       pthread_mutex_unlock(&lock);
    }
 
    pthread_barrier_wait(arg->barrier_total);
@@ -169,7 +167,7 @@ void* do_work(void* args)
          float div0 = avg[j];
          float div1 = avg[N-j-1];
          float div = div0/div1;
-         delta[j] = delta[j] + (div*(delta[N-j]+1));
+         delta[j] = delta[j] + (div*(delta[N-j-1]+1));
       }
       //printf("\n %f",delta[1023]);
    }
@@ -332,7 +330,7 @@ int initialize_single_source(int*  D,
       int   source,
       int   N)
 {
-   for(int i = 0; i < N+1; i++)
+   for(int i = 0; i < N; i++)
    {
       D[i] = INT_MAX;   //all distances infinite
       Q[i] = 1;
