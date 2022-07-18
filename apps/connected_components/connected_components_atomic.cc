@@ -207,6 +207,7 @@ int main(int argc, char** argv)
         }
       }
       fclose(file_gr); //Now N has the largest Vertex ID
+      N++;
       
       int *temp;
       number_of_lines0 = 0;
@@ -474,7 +475,7 @@ int initialize_single_source(int*  D,
       int   source,
       int   N)
 {
-   for(int i = 0; i < N+1; i++)
+   for(int i = 0; i < N; i++)
    {
       D[i] = 0;
       Q[i] = 1;

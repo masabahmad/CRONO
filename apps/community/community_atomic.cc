@@ -186,7 +186,7 @@ void* do_work(void* args)
    //reduction heuristic approximate model, not very accurate though
    //if(tid==0)
    //{
-   for(i=stop;i<largest+1;i++)
+   for(i=stop;i<largest;i++)
    {
       if(edges[v]==0)
          continue;
@@ -547,7 +547,7 @@ int initialize_single_source(int*  D,
       int   source,
       int   N)
 {
-   for(int i = 0; i < N+1; i++)
+   for(int i = 0; i < N; i++)
    {
       D[i] = 0;
       Q[i] = 0;

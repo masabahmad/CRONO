@@ -454,7 +454,7 @@ int initialize_single_source(int*  D,
       int   source,
       int   N)
 {
-   for(int i = 0; i < N+1; i++)
+   for(int i = 0; i < N; i++)
    {
       D[i] = INT_MAX;
       D_temp[i] = INT_MAX;

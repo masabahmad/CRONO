@@ -46,7 +46,6 @@ pthread_mutex_t locks[4194304];  //unused
 int u = 0;                       //next best vertex
 int local_min_buffer[1024];
 int global_min_buffer;
-int next_source = -1;
 int start = 64;
 int P_global = 256;
 thread_arg_t thread_arg[1024];
@@ -72,11 +71,6 @@ void* do_work(void* args)
 
    while(node<N)
    {
-      pthread_mutex_lock(&lock);   //Vertex Capture
-      next_source++;
-      node = next_source;
-      pthread_mutex_unlock(&lock);  
-
       //Memory allocations
       int *D;
       int *Q;
@@ -104,6 +98,10 @@ void* do_work(void* args)
             Q[v]=0; //Current vertex checked
          }
       }
+
+       pthread_mutex_lock(&lock);   //Vertex Capture
+       node++;
+       pthread_mutex_unlock(&lock);
    }
 
    pthread_barrier_wait(arg->barrier_total);
@@ -224,7 +222,7 @@ int initialize_single_source(int*  D,
       int   source,
       int   N)
 {
-   for(int i = 0; i < N+1; i++)
+   for(int i = 0; i < N; i++)
    {
       D[i] = INT_MAX;  //all distances infinite
       Q[i] = 1;
