@@ -42,15 +42,18 @@ To generate the executable for a benchmark, run ```make``` inside the CRONO dire
 External Users
 ==============
 
-1. "Lease/release: architectural support for scaling contended data structures", SK Haider (Microsoft Research), W Hasenplaugh (MIT), D Alistarh (Microsoft Research), PPoPP '16 Proceedings of the 21st ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming.
+1. "Profile-Guided Temporal Prefetching", M. Li (HKUST), Y. Gao (Intel), et. al., ISCA '25, 52th Annual International Symposium on Computer Architecture, 2025.
 
-2. "Dictionary Sharing: An Efficient Cache Compression Scheme for Compressed Caches", B Panda (INRIA), A Seznec (INRIA/IRISA), MICRO '16, 49th Annual IEEE/ACM International Symposium on Microarchitecture, 2016.
+2. "Lease/release: architectural support for scaling contended data structures", SK Haider (Microsoft Research), W Hasenplaugh (MIT), D Alistarh (Microsoft Research), PPoPP '16 Proceedings of the 21st ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming.
 
-3. "BoDNoC: Providing bandwidth-on-demand interconnection for multi-granularity memory systems", S Lian, Y Wang, Y Han, X Li (Chinese Academy of Sciences), ASP-DAC '17, 22nd Asia and South Pacific Design Automation Conference, 2017.
+3. "Dictionary Sharing: An Efficient Cache Compression Scheme for Compressed Caches", B Panda (INRIA), A Seznec (INRIA/IRISA), MICRO '16, 49th Annual IEEE/ACM International Symposium on Microarchitecture, 2016.
 
-4. "Redundant Memory Array Architecture for Efficient Selective Protection", R Zheng, MC Huang (University of Rochester), ISCA '17, 44th Annual International Symposium on Computer Architecture, 2017.
+4. "BoDNoC: Providing bandwidth-on-demand interconnection for multi-granularity memory systems", S Lian, Y Wang, Y Han, X Li (Chinese Academy of Sciences), ASP-DAC '17, 22nd Asia and South Pacific Design Automation Conference, 2017.
+
+5. "Redundant Memory Array Architecture for Efficient Selective Protection", R Zheng, MC Huang (University of Rochester), ISCA '17, 44th Annual International Symposium on Computer Architecture, 2017.
 
 Contact
 =======
 
 masab.ahmad@uconn.edu
+masabahmad13@gmail.com
